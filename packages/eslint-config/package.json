@@ -1,0 +1,15 @@
+{
+  "name": "@vastrahub/eslint-config",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./base": "./base.js"
+  },
+  "files": ["base.js"],
+  "devDependencies": {
+    "eslint": "^9",
+    "typescript-eslint": "^8",
+    "@eslint/js": "^9"
+  }
+}
