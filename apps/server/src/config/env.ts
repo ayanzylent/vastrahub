@@ -37,6 +37,11 @@ const EnvSchema = Type.Object({
   RAZORPAY_KEY_SECRET: Type.Optional(Type.String({ default: '' })),
   RAZORPAY_WEBHOOK_SECRET: Type.Optional(Type.String({ default: '' })),
 
+  // Payment — ICICI (optional)
+  ICICI_MERCHANT_ID: Type.Optional(Type.String({ default: '' })),
+  ICICI_SHARED_SECRET: Type.Optional(Type.String({ default: '' })),
+  ICICI_WEBHOOK_SECRET: Type.Optional(Type.String({ default: '' })),
+
   // App
   PORT: Type.Integer({ default: 3001 }),
   NODE_ENV: Type.Union(

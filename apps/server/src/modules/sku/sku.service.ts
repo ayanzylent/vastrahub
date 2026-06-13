@@ -348,3 +348,44 @@ export async function generateSkuCode(productId: string, attributes: Record<stri
 
   return candidate;
 }
+
+/**
+ * Get SKU details for storefront (populated with product info).
+ */
+export async function getStorefrontSku(id: string) {
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    throw new ValidationError('Invalid SKU ID');
+  }
+
+  const sku = await Sku.findOne({
+    _id: new mongoose.Types.ObjectId(id),
+    isActive: true,
+    deletedAt: null,
+  }).lean();
+
+  if (!sku) {
+    throw new NotFoundError('SKU not found or not active');
+  }
+
+  const product = await Product.findById(sku.productId).lean();
+  if (!product) {
+    throw new NotFoundError('Product not found for this SKU');
+  }
+
+  // Get cover image
+  const coverGroup = product.variantMedia?.find((vm: any) => vm.isCoverGroup);
+  const firstImage = coverGroup?.media?.find((m: any) => m.type === 'image');
+  const imageUrl = firstImage?.url ?? coverGroup?.media?.[0]?.url;
+
+  return {
+    _id: sku._id,
+    productId: sku.productId,
+    productName: product.name,
+    skuCode: sku.sku,
+    pricePaise: sku.pricePaise,
+    mrpPaise: sku.mrpPaise,
+    attributes: sku.attributes,
+    stockQuantity: sku.stockQuantity,
+    imageUrl,
+  };
+}

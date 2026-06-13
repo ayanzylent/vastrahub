@@ -10,17 +10,31 @@ export default fp(async function paymentRoutes(fastify: FastifyInstance) {
     schema: {
       body: VerifyPaymentBody,
       tags: ['Payment'],
-      summary: 'Verify Razorpay payment signature',
+      summary: 'Verify payment signature (Razorpay or ICICI)',
     },
   }, handler.verify);
 
-  // Webhook has no body schema — Razorpay payload varies and raw body is needed for HMAC
-  fastify.post('/api/v1/payment/webhook', {
+  fastify.post('/api/v1/payment/simulate-icici', {
+    preHandler: [authenticate],
+    schema: {
+      tags: ['Payment'],
+      summary: 'Simulate ICICI Bank payment response signature',
+    },
+  }, handler.simulateIcici);
+
+  fastify.post('/api/v1/payment/webhook/razorpay', {
     schema: {
       tags: ['Payment'],
       summary: 'Razorpay webhook handler',
     },
-  }, handler.webhook);
+  }, handler.razorpayWebhook);
+
+  fastify.post('/api/v1/payment/webhook/icici', {
+    schema: {
+      tags: ['Payment'],
+      summary: 'ICICI webhook handler',
+    },
+  }, handler.iciciWebhook);
 
   fastify.get('/api/v1/payment/:orderId', {
     preHandler: [authenticate],

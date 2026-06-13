@@ -191,13 +191,12 @@ export default function CartPage() {
               <span>Total</span>
               <span className="text-brand-400">{formatPrice(total)}</span>
             </div>
-            <Button variant="brand" size="lg" className="w-full" disabled>
-              Proceed to Checkout
-              <ArrowRight className="ml-2 h-4 w-4" />
+            <Button variant="brand" size="lg" className="w-full" asChild>
+              <Link href="/checkout">
+                Proceed to Checkout
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
             </Button>
-            <p className="text-xs text-center text-[hsl(var(--muted-foreground))]">
-              Checkout coming in Phase 3
-            </p>
           </CardContent>
         </Card>
       </div>

@@ -1,14 +1,17 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Heart, Star } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { Heart, Star, ShoppingBag, Loader2 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn, formatPrice } from "@/lib/utils";
 import { getMediaUrl } from "@/lib/media";
 import { useWishlist } from "@/providers/WishlistProvider";
+import { useCart } from "@/providers/CartProvider";
 import type { IProduct, ISku, IVariantMedia } from "@vastrahub/shared-types";
 
 export interface ProductCardProduct {
@@ -44,12 +47,33 @@ function getCoverImage(product: ProductCardProduct): string | null {
 
 export function ProductCard({ product, sku, lowestPricePaise, lowestMrpPaise, className }: ProductCardProps) {
   const { toggleWishlist, isInWishlist } = useWishlist();
+  const { addItem } = useCart();
+  const router = useRouter();
   const wishlisted = isInWishlist(product._id);
+  const [addingToCart, setAddingToCart] = useState(false);
 
   const imageUrl = getCoverImage(product);
   const sellingPrice = sku?.pricePaise ?? lowestPricePaise ?? 0;
   const mrpPrice = sku?.mrpPaise ?? lowestMrpPaise ?? 0;
   const discount = mrpPrice > sellingPrice ? Math.round(((mrpPrice - sellingPrice) / mrpPrice) * 100) : 0;
+
+  /**
+   * Quick-add to cart:
+   * - If a specific SKU is provided, add it directly (qty=1).
+   * - Otherwise, navigate to the product detail page for variant selection.
+   */
+  async function handleQuickAdd(e: React.MouseEvent) {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (sku) {
+      setAddingToCart(true);
+      await addItem(sku._id, 1);
+      setAddingToCart(false);
+    } else {
+      router.push(`/products/${product.slug}`);
+    }
+  }
 
   return (
     <Card className={cn("group overflow-hidden hover:border-brand-500/30 transition-all duration-300", className)}>
@@ -118,23 +142,40 @@ export function ProductCard({ product, sku, lowestPricePaise, lowestMrpPaise, cl
                 </span>
               )}
             </div>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-7 w-7 shrink-0"
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                toggleWishlist(product._id);
-              }}
-            >
-              <Heart
-                className={cn(
-                  "h-3.5 w-3.5 transition-colors",
-                  wishlisted ? "fill-red-500 text-red-500" : "text-[hsl(var(--muted-foreground))]"
+            <div className="flex items-center gap-0.5">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-7 w-7 shrink-0"
+                disabled={addingToCart}
+                onClick={handleQuickAdd}
+              >
+                {addingToCart ? (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                ) : (
+                  <ShoppingBag
+                    className="h-3.5 w-3.5 text-[hsl(var(--muted-foreground))] transition-colors hover:text-brand-400"
+                  />
                 )}
-              />
-            </Button>
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-7 w-7 shrink-0"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  toggleWishlist(product._id);
+                }}
+              >
+                <Heart
+                  className={cn(
+                    "h-3.5 w-3.5 transition-colors",
+                    wishlisted ? "fill-red-500 text-red-500" : "text-[hsl(var(--muted-foreground))]"
+                  )}
+                />
+              </Button>
+            </div>
           </div>
         </div>
       </CardContent>

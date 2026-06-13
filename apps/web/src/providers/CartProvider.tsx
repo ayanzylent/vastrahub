@@ -9,6 +9,9 @@ interface CartContextValue {
   cart: ICart | null;
   loading: boolean;
   itemCount: number;
+  isDrawerOpen: boolean;
+  openDrawer: () => void;
+  closeDrawer: () => void;
   fetchCart: () => Promise<void>;
   addItem: (skuId: string, quantity: number) => Promise<void>;
   updateItem: (skuId: string, quantity: number) => Promise<void>;
@@ -22,6 +25,10 @@ const CartContext = createContext<CartContextValue | undefined>(undefined);
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [cart, setCart] = useState<ICart | null>(null);
   const [loading, setLoading] = useState(false);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+
+  const openDrawer = useCallback(() => setIsDrawerOpen(true), []);
+  const closeDrawer = useCallback(() => setIsDrawerOpen(false), []);
 
   const fetchCart = useCallback(async () => {
     setLoading(true);
@@ -42,6 +49,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       const res = await api.post<ICart>("/api/v1/cart/items", { skuId, quantity }, { withGuestId: true });
       if (res.success && res.data) {
         setCart(res.data);
+        setIsDrawerOpen(true);
         toast.success("Added to cart");
       } else {
         toast.error(res.error || "Failed to add item");
@@ -87,9 +95,12 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   const mergeCart = useCallback(async () => {
     try {
-      const res = await api.post<ICart>("/api/v1/cart/merge", undefined, { withGuestId: true });
+      const guestId = typeof window !== "undefined" ? localStorage.getItem("vastrahub_guest_id") : null;
+      if (!guestId) return;
+      const res = await api.post<ICart>("/api/v1/cart/merge", { guestId });
       if (res.success && res.data) {
         setCart(res.data);
+        localStorage.removeItem("vastrahub_guest_id");
       }
     } catch {
       // silent
@@ -104,7 +115,11 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <CartContext.Provider
-      value={{ cart, loading, itemCount, fetchCart, addItem, updateItem, removeItem, clearCart, mergeCart }}
+      value={{
+        cart, loading, itemCount,
+        isDrawerOpen, openDrawer, closeDrawer,
+        fetchCart, addItem, updateItem, removeItem, clearCart, mergeCart,
+      }}
     >
       {children}
     </CartContext.Provider>

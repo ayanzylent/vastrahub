@@ -75,4 +75,13 @@ export default fp(async function skuRoutes(fastify: FastifyInstance) {
       summary: 'Auto-generate a unique SKU code',
     },
   }, handler.generateCode);
+
+  // ---------- Storefront routes ----------
+  fastify.get('/api/v1/storefront/skus/:id', {
+    schema: {
+      params: SkuIdParams,
+      tags: ['Storefront - SKUs'],
+      summary: 'Get SKU details by ID for checkout',
+    },
+  }, handler.getStorefrontSku);
 });

@@ -15,7 +15,7 @@ export default fp(
       origin: config.FRONTEND_URL,
       credentials: true,
       methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-      allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+      allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'X-Guest-Id', 'x-guest-id'],
       exposedHeaders: ['Set-Cookie'],
       maxAge: 86400, // 24 hours
     });

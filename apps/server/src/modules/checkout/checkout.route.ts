@@ -2,7 +2,7 @@ import fp from 'fastify-plugin';
 import type { FastifyInstance } from 'fastify';
 import { authenticate } from '../../middleware/auth.middleware.js';
 import * as handler from './checkout.handler.js';
-import { CreateOrderBody } from './checkout.schema.js';
+import { CreateOrderBody, BuyNowBody } from './checkout.schema.js';
 
 export default fp(async function checkoutRoutes(fastify: FastifyInstance) {
   fastify.post('/api/v1/checkout/validate', {
@@ -21,4 +21,13 @@ export default fp(async function checkoutRoutes(fastify: FastifyInstance) {
       summary: 'Create order from cart',
     },
   }, handler.createOrderHandler);
+
+  fastify.post('/api/v1/checkout/buy-now', {
+    preHandler: [authenticate],
+    schema: {
+      body: BuyNowBody,
+      tags: ['Checkout'],
+      summary: 'Create order directly from single SKU (Buy Now)',
+    },
+  }, handler.buyNowHandler);
 });

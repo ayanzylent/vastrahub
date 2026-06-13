@@ -7,6 +7,7 @@ import { Order, Payment, Sku, Address, Coupon } from '../../db/models/index.js';
 import type { IOrderDocument, IPaymentDocument, IShippingAddress } from '../../db/models/index.js';
 import { NotFoundError, ValidationError } from '../../lib/errors.js';
 import { getRazorpay } from '../../lib/razorpay.js';
+import { createIciciOrder } from '../../lib/icici.js';
 import { getConfig } from '../../config/env.js';
 import { getCart, clearCart } from '../cart/cart.service.js';
 import { generateOrderNumber, validateOrderPricing } from '../order/order.service.js';
@@ -69,7 +70,7 @@ export async function validateCart(userId: string) {
 interface CreateOrderInput {
   addressId: string;
   couponCode?: string;
-  paymentMethod: 'razorpay' | 'cod';
+  paymentMethod: 'razorpay' | 'icici' | 'cod';
   customerNotes?: string;
 }
 
@@ -227,6 +228,7 @@ export async function createOrder(userId: string, input: CreateOrderInput) {
 
   // 11 & 12. Handle payment gateway specifics
   let razorpayOrderId: string | undefined;
+  let iciciOrderId: string | undefined;
   const config = getConfig();
 
   if (input.paymentMethod === 'razorpay') {
@@ -239,6 +241,10 @@ export async function createOrder(userId: string, input: CreateOrderInput) {
     
     razorpayOrderId = rzpOrder.id;
     payment.gatewayOrderId = razorpayOrderId;
+  } else if (input.paymentMethod === 'icici') {
+    const iciciOrder = createIciciOrder(totalPaise, 'INR', orderNumber);
+    iciciOrderId = iciciOrder.id;
+    payment.gatewayOrderId = iciciOrderId;
   } else if (input.paymentMethod === 'cod') {
     order.status = 'confirmed';
     order.statusHistory.push({
@@ -286,6 +292,254 @@ export async function createOrder(userId: string, input: CreateOrderInput) {
     paymentId: payment._id,
     razorpayOrderId,
     razorpayKeyId: config.RAZORPAY_KEY_ID,
+    iciciOrderId,
+    iciciMerchantId: config.ICICI_MERCHANT_ID,
+    gatewayOrderId: razorpayOrderId || iciciOrderId,
+    totalPaise,
+    paymentMethod: input.paymentMethod,
+  };
+}
+
+interface BuyNowInput {
+  skuId: string;
+  quantity: number;
+  addressId: string;
+  couponCode?: string;
+  paymentMethod: 'razorpay' | 'icici' | 'cod';
+  customerNotes?: string;
+}
+
+/**
+ * Create an order directly from a single SKU (Buy Now).
+ * Bypasses the cart entirely.
+ */
+export async function createBuyNowOrder(userId: string, input: BuyNowInput) {
+  // 1. Validate SKU
+  if (!mongoose.Types.ObjectId.isValid(input.skuId)) {
+    throw new ValidationError('Invalid SKU ID');
+  }
+
+  const sku = await Sku.findOne({
+    _id: new mongoose.Types.ObjectId(input.skuId),
+    isActive: true,
+    deletedAt: null,
+  });
+  if (!sku) {
+    throw new NotFoundError('SKU not found or not available');
+  }
+
+  const availableStock = sku.stockQuantity - sku.reservedQuantity;
+  if (availableStock < input.quantity) {
+    throw new ValidationError(
+      `Insufficient stock. Available: ${availableStock}, Requested: ${input.quantity}`,
+    );
+  }
+
+  // 2. Get product for snapshot
+  const { Product } = await import('../../db/models/index.js');
+  const product = await Product.findById(sku.productId).lean();
+  if (!product) {
+    throw new NotFoundError('Product not found');
+  }
+
+  // 3. Get address
+  if (!mongoose.Types.ObjectId.isValid(input.addressId)) {
+    throw new ValidationError('Invalid address ID');
+  }
+  const address = await Address.findOne({
+    _id: new mongoose.Types.ObjectId(input.addressId),
+    userId: new mongoose.Types.ObjectId(userId),
+  }).lean();
+  if (!address) {
+    throw new NotFoundError('Address not found');
+  }
+
+  // 4. Calculate pricing
+  const subtotalPaise = sku.pricePaise * input.quantity;
+
+  // 5. Apply coupon
+  let discountPaise = 0;
+  let couponSnapshot;
+  let couponDoc;
+
+  if (input.couponCode) {
+    const couponResult = await validateAndPreviewCoupon(
+      input.couponCode,
+      subtotalPaise,
+      userId,
+      [String(sku.productId)],
+    );
+
+    if (!couponResult.valid) {
+      throw new ValidationError(couponResult.message || 'Invalid coupon');
+    }
+
+    discountPaise = couponResult.discountAmountPaise || 0;
+    couponDoc = await Coupon.findById(couponResult.couponId);
+    if (couponDoc) {
+      couponSnapshot = {
+        code: couponDoc.code,
+        discountType: couponDoc.discountType,
+        fixedAmountPaise: couponDoc.fixedAmountPaise,
+        discountAmountPaise: discountPaise,
+      } as any;
+      if (couponDoc.percentageValue !== undefined && couponDoc.percentageValue !== null) {
+        couponSnapshot.percentageValue = couponDoc.percentageValue;
+      }
+    }
+  }
+
+  const shippingPaise = 0;
+  const taxPaise = 0;
+  const totalPaise = subtotalPaise - discountPaise + shippingPaise + taxPaise;
+
+  if (totalPaise < 0) {
+    throw new ValidationError('Total amount cannot be negative');
+  }
+
+  // 6. Generate order number
+  const orderNumber = generateOrderNumber();
+
+  // 7. Build variant label
+  let variantLabel = 'Default';
+  if (sku.attributes) {
+    const attrs = sku.attributes;
+    if (attrs instanceof Map) {
+      variantLabel = Array.from(attrs.values()).join(' / ') || 'Default';
+    } else if (typeof attrs === 'object') {
+      variantLabel = Object.values(attrs).join(' / ') || 'Default';
+    }
+  }
+
+  // Get cover image
+  const coverGroup = product.variantMedia?.find((vm: any) => vm.isCoverGroup);
+  const firstImage = coverGroup?.media?.find((m: any) => m.type === 'image');
+  const imageUrl = firstImage?.url ?? coverGroup?.media?.[0]?.url;
+
+  const orderItems = [{
+    productId: sku.productId,
+    skuId: sku._id,
+    productName: product.name,
+    skuCode: sku.sku,
+    variantLabel,
+    attributes: sku.attributes,
+    imageUrl,
+    quantity: input.quantity,
+    pricePaise: sku.pricePaise,
+    mrpPaise: sku.mrpPaise,
+    totalPaise: sku.pricePaise * input.quantity,
+    gstPercentage: 0,
+    gstAmountPaise: 0,
+  }];
+
+  // 8. Build shipping address
+  const shippingAddress: IShippingAddress = {
+    fullName: address.fullName,
+    phone: address.phone,
+    addressLine1: address.addressLine1,
+    addressLine2: address.addressLine2,
+    city: address.city,
+    state: address.state,
+    pincode: address.pincode,
+    country: 'India',
+  };
+
+  // 9. Create Order and Payment
+  const order = new Order({
+    orderNumber,
+    userId: new mongoose.Types.ObjectId(userId),
+    items: orderItems,
+    pricing: {
+      subtotalPaise,
+      discountPaise,
+      shippingPaise,
+      taxPaise,
+      totalPaise,
+    },
+    couponSnapshot,
+    shippingAddress,
+    billingAddress: shippingAddress,
+    status: 'pending',
+    customerNotes: input.customerNotes,
+    statusHistory: [{
+      status: 'pending',
+      changedAt: new Date(),
+      changedBy: userId,
+      note: 'Buy Now order created',
+    }],
+  }) as IOrderDocument;
+
+  const payment = new Payment({
+    orderId: order._id,
+    amountPaise: totalPaise,
+    currency: 'INR',
+    gatewayName: input.paymentMethod,
+    status: 'created',
+    method: input.paymentMethod === 'cod' ? 'cod' : undefined,
+  }) as IPaymentDocument;
+
+  order.paymentId = payment._id as mongoose.Types.ObjectId;
+
+  // 10. Handle payment gateway
+  let razorpayOrderId: string | undefined;
+  let iciciOrderId: string | undefined;
+  const config = getConfig();
+
+  if (input.paymentMethod === 'razorpay') {
+    const rzp = getRazorpay();
+    const rzpOrder = await rzp.orders.create({
+      amount: totalPaise,
+      currency: 'INR',
+      receipt: orderNumber,
+    });
+    razorpayOrderId = rzpOrder.id;
+    payment.gatewayOrderId = razorpayOrderId;
+  } else if (input.paymentMethod === 'icici') {
+    const iciciOrder = createIciciOrder(totalPaise, 'INR', orderNumber);
+    iciciOrderId = iciciOrder.id;
+    payment.gatewayOrderId = iciciOrderId;
+  } else if (input.paymentMethod === 'cod') {
+    order.status = 'confirmed';
+    order.statusHistory.push({
+      status: 'confirmed',
+      changedAt: new Date(),
+      changedBy: 'system',
+      note: 'COD order automatically confirmed',
+    });
+    payment.status = 'authorized';
+  }
+
+  // 11. Decrement stock
+  const updatedSku = await Sku.findOneAndUpdate(
+    { _id: sku._id, stockQuantity: { $gte: input.quantity } },
+    { $inc: { stockQuantity: -input.quantity } },
+    { new: true },
+  );
+  if (!updatedSku) {
+    throw new ValidationError(`Insufficient stock for SKU ${sku.sku} during checkout`);
+  }
+
+  // Validate pricing
+  validateOrderPricing(order.pricing);
+
+  // Save docs
+  await Promise.all([order.save(), payment.save()]);
+
+  // 12. Increment coupon usage
+  if (couponDoc) {
+    couponDoc.currentUses = (couponDoc.currentUses || 0) + 1;
+    await couponDoc.save();
+  }
+
+  return {
+    orderId: order._id,
+    orderNumber,
+    paymentId: payment._id,
+    razorpayOrderId,
+    razorpayKeyId: config.RAZORPAY_KEY_ID,
+    iciciOrderId,
+    iciciMerchantId: config.ICICI_MERCHANT_ID,
+    gatewayOrderId: razorpayOrderId || iciciOrderId,
     totalPaise,
     paymentMethod: input.paymentMethod,
   };

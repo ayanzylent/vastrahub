@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { Heart, ShoppingBag, Share2, Truck, Shield, RotateCcw, Star, Minus, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -16,7 +16,7 @@ import { api } from "@/lib/api";
 import { useCart } from "@/providers/CartProvider";
 import { useWishlist } from "@/providers/WishlistProvider";
 import { toast } from "sonner";
-import type { IProduct, ISku, ICategory, IVariantMedia, IMediaItem } from "@vastrahub/shared-types";
+import type { IProduct, ISku, ICategory, IMediaItem } from "@vastrahub/shared-types";
 
 /**
  * The server returns the product (or redirect info) at the TOP level of the response JSON:
@@ -81,13 +81,15 @@ export default function ProductDetailPage() {
 
   // Find current variant media group
   // When showVisualSelector is false, always show cover group (ignore variant URL)
-  const currentVariantGroup = (product?.showVisualSelector !== false && variantParam)
-    ? (product?.variantMedia?.find(
-        (vm) => vm.variantSlug === variantParam
-      ) || product?.variantMedia?.find((vm) => vm.isCoverGroup) || product?.variantMedia?.[0])
-    : (product?.variantMedia?.find((vm) => vm.isCoverGroup) || product?.variantMedia?.[0]);
+  const currentVariantGroup = useMemo(() => {
+    return (product?.showVisualSelector !== false && variantParam)
+      ? (product?.variantMedia?.find(
+          (vm) => vm.variantSlug === variantParam
+        ) || product?.variantMedia?.find((vm) => vm.isCoverGroup) || product?.variantMedia?.[0])
+      : (product?.variantMedia?.find((vm) => vm.isCoverGroup) || product?.variantMedia?.[0]);
+  }, [product, variantParam]);
 
-  const mediaItems = currentVariantGroup?.media || [];
+  const mediaItems = useMemo(() => currentVariantGroup?.media || [], [currentVariantGroup]);
 
   // Set initial media
   useEffect(() => {
@@ -101,7 +103,7 @@ export default function ProductDetailPage() {
     if (mediaItems.length > 0) {
       setSelectedMedia(mediaItems[0]);
     }
-  }, [variantParam]);
+  }, [mediaItems]);
 
   // Redirect stale variant URLs when visual selector is hidden
   useEffect(() => {
@@ -130,11 +132,39 @@ export default function ProductDetailPage() {
   }, [product, colorOption, sizeOption]);
 
   useEffect(() => {
-    if (selectedSize && product) {
+    if (product) {
       const currentColor = currentVariantGroup?.variantValue;
-      setSelectedSku(findSku(currentColor, selectedSize));
+      if (!sizeOption) {
+        // No sizes: find active SKU for current color
+        const activeSku = product.skus?.find(
+          (s) => s.isActive && (!currentColor || !colorOption || (s.attributes ?? {})[colorOption.name] === currentColor)
+        ) || product.skus?.[0] || null;
+        setSelectedSku(activeSku);
+      } else {
+        // Sizes exist: check if selectedSize is valid for the new color
+        let targetSku = selectedSize ? findSku(currentColor, selectedSize) : null;
+        
+        // If not valid or no size selected, auto-select default/first active SKU for new color
+        if (!targetSku) {
+          const activeSku = product.skus?.find(
+            (s) => s.isDefault && s.isActive && (!currentColor || !colorOption || (s.attributes ?? {})[colorOption.name] === currentColor)
+          ) || product.skus?.find(
+            (s) => s.isActive && (!currentColor || !colorOption || (s.attributes ?? {})[colorOption.name] === currentColor)
+          );
+          
+          if (activeSku) {
+            const sizeVal = (activeSku.attributes ?? {})[sizeOption.name];
+            if (sizeVal) {
+              setSelectedSize(sizeVal);
+              targetSku = activeSku;
+            }
+          }
+        }
+        
+        setSelectedSku(targetSku);
+      }
     }
-  }, [selectedSize, currentVariantGroup, product, findSku]);
+  }, [selectedSize, currentVariantGroup, product, sizeOption, colorOption, findSku]);
 
   // Get display price from selected SKU or first SKU
   const displaySku = selectedSku || product?.skus?.[0];
@@ -409,11 +439,11 @@ export default function ProductDetailPage() {
           <Separator />
 
           {/* Actions */}
-          <div className="flex gap-3">
+          <div className="flex flex-col sm:flex-row gap-3">
             <Button
-              variant="brand"
+              variant="outline"
               size="xl"
-              className="flex-1"
+              className="flex-1 h-12"
               onClick={handleAddToCart}
               disabled={addingToCart || !selectedSku}
             >
@@ -421,29 +451,46 @@ export default function ProductDetailPage() {
               {addingToCart ? "Adding..." : "Add to Cart"}
             </Button>
             <Button
-              variant="outline"
-              size="icon"
-              className="h-12 w-12"
-              onClick={() => toggleWishlist(product._id)}
-            >
-              <Heart
-                className={cn(
-                  "h-5 w-5",
-                  wishlisted ? "fill-red-500 text-red-500" : ""
-                )}
-              />
-            </Button>
-            <Button
-              variant="outline"
-              size="icon"
-              className="h-12 w-12"
+              variant="brand"
+              size="xl"
+              className="flex-1 h-12 font-bold"
               onClick={() => {
-                navigator.clipboard.writeText(window.location.href);
-                toast.success("Link copied!");
+                if (!selectedSku) {
+                  toast.error("Please select a size");
+                  return;
+                }
+                router.push(`/checkout?mode=buynow&skuId=${selectedSku._id}&qty=${quantity}`);
               }}
+              disabled={!selectedSku}
             >
-              <Share2 className="h-5 w-5" />
+              Buy Now
             </Button>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="icon"
+                className="h-12 w-12"
+                onClick={() => toggleWishlist(product._id)}
+              >
+                <Heart
+                  className={cn(
+                    "h-5 w-5",
+                    wishlisted ? "fill-red-500 text-red-500" : ""
+                  )}
+                />
+              </Button>
+              <Button
+                variant="outline"
+                size="icon"
+                className="h-12 w-12"
+                onClick={() => {
+                  navigator.clipboard.writeText(window.location.href);
+                  toast.success("Link copied!");
+                }}
+              >
+                <Share2 className="h-5 w-5" />
+              </Button>
+            </div>
           </div>
 
           {/* Trust indicators */}

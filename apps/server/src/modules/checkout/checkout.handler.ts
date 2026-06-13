@@ -1,5 +1,5 @@
 import type { FastifyRequest, FastifyReply } from 'fastify';
-import { validateCart, createOrder } from './checkout.service.js';
+import { validateCart, createOrder, createBuyNowOrder } from './checkout.service.js';
 
 export async function validate(request: FastifyRequest, reply: FastifyReply) {
   const userId = request.user!.id;
@@ -11,7 +11,7 @@ export async function createOrderHandler(request: FastifyRequest, reply: Fastify
   const userId = request.user!.id;
   const body = request.body as {
     addressId: string;
-    paymentMethod: 'razorpay' | 'cod';
+    paymentMethod: 'razorpay' | 'icici' | 'cod';
     couponCode?: string;
     customerNotes?: string;
   };
@@ -20,6 +20,29 @@ export async function createOrderHandler(request: FastifyRequest, reply: Fastify
     addressId: body.addressId,
     couponCode: body.couponCode,
     paymentMethod: body.paymentMethod,
+    customerNotes: body.customerNotes,
+  });
+
+  return reply.status(201).send(result);
+}
+
+export async function buyNowHandler(request: FastifyRequest, reply: FastifyReply) {
+  const userId = request.user!.id;
+  const body = request.body as {
+    skuId: string;
+    quantity: number;
+    addressId: string;
+    paymentMethod: 'razorpay' | 'icici' | 'cod';
+    couponCode?: string;
+    customerNotes?: string;
+  };
+
+  const result = await createBuyNowOrder(userId, {
+    skuId: body.skuId,
+    quantity: body.quantity,
+    addressId: body.addressId,
+    paymentMethod: body.paymentMethod,
+    couponCode: body.couponCode,
     customerNotes: body.customerNotes,
   });
 

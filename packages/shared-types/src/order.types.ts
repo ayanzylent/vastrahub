@@ -82,7 +82,7 @@ export interface IOrder extends TimestampFields {
   items: IOrderItem[];
   pricing: IOrderPricing;
   shippingAddress: IShippingAddress;
-  coupon?: ICouponSnapshot;
+  couponSnapshot?: ICouponSnapshot;
   status: OrderStatus;
   paymentId?: string;
   notes?: string;

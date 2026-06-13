@@ -83,7 +83,7 @@ const paymentSchema = new Schema<IPaymentDocument>(
     gatewayName: {
       type: String,
       required: [true, 'Payment gateway name is required'],
-      enum: ['razorpay', 'phonepe', 'stripe', 'cod'],
+      enum: ['razorpay', 'cod', 'icici'],
     },
     gatewayOrderId: { type: String },
     gatewayPaymentId: { type: String },

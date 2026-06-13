@@ -8,8 +8,18 @@ import { ObjectId } from '../../schemas/common.schema.js';
 
 export const CreateOrderBody = Type.Object({
   addressId: ObjectId,
-  paymentMethod: Type.Union([Type.Literal('razorpay'), Type.Literal('cod')]),
+  paymentMethod: Type.Union([Type.Literal('razorpay'), Type.Literal('icici'), Type.Literal('cod')]),
   couponCode: Type.Optional(Type.String()),
   customerNotes: Type.Optional(Type.String()),
 });
 export type CreateOrderBodyType = Static<typeof CreateOrderBody>;
+
+export const BuyNowBody = Type.Object({
+  skuId: ObjectId,
+  quantity: Type.Integer({ minimum: 1, maximum: 10 }),
+  addressId: ObjectId,
+  paymentMethod: Type.Union([Type.Literal('razorpay'), Type.Literal('icici'), Type.Literal('cod')]),
+  couponCode: Type.Optional(Type.String()),
+  customerNotes: Type.Optional(Type.String()),
+});
+export type BuyNowBodyType = Static<typeof BuyNowBody>;

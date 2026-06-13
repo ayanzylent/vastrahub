@@ -881,7 +881,7 @@ export default function EditProductPage() {
                 {!showVisualSelector && (
                   <p className="mt-3 text-xs text-amber-400 bg-amber-400/10 rounded-md px-3 py-2">
                     ✦ The visual attribute ({visualAttributeName}) will still be used to organize media groups internally,
-                    but won't appear as a selector on the storefront product page.
+                    but won&apos;t appear as a selector on the storefront product page.
                   </p>
                 )}
               </CardContent>

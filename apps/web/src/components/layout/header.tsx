@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { Search, ShoppingBag, User, Menu, LogOut, Heart, Settings } from "lucide-react";
 import { Logo } from "@/components/shared/logo";
 import { ThemeToggle } from "@/components/shared/theme-toggle";
+import { CartDrawer } from "@/components/shared/cart-drawer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -34,7 +35,7 @@ export function Header() {
   const [searchQuery, setSearchQuery] = useState("");
   const { data: sessionData } = useSession();
   const user = sessionData?.user;
-  const { itemCount } = useCart();
+  const { itemCount, openDrawer } = useCart();
   const router = useRouter();
 
   const userInitials = user?.name
@@ -123,19 +124,17 @@ export function Header() {
             </Button>
 
             {/* Cart */}
-            <Button variant="ghost" size="icon" className="relative" asChild>
-              <Link href="/cart">
-                <ShoppingBag className="h-5 w-5" />
-                {itemCount > 0 && (
-                  <Badge
-                    variant="accent"
-                    className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-[10px] rounded-full bg-accent-500 text-black font-bold"
-                  >
-                    {itemCount > 99 ? "99+" : itemCount}
-                  </Badge>
-                )}
-                <span className="sr-only">Cart</span>
-              </Link>
+            <Button variant="ghost" size="icon" className="relative" onClick={openDrawer}>
+              <ShoppingBag className="h-5 w-5" />
+              {itemCount > 0 && (
+                <Badge
+                  variant="accent"
+                  className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-[10px] rounded-full bg-accent-500 text-black font-bold"
+                >
+                  {itemCount > 99 ? "99+" : itemCount}
+                </Badge>
+              )}
+              <span className="sr-only">Cart</span>
             </Button>
 
             {/* User */}
@@ -205,6 +204,9 @@ export function Header() {
 
       {/* Mobile Nav Sheet */}
       <MobileNav open={mobileNavOpen} onOpenChange={setMobileNavOpen} />
+
+      {/* Cart Drawer */}
+      <CartDrawer />
     </>
   );
 }

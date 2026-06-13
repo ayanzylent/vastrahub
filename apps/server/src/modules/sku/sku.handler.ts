@@ -46,3 +46,9 @@ export async function generateCode(request: FastifyRequest, reply: FastifyReply)
   const code = await service.generateSkuCode(productId, attributes ?? {});
   return reply.status(200).send({ success: true, data: { sku: code }, statusCode: 200 });
 }
+
+export async function getStorefrontSku(request: FastifyRequest, reply: FastifyReply) {
+  const { id } = request.params as { id: string };
+  const result = await service.getStorefrontSku(id);
+  return reply.status(200).send({ success: true, data: result, statusCode: 200 });
+}

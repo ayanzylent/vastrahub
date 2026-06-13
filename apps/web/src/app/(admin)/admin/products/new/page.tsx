@@ -786,7 +786,7 @@ export default function NewProductPage() {
                 {!showVisualSelector && (
                   <p className="mt-3 text-xs text-amber-400 bg-amber-400/10 rounded-md px-3 py-2">
                     ✦ The visual attribute ({visualAttributeName}) will still be used to organize media groups internally,
-                    but won't appear as a selector on the storefront product page.
+                    but won&apos;t appear as a selector on the storefront product page.
                   </p>
                 )}
               </CardContent>
@@ -990,7 +990,7 @@ export default function NewProductPage() {
           </Card>
 
           <div className="rounded-lg bg-brand-500/10 border border-brand-500/20 p-4 text-sm text-brand-400">
-            <strong>After saving:</strong> You'll be taken directly to the SKU
+            <strong>After saving:</strong> You&apos;ll be taken directly to the SKU
             management page to add pricing and stock for each variant.
           </div>
         </div>
