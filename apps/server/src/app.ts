@@ -27,6 +27,7 @@ export async function buildApp(): Promise<FastifyInstance> {
     ),
     requestIdHeader: 'x-request-id',
     genReqId: () => crypto.randomUUID(),
+    trustProxy: true,
   });
 
   // Set TypeBox as the validator compiler (compiles TypeBox schemas to Ajv validators)

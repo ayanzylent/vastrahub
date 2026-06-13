@@ -40,6 +40,29 @@ export default fp(
       emailAndPassword: {
         enabled: true,
       },
+      // Cross-origin cookie config for Vercel ↔ Render (different origins).
+      // Currently uses SameSite=None (works on Chrome/Firefox/Edge, NOT Safari).
+      //
+      // ── When you add custom domains (e.g. app.vastrahub.com + api.vastrahub.com): ──
+      // Replace this `advanced` block with:
+      //   advanced: {
+      //     crossSubDomainCookies: {
+      //       enabled: config.NODE_ENV === 'production',
+      //       domain: config.NODE_ENV === 'production' ? '.vastrahub.com' : undefined,
+      //     },
+      //     defaultCookieAttributes: {
+      //       sameSite: 'lax',   // can go back to 'lax' since same root domain
+      //       secure: config.NODE_ENV === 'production',
+      //     },
+      //   },
+      // This sets Domain=.vastrahub.com on cookies so both subdomains share them,
+      // and SameSite=Lax works with Safari since they're no longer third-party cookies.
+      advanced: {
+        defaultCookieAttributes: {
+          sameSite: config.NODE_ENV === 'production' ? 'none' : 'lax',
+          secure: config.NODE_ENV === 'production',
+        },
+      },
       session: {
         cookieCache: {
           enabled: true,
@@ -82,10 +105,18 @@ export default fp(
 
       const response = await _auth!.handler(webRequest) as Response;
 
-      // Copy response headers
+      // Copy response headers — handle Set-Cookie specially
       response.headers.forEach((value: string, key: string) => {
-        void reply.header(key, value);
+        if (key.toLowerCase() !== 'set-cookie') {
+          void reply.header(key, value);
+        }
       });
+      // Use getSetCookie() to preserve individual Set-Cookie headers
+      // (forEach collapses multiple Set-Cookie values into one comma-separated string)
+      const setCookies = response.headers.getSetCookie();
+      for (const cookie of setCookies) {
+        void reply.header('set-cookie', cookie);
+      }
 
       return reply.status(response.status).send(
         response.headers.get('content-type')?.includes('application/json')
