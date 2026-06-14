@@ -28,10 +28,10 @@ interface ProductWithSkus extends ProductCardProduct {
 }
 
 const sortOptions = [
-  { label: "Newest", value: "createdAt:desc" },
-  { label: "Price: Low → High", value: "pricePaise:asc" },
-  { label: "Price: High → Low", value: "pricePaise:desc" },
-  { label: "Rating", value: "avgRating:desc" },
+  { label: "Newest", value: "newest" },
+  { label: "Price: Low → High", value: "price_asc" },
+  { label: "Price: High → Low", value: "price_desc" },
+  { label: "Rating", value: "rating" },
 ];
 
 export default function CategoryPage() {
@@ -46,7 +46,7 @@ export default function CategoryPage() {
   const [page, setPage] = useState(Number(searchParams.get("page")) || 1);
   const [totalPages, setTotalPages] = useState(1);
   const [total, setTotal] = useState(0);
-  const [sortBy, setSortBy] = useState(searchParams.get("sortBy") || "createdAt:desc");
+  const [sortBy, setSortBy] = useState(searchParams.get("sortBy") || "newest");
   const [minPrice, setMinPrice] = useState(searchParams.get("minPrice") || "");
   const [maxPrice, setMaxPrice] = useState(searchParams.get("maxPrice") || "");
   const [inStockOnly, setInStockOnly] = useState(searchParams.get("inStock") === "true");
