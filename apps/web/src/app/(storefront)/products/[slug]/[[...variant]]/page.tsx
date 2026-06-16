@@ -84,8 +84,8 @@ export default function ProductDetailPage() {
   const currentVariantGroup = useMemo(() => {
     return (product?.showVisualSelector !== false && variantParam)
       ? (product?.variantMedia?.find(
-          (vm) => vm.variantSlug === variantParam
-        ) || product?.variantMedia?.find((vm) => vm.isCoverGroup) || product?.variantMedia?.[0])
+        (vm) => vm.variantSlug === variantParam
+      ) || product?.variantMedia?.find((vm) => vm.isCoverGroup) || product?.variantMedia?.[0])
       : (product?.variantMedia?.find((vm) => vm.isCoverGroup) || product?.variantMedia?.[0]);
   }, [product, variantParam]);
 
@@ -143,7 +143,7 @@ export default function ProductDetailPage() {
       } else {
         // Sizes exist: check if selectedSize is valid for the new color
         let targetSku = selectedSize ? findSku(currentColor, selectedSize) : null;
-        
+
         // If not valid or no size selected, auto-select default/first active SKU for new color
         if (!targetSku) {
           const activeSku = product.skus?.find(
@@ -151,7 +151,7 @@ export default function ProductDetailPage() {
           ) || product.skus?.find(
             (s) => s.isActive && (!currentColor || !colorOption || (s.attributes ?? {})[colorOption.name] === currentColor)
           );
-          
+
           if (activeSku) {
             const sizeVal = (activeSku.attributes ?? {})[sizeOption.name];
             if (sizeVal) {
@@ -160,7 +160,7 @@ export default function ProductDetailPage() {
             }
           }
         }
-        
+
         setSelectedSku(targetSku);
       }
     }
@@ -308,10 +308,40 @@ export default function ProductDetailPage() {
         <div className="space-y-6">
           <div>
             {product.isFeatured && <Badge variant="accent" className="mb-3">Featured</Badge>}
-            <h1 className="font-heading text-2xl md:text-3xl font-bold">{product.name}</h1>
-            {product.brand && (
-              <p className="mt-1 text-sm text-[hsl(var(--muted-foreground))]">{product.brand}</p>
-            )}
+            <div className="flex items-start justify-between gap-4">
+              <div className="space-y-1 flex-1 min-w-0">
+                <h1 className="font-heading text-2xl md:text-3xl font-bold break-words">{product.name}</h1>
+                {product.brand && (
+                  <p className="text-sm text-[hsl(var(--muted-foreground))]">{product.brand}</p>
+                )}
+              </div>
+              <div className="flex gap-2 shrink-0 pt-1">
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="h-10 w-10"
+                  onClick={() => toggleWishlist(product._id)}
+                >
+                  <Heart
+                    className={cn(
+                      "h-5 w-5",
+                      wishlisted ? "fill-red-500 text-red-500" : ""
+                    )}
+                  />
+                </Button>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="h-10 w-10"
+                  onClick={() => {
+                    navigator.clipboard.writeText(window.location.href);
+                    toast.success("Link copied!");
+                  }}
+                >
+                  <Share2 className="h-5 w-5" />
+                </Button>
+              </div>
+            </div>
             {product.shortDescription && (
               <p className="mt-2 text-[hsl(var(--muted-foreground))]">{product.shortDescription}</p>
             )}
@@ -439,21 +469,21 @@ export default function ProductDetailPage() {
           <Separator />
 
           {/* Actions */}
-          <div className="flex flex-col sm:flex-row gap-3">
+          <div className="flex gap-3">
             <Button
               variant="outline"
               size="xl"
-              className="flex-1 h-12"
+              className="flex-1 h-11 sm:h-12 text-sm sm:text-base px-3 sm:px-6"
               onClick={handleAddToCart}
               disabled={addingToCart || !selectedSku}
             >
-              <ShoppingBag className="mr-2 h-4 w-4" />
+              <ShoppingBag className="mr-1 sm:mr-2 h-4 w-4 shrink-0" />
               {addingToCart ? "Adding..." : "Add to Cart"}
             </Button>
             <Button
               variant="brand"
               size="xl"
-              className="flex-1 h-12 font-bold"
+              className="flex-1 h-11 sm:h-12 text-sm sm:text-base px-3 sm:px-6 font-bold"
               onClick={() => {
                 if (!selectedSku) {
                   toast.error("Please select a size");
@@ -465,32 +495,6 @@ export default function ProductDetailPage() {
             >
               Buy Now
             </Button>
-            <div className="flex gap-2">
-              <Button
-                variant="outline"
-                size="icon"
-                className="h-12 w-12"
-                onClick={() => toggleWishlist(product._id)}
-              >
-                <Heart
-                  className={cn(
-                    "h-5 w-5",
-                    wishlisted ? "fill-red-500 text-red-500" : ""
-                  )}
-                />
-              </Button>
-              <Button
-                variant="outline"
-                size="icon"
-                className="h-12 w-12"
-                onClick={() => {
-                  navigator.clipboard.writeText(window.location.href);
-                  toast.success("Link copied!");
-                }}
-              >
-                <Share2 className="h-5 w-5" />
-              </Button>
-            </div>
           </div>
 
           {/* Trust indicators */}

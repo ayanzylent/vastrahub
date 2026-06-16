@@ -11,8 +11,10 @@ export default fp(
   async function corsPlugin(fastify: FastifyInstance) {
     const config = getConfig();
 
+    const origins = config.FRONTEND_URL.split(',').map((o) => o.trim()).filter(Boolean);
+
     await fastify.register(cors, {
-      origin: config.FRONTEND_URL,
+      origin: origins.length === 1 ? origins[0] : origins,
       credentials: true,
       methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
       allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'X-Guest-Id', 'x-guest-id'],
