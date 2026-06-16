@@ -1,19 +1,21 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { Suspense, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Skeleton } from "@/components/ui/skeleton";
 import { signIn } from "@/lib/auth-client";
 import { toast } from "sonner";
 import { Loader2, ShieldCheck, Lock, ArrowLeft } from "lucide-react";
 import { api } from "@/lib/api";
 import Link from "next/link";
 
-export default function AdminLoginPage() {
-  const router = useRouter();
+function AdminLoginForm() {
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get("callbackUrl");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -44,8 +46,12 @@ export default function AdminLoginPage() {
 
         if (role === "admin" || role === "superadmin") {
           toast.success("Welcome back, admin!");
-          router.push("/admin/dashboard");
-          router.refresh();
+          // Use full page navigation instead of router.push to ensure
+          // the browser sends the session cookie (set on the API domain)
+          // with the next request. router.push does a client-side RSC fetch
+          // where middleware can't see cross-origin cookies.
+          const target = callbackUrl?.startsWith("/admin") ? callbackUrl : "/admin/dashboard";
+          window.location.href = target;
         } else {
           toast.error("You don't have admin access");
           setError(
@@ -187,5 +193,41 @@ export default function AdminLoginPage() {
         </p>
       </div>
     </div>
+  );
+}
+
+function AdminLoginFallback() {
+  return (
+    <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-surface-primary">
+      <div className="pointer-events-none absolute inset-0">
+        <div className="absolute inset-0 bg-gradient-to-br from-purple-950/40 via-surface-primary to-slate-900/30" />
+      </div>
+      <div className="relative z-10 flex flex-col items-center gap-8 w-full max-w-md px-4">
+        <div className="flex flex-col items-center gap-3">
+          <Skeleton className="h-16 w-16 rounded-2xl" />
+          <Skeleton className="h-6 w-32" />
+          <Skeleton className="h-4 w-48" />
+        </div>
+        <Card className="w-full border-purple-500/10 bg-surface-secondary/80 backdrop-blur-xl">
+          <CardHeader className="text-center pb-4">
+            <Skeleton className="h-6 w-36 mx-auto" />
+            <Skeleton className="h-4 w-56 mx-auto mt-2" />
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <Skeleton className="h-10 w-full" />
+            <Skeleton className="h-10 w-full" />
+            <Skeleton className="h-10 w-full" />
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+}
+
+export default function AdminLoginPage() {
+  return (
+    <Suspense fallback={<AdminLoginFallback />}>
+      <AdminLoginForm />
+    </Suspense>
   );
 }
