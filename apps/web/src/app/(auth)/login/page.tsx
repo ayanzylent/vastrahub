@@ -13,13 +13,11 @@ import { signIn } from "@/lib/auth-client";
 import { useCart } from "@/providers/CartProvider";
 
 import { toast } from "sonner";
-import { Loader2, ShieldCheck } from "lucide-react";
-import { api } from "@/lib/api";
+import { Loader2 } from "lucide-react";
 
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const isAdminLogin = searchParams.get('admin') === '1';
   const callbackUrl = searchParams.get('callbackUrl');
   const { mergeCart } = useCart();
   const [email, setEmail] = useState("");
@@ -47,30 +45,9 @@ function LoginForm() {
       // Merge guest cart into user cart on login
       await mergeCart();
 
-      // Check if redirecting to admin route
-      if (callbackUrl && callbackUrl.startsWith('/admin')) {
-        try {
-          const meRes = await api.get<{ role?: string }>('/api/v1/auth/me');
-          const role = meRes.success ? meRes.data?.role : null;
-          if (role === 'admin' || role === 'superadmin') {
-            toast.success('Welcome back, admin!');
-            router.push(callbackUrl);
-            router.refresh();
-          } else {
-            toast.error("You don't have admin access");
-            router.push('/');
-            router.refresh();
-          }
-        } catch {
-          toast.error("You don't have admin access");
-          router.push('/');
-          router.refresh();
-        }
-      } else {
-        toast.success('Welcome back!');
-        router.push(callbackUrl || '/');
-        router.refresh();
-      }
+      toast.success('Welcome back!');
+      router.push(callbackUrl || '/');
+      router.refresh();
     } catch {
       setError("Something went wrong. Please try again.");
       setLoading(false);
@@ -80,18 +57,11 @@ function LoginForm() {
   return (
     <Card className="w-full glass-card">
       <CardHeader className="text-center">
-        <CardTitle className="font-heading text-2xl flex items-center justify-center gap-2">
-          {isAdminLogin && (
-            <span className="inline-flex items-center justify-center rounded-md bg-purple-500/10 px-2 py-0.5">
-              <ShieldCheck className="h-4 w-4 text-purple-400" />
-            </span>
-          )}
-          {isAdminLogin ? 'Admin Login' : 'Welcome Back'}
+        <CardTitle className="font-heading text-2xl">
+          Welcome Back
         </CardTitle>
         <CardDescription>
-          {isAdminLogin
-            ? 'Sign in with your admin credentials'
-            : 'Sign in to your VastraHub account'}
+          Sign in to your VastraHub account
         </CardDescription>
       </CardHeader>
       <CardContent>

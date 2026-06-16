@@ -12,6 +12,7 @@ export async function middleware(request: NextRequest) {
     pathname === '/login' ||
     pathname === '/signup' ||
     pathname === '/forgot-password' ||
+    pathname === '/admin/login' ||
     pathname.startsWith('/products') ||
     pathname.startsWith('/categories') ||
     pathname.startsWith('/api') ||
@@ -29,9 +30,8 @@ export async function middleware(request: NextRequest) {
       request.cookies.get('__Secure-better-auth.session_token')?.value;
 
     if (!sessionToken) {
-      const loginUrl = new URL('/login', request.url);
+      const loginUrl = new URL('/admin/login', request.url);
       loginUrl.searchParams.set('callbackUrl', pathname);
-      loginUrl.searchParams.set('admin', '1');
       return NextResponse.redirect(loginUrl);
     }
 
@@ -54,7 +54,7 @@ export async function middleware(request: NextRequest) {
         }
       } else {
         // Session invalid
-        const loginUrl = new URL('/login', request.url);
+        const loginUrl = new URL('/admin/login', request.url);
         loginUrl.searchParams.set('callbackUrl', pathname);
         return NextResponse.redirect(loginUrl);
       }
