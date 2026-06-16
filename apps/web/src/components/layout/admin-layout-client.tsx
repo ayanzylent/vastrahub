@@ -1,5 +1,7 @@
 'use client';
 
+import { useEffect } from 'react';
+import { useRouter, usePathname } from 'next/navigation';
 import { useSession } from '@/lib/auth-client';
 import { AdminSidebar } from '@/components/layout/admin-sidebar';
 import { AdminTopbar } from '@/components/layout/admin-topbar';
@@ -11,8 +13,18 @@ import Link from 'next/link';
 export function AdminLayoutClient({ children }: { children: React.ReactNode }) {
   const { data: sessionData, isPending } = useSession();
   const user = sessionData?.user;
+  const router = useRouter();
+  const pathname = usePathname();
 
-  if (isPending) {
+  // Redirect unauthenticated users to admin login
+  useEffect(() => {
+    if (!isPending && !user) {
+      const loginUrl = `/admin/login?callbackUrl=${encodeURIComponent(pathname)}`;
+      router.replace(loginUrl);
+    }
+  }, [isPending, user, pathname, router]);
+
+  if (isPending || (!isPending && !user)) {
     return (
       <div className="flex h-screen items-center justify-center">
         <div className="space-y-4 text-center">
