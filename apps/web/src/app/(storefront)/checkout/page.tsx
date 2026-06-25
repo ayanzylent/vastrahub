@@ -184,11 +184,11 @@ function CheckoutContent() {
           const items = cart.items.map((item) => ({
             productId: item.productId,
             skuId: item.skuId,
-            productName: item.snapshot.productName,
+            productName: item.productName ?? "",
             skuCode: undefined,
-            variantLabel: item.snapshot.variantLabel,
-            imageUrl: item.snapshot.imageUrl,
-            pricePaise: item.snapshot.pricePaise,
+            variantLabel: item.variantLabel ?? "",
+            imageUrl: item.imageUrl,
+            pricePaise: item.pricePaise ?? 0,
             quantity: item.quantity,
           }));
           setCheckoutItems(items);
@@ -211,11 +211,11 @@ function CheckoutContent() {
       const items = cart.items.map((item) => ({
         productId: item.productId,
         skuId: item.skuId,
-        productName: item.snapshot.productName,
+        productName: item.productName ?? "",
         skuCode: undefined,
-        variantLabel: item.snapshot.variantLabel,
-        imageUrl: item.snapshot.imageUrl,
-        pricePaise: item.snapshot.pricePaise,
+        variantLabel: item.variantLabel ?? "",
+        imageUrl: item.imageUrl,
+        pricePaise: item.pricePaise ?? 0,
         quantity: item.quantity,
       }));
       setCheckoutItems(items);

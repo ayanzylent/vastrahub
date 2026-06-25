@@ -9,21 +9,20 @@ import { APP_CONFIG } from '@vastrahub/shared-constants';
 
 // ---------- Interfaces ----------
 
-export interface ICartItemSnapshot {
-  productName: string;
-  skuCode: string;
-  attributes: Map<string, string>;
-  imageUrl?: string;
-  pricePaise: number;
-  mrpPaise: number;
-}
-
 export interface ICartItem {
   skuId: Types.ObjectId;
   productId: Types.ObjectId;
   quantity: number;
-  snapshot: ICartItemSnapshot;
   addedAt: Date;
+
+  // Live computed fields (populated dynamically on the fly, not stored in DB)
+  productName?: string;
+  skuCode?: string;
+  attributes?: Map<string, string> | Record<string, string>;
+  imageUrl?: string;
+  pricePaise?: number;
+  mrpPaise?: number;
+  variantLabel?: string;
 }
 
 export interface ICartDocument extends Document {
@@ -37,18 +36,6 @@ export interface ICartDocument extends Document {
 }
 
 // ---------- Sub-schemas ----------
-
-const cartItemSnapshotSchema = new Schema<ICartItemSnapshot>(
-  {
-    productName: { type: String, required: true },
-    skuCode: { type: String, required: true },
-    attributes: { type: Map, of: String, default: new Map() },
-    imageUrl: { type: String },
-    pricePaise: { type: Number, required: true, min: 0 },
-    mrpPaise: { type: Number, required: true, min: 0 },
-  },
-  { _id: false },
-);
 
 const cartItemSchema = new Schema<ICartItem>(
   {
@@ -71,10 +58,6 @@ const cartItemSchema = new Schema<ICartItem>(
         validator: (v: number) => Number.isInteger(v),
         message: 'Quantity must be a whole number',
       },
-    },
-    snapshot: {
-      type: cartItemSnapshotSchema,
-      required: true,
     },
     addedAt: {
       type: Date,

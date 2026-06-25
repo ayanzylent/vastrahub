@@ -18,7 +18,7 @@ export { UserRole } from './user.types.js';
 export type { IUser, IAddress } from './user.types.js';
 
 // Cart types
-export type { ICart, ICartItem, ICartItemSnapshot } from './cart.types.js';
+export type { ICart, ICartItem } from './cart.types.js';
 
 // Order types
 export { OrderStatus } from './order.types.js';

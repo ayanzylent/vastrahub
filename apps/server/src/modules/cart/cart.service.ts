@@ -89,11 +89,55 @@ export async function getOrCreateCart(owner: CartOwner): Promise<ICartDocument> 
 }
 
 /**
+ * Helper to dynamically enrich a cart document with live Product/SKU details.
+ */
+async function enrichCart(cart: ICartDocument) {
+  const cartObj = cart.toObject();
+  const enrichedItems: ICartItem[] = [];
+
+  for (const item of cartObj.items) {
+    const sku = await Sku.findById(item.skuId).lean();
+    if (!sku) continue;
+
+    const product = await Product.findById(item.productId).lean() as IProductDocument | null;
+    if (!product) continue;
+
+    const coverGroup = product.variantMedia?.find((vm) => vm.isCoverGroup);
+    const firstImage = coverGroup?.media?.find((m) => m.type === 'image');
+    const imageUrl = firstImage?.url ?? coverGroup?.media?.[0]?.url;
+
+    let variantLabel = 'Default';
+    if (sku.attributes) {
+      const attrs = sku.attributes;
+      if (attrs instanceof Map) {
+        variantLabel = Array.from(attrs.values()).join(' / ') || 'Default';
+      } else if (typeof attrs === 'object') {
+        variantLabel = Object.values(attrs).join(' / ') || 'Default';
+      }
+    }
+
+    enrichedItems.push({
+      ...item,
+      productName: product.name,
+      skuCode: sku.sku,
+      attributes: sku.attributes,
+      imageUrl,
+      pricePaise: sku.pricePaise,
+      mrpPaise: sku.mrpPaise,
+      variantLabel,
+    });
+  }
+
+  cartObj.items = enrichedItems;
+  return cartObj;
+}
+
+/**
  * Get cart with current data.
  */
 export async function getCart(owner: CartOwner) {
   const cart = await getOrCreateCart(owner);
-  return cart.toObject();
+  return enrichCart(cart);
 }
 
 /**
@@ -124,7 +168,7 @@ export async function addItem(owner: CartOwner, input: AddItemInput) {
     );
   }
 
-  // Get product for snapshot
+  // Get product for verification
   const product = await Product.findById(sku.productId).lean() as IProductDocument | null;
   if (!product) {
     throw new NotFoundError('Product not found');
@@ -146,18 +190,6 @@ export async function addItem(owner: CartOwner, input: AddItemInput) {
     throw new ValidationError(`Maximum quantity per item is ${APP_CONFIG.MAX_CART_ITEM_QTY}`);
   }
 
-  const imageUrl = getCoverImageUrl(product);
-
-  // Build snapshot
-  const snapshot = {
-    productName: product.name,
-    skuCode: sku.sku,
-    attributes: sku.attributes,
-    imageUrl,
-    pricePaise: sku.pricePaise,
-    mrpPaise: sku.mrpPaise,
-  };
-
   if (existingItemIdx >= 0) {
     // Update existing item quantity
     const newQty = cart.items[existingItemIdx]!.quantity + quantity;
@@ -168,21 +200,19 @@ export async function addItem(owner: CartOwner, input: AddItemInput) {
       throw new ValidationError(`Insufficient stock. Available: ${availableStock}`);
     }
     cart.items[existingItemIdx]!.quantity = newQty;
-    cart.items[existingItemIdx]!.snapshot = snapshot;
   } else {
     // Add new item
     cart.items.push({
       skuId: new mongoose.Types.ObjectId(skuId),
       productId: product._id as mongoose.Types.ObjectId,
       quantity,
-      snapshot,
       addedAt: new Date(),
     });
   }
 
   prepareCartForSave(cart);
   await cart.save();
-  return cart.toObject();
+  return enrichCart(cart);
 }
 
 /**
@@ -222,13 +252,10 @@ export async function updateItemQuantity(owner: CartOwner, skuId: string, quanti
   }
 
   cart.items[itemIdx]!.quantity = quantity;
-  // Update snapshot prices too
-  cart.items[itemIdx]!.snapshot.pricePaise = sku.pricePaise;
-  cart.items[itemIdx]!.snapshot.mrpPaise = sku.mrpPaise;
 
   prepareCartForSave(cart);
   await cart.save();
-  return cart.toObject();
+  return enrichCart(cart);
 }
 
 /**
@@ -251,7 +278,7 @@ export async function removeItem(owner: CartOwner, skuId: string) {
   cart.items.splice(itemIdx, 1);
   prepareCartForSave(cart);
   await cart.save();
-  return cart.toObject();
+  return enrichCart(cart);
 }
 
 /**
@@ -263,7 +290,7 @@ export async function clearCart(owner: CartOwner) {
   cart.itemCount = 0;
   prepareCartForSave(cart);
   await cart.save();
-  return cart.toObject();
+  return enrichCart(cart);
 }
 
 /**
@@ -288,12 +315,16 @@ export async function mergeGuestCart(guestId: string, userId: string) {
       // Keep the higher quantity
       if (guestItem.quantity > userCart.items[existingIdx]!.quantity) {
         userCart.items[existingIdx]!.quantity = guestItem.quantity;
-        userCart.items[existingIdx]!.snapshot = guestItem.snapshot;
       }
     } else {
       // Check max items
       if (userCart.items.length < APP_CONFIG.MAX_CART_ITEMS) {
-        userCart.items.push(guestItem);
+        userCart.items.push({
+          skuId: guestItem.skuId,
+          productId: guestItem.productId,
+          quantity: guestItem.quantity,
+          addedAt: guestItem.addedAt,
+        } as ICartItem);
       }
     }
   }
@@ -304,34 +335,14 @@ export async function mergeGuestCart(guestId: string, userId: string) {
   // Delete guest cart
   await Cart.deleteOne({ _id: guestCart._id });
 
-  return userCart.toObject();
+  return enrichCart(userCart);
 }
 
 /**
- * Refresh prices for all items in cart against current SKU data.
+ * Refresh prices helper - kept for legacy compatibility but performs dynamic enrichment.
  */
 export async function refreshPrices(owner: CartOwner) {
   const cart = await getOrCreateCart(owner);
-  const changedItems: string[] = [];
-
-  for (const item of cart.items) {
-    const sku = await Sku.findById(item.skuId).lean();
-    if (sku && sku.isActive && !sku.deletedAt) {
-      if (
-        item.snapshot.pricePaise !== sku.pricePaise ||
-        item.snapshot.mrpPaise !== sku.mrpPaise
-      ) {
-        item.snapshot.pricePaise = sku.pricePaise;
-        item.snapshot.mrpPaise = sku.mrpPaise;
-        changedItems.push(String(item.skuId));
-      }
-    }
-  }
-
-  if (changedItems.length > 0) {
-    prepareCartForSave(cart);
-    await cart.save();
-  }
-
-  return { cart: cart.toObject(), changedItems };
+  const enriched = await enrichCart(cart);
+  return { cart: enriched, changedItems: [] };
 }

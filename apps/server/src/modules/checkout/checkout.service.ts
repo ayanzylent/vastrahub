@@ -42,10 +42,10 @@ export async function validateCart(userId: string) {
       outOfStockItems.push({ skuId: String(item.skuId), available: availableStock, requested: item.quantity });
     }
 
-    if (item.snapshot.pricePaise !== sku.pricePaise) {
+    if (item.pricePaise !== sku.pricePaise) {
       priceChanges.push({
         skuId: String(item.skuId),
-        oldPrice: item.snapshot.pricePaise,
+        oldPrice: item.pricePaise ?? sku.pricePaise,
         newPrice: sku.pricePaise,
       });
     }
@@ -166,11 +166,11 @@ export async function createOrder(userId: string, input: CreateOrderInput) {
     return {
       productId: item.productId,
       skuId: item.skuId,
-      productName: item.snapshot.productName,
-      skuCode: item.snapshot.skuCode,
+      productName: item.productName,
+      skuCode: item.skuCode,
       variantLabel,
-      attributes: item.snapshot.attributes,
-      imageUrl: item.snapshot.imageUrl,
+      attributes: item.attributes,
+      imageUrl: item.imageUrl,
       quantity: item.quantity,
       pricePaise: item.currentSku.pricePaise,
       mrpPaise: item.currentSku.mrpPaise,

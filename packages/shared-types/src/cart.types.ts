@@ -1,17 +1,6 @@
 import type { TimestampFields } from './common.types.js';
 
 /**
- * Snapshot of product/SKU data at the time the item was added to cart.
- */
-export interface ICartItemSnapshot {
-  productName: string;
-  variantLabel: string;
-  imageUrl?: string;
-  pricePaise: number;
-  mrpPaise: number;
-}
-
-/**
  * A single item in the shopping cart.
  */
 export interface ICartItem {
@@ -19,7 +8,14 @@ export interface ICartItem {
   productId: string;
   skuId: string;
   quantity: number;
-  snapshot: ICartItemSnapshot;
+
+  // Live computed fields (populated dynamically on the fly, not stored in DB)
+  productName?: string;
+  variantLabel?: string;
+  imageUrl?: string;
+  pricePaise?: number;
+  mrpPaise?: number;
+  skuCode?: string;
 }
 
 /**

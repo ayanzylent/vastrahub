@@ -64,7 +64,7 @@ export default function CartPage() {
   }
 
   const subtotal = cart.items.reduce(
-    (sum: number, item: ICartItem) => sum + item.snapshot.pricePaise * item.quantity,
+    (sum: number, item: ICartItem) => sum + (item.pricePaise ?? 0) * item.quantity,
     0
   );
   const estimatedGst = Math.round(subtotal * 0.05); // 5% estimate
@@ -90,34 +90,34 @@ export default function CartPage() {
                 <div className="flex gap-4">
                   {/* Item Image */}
                   <div className="relative h-28 w-22 shrink-0 rounded-lg overflow-hidden bg-surface-secondary">
-                    {item.snapshot.imageUrl ? (
+                    {item.imageUrl ? (
                       <Image
-                        src={item.snapshot.imageUrl}
-                        alt={item.snapshot.productName}
+                        src={item.imageUrl}
+                        alt={item.productName ?? ""}
                         fill
                         className="object-cover"
                         sizes="88px"
                       />
                     ) : (
                       <div className="flex h-full w-full items-center justify-center text-brand-400/30 text-2xl font-bold">
-                        {item.snapshot.productName[0]}
+                        {(item.productName ?? "P")[0]}
                       </div>
                     )}
                   </div>
 
                   {/* Item Details */}
                   <div className="flex-1 min-w-0">
-                    <h3 className="text-sm font-medium truncate">{item.snapshot.productName}</h3>
+                    <h3 className="text-sm font-medium truncate">{item.productName}</h3>
                     <p className="text-xs text-[hsl(var(--muted-foreground))] mt-0.5">
-                      {item.snapshot.variantLabel}
+                      {item.variantLabel}
                     </p>
                     <div className="flex items-baseline gap-2 mt-2">
                       <span className="text-sm font-bold text-brand-400">
-                        {formatPrice(item.snapshot.pricePaise)}
+                        {formatPrice(item.pricePaise ?? 0)}
                       </span>
-                      {item.snapshot.mrpPaise > item.snapshot.pricePaise && (
+                      {item.mrpPaise !== undefined && item.pricePaise !== undefined && item.mrpPaise > item.pricePaise && (
                         <span className="text-xs text-[hsl(var(--muted-foreground))] line-through">
-                          {formatPrice(item.snapshot.mrpPaise)}
+                          {formatPrice(item.mrpPaise)}
                         </span>
                       )}
                     </div>
@@ -159,7 +159,7 @@ export default function CartPage() {
                   {/* Line Total */}
                   <div className="text-right shrink-0">
                     <span className="text-sm font-bold">
-                      {formatPrice(item.snapshot.pricePaise * item.quantity)}
+                      {formatPrice((item.pricePaise ?? 0) * item.quantity)}
                     </span>
                   </div>
                 </div>

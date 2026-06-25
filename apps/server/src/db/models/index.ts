@@ -20,7 +20,7 @@ export { Sku } from './sku.model.js';
 export type { ISkuDocument } from './sku.model.js';
 
 export { Cart } from './cart.model.js';
-export type { ICartDocument, ICartItem, ICartItemSnapshot } from './cart.model.js';
+export type { ICartDocument, ICartItem } from './cart.model.js';
 
 export { Order } from './order.model.js';
 export type {

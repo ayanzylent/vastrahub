@@ -32,13 +32,13 @@ export function CartDrawer() {
 
   const subtotal = items.reduce(
     (sum: number, item: ICartItem) =>
-      sum + item.snapshot.pricePaise * item.quantity,
+      sum + (item.pricePaise ?? 0) * item.quantity,
     0,
   );
 
   const totalSavings = items.reduce(
     (sum: number, item: ICartItem) =>
-      sum + (item.snapshot.mrpPaise - item.snapshot.pricePaise) * item.quantity,
+      sum + ((item.mrpPaise ?? 0) - (item.pricePaise ?? 0)) * item.quantity,
     0,
   );
 
@@ -166,12 +166,14 @@ interface CartDrawerItemProps {
 }
 
 function CartDrawerItem({ item, onUpdate, onRemove }: CartDrawerItemProps) {
-  const lineTotal = item.snapshot.pricePaise * item.quantity;
+  const price = item.pricePaise ?? 0;
+  const mrp = item.mrpPaise ?? price;
+  const lineTotal = price * item.quantity;
   const discount =
-    item.snapshot.mrpPaise > item.snapshot.pricePaise
+    mrp > price
       ? Math.round(
-          ((item.snapshot.mrpPaise - item.snapshot.pricePaise) /
-            item.snapshot.mrpPaise) *
+          ((mrp - price) /
+            mrp) *
             100,
         )
       : 0;
@@ -180,17 +182,17 @@ function CartDrawerItem({ item, onUpdate, onRemove }: CartDrawerItemProps) {
     <div className="flex gap-3 py-4 group">
       {/* Image */}
       <div className="relative h-[88px] w-[68px] shrink-0 overflow-hidden rounded-lg bg-surface-secondary">
-        {item.snapshot.imageUrl ? (
+        {item.imageUrl ? (
           <Image
-            src={item.snapshot.imageUrl}
-            alt={item.snapshot.productName}
+            src={item.imageUrl}
+            alt={item.productName ?? ""}
             fill
             className="object-cover"
             sizes="68px"
           />
         ) : (
           <div className="flex h-full w-full items-center justify-center text-lg font-bold text-brand-400/30">
-            {item.snapshot.productName[0]}
+            {(item.productName ?? "P")[0]}
           </div>
         )}
       </div>
@@ -198,23 +200,23 @@ function CartDrawerItem({ item, onUpdate, onRemove }: CartDrawerItemProps) {
       {/* Details */}
       <div className="flex flex-1 flex-col min-w-0">
         <h4 className="text-sm font-medium leading-snug line-clamp-2">
-          {item.snapshot.productName}
+          {item.productName}
         </h4>
-        {item.snapshot.variantLabel && (
+        {item.variantLabel && (
           <p className="mt-0.5 text-xs text-[hsl(var(--muted-foreground))]">
-            {item.snapshot.variantLabel}
+            {item.variantLabel}
           </p>
         )}
 
         {/* Price row */}
         <div className="flex items-baseline gap-1.5 mt-1">
           <span className="text-sm font-semibold text-brand-400">
-            {formatPrice(item.snapshot.pricePaise)}
+            {formatPrice(price)}
           </span>
           {discount > 0 && (
             <>
               <span className="text-[10px] text-[hsl(var(--muted-foreground))] line-through">
-                {formatPrice(item.snapshot.mrpPaise)}
+                {formatPrice(mrp)}
               </span>
               <span className="text-[10px] font-medium text-emerald-400">
                 {discount}% off
