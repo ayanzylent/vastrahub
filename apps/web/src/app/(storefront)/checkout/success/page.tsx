@@ -1,28 +1,50 @@
 "use client";
 
-import React, { useState, useEffect, Suspense } from "react";
+import React, { useState, useEffect, useRef, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { api } from "@/lib/api";
 import { formatPrice } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { CheckCircle2, ShoppingBag, Truck, Calendar, Sparkles, Loader2, ArrowRight } from "lucide-react";
+import { CheckCircle2, ShoppingBag, Truck, Calendar, Sparkles, Loader2, ArrowRight, XCircle, Clock } from "lucide-react";
 import type { IOrder, IOrderItem } from "@vastrahub/shared-types";
+
+/** Resolved payment state shown to the buyer. */
+type PaymentState = "paid" | "failed" | "processing";
+
+interface IciciStatusResult {
+  outcome: "paid" | "failed" | "pending";
+  paymentStatus: string;
+}
+
+// How long to keep polling a "processing" ICICI payment before giving up.
+const POLL_INTERVAL_MS = 4000;
+const MAX_POLLS = 8;
 
 function SuccessContent() {
   const searchParams = useSearchParams();
   const orderNumber = searchParams.get("orderNumber");
   const orderId = searchParams.get("orderId");
+  // `status` is set by the ICICI callback redirect. COD/Razorpay omit it → treat as paid.
+  const statusParam = searchParams.get("status");
 
   const [order, setOrder] = useState<IOrder | null>(null);
   const [loading, setLoading] = useState(true);
+  const [paymentState, setPaymentState] = useState<PaymentState>(
+    statusParam === "failed" ? "failed" : statusParam === "processing" ? "processing" : "paid",
+  );
+  const pollCountRef = useRef(0);
 
+  // Fetch order details (best-effort — we still render with the order number alone).
   useEffect(() => {
     const fetchOrderDetails = async () => {
-      if (!orderId) return;
+      if (!orderId) {
+        setLoading(false);
+        return;
+      }
       try {
         const res = await api.get<IOrder>(`/api/v1/orders/${orderId}`);
         if (res.success && res.data) {
@@ -38,6 +60,40 @@ function SuccessContent() {
     fetchOrderDetails();
   }, [orderId]);
 
+  // Poll the ICICI status endpoint while the payment is still processing.
+  useEffect(() => {
+    if (paymentState !== "processing" || !orderId) return;
+
+    let cancelled = false;
+    const timer = setInterval(async () => {
+      if (cancelled) return;
+      pollCountRef.current += 1;
+
+      try {
+        const res = await api.get<IciciStatusResult>(`/api/v1/payment/icici/status/${orderId}`);
+        if (res.success && res.data && res.data.outcome !== "pending") {
+          setPaymentState(res.data.outcome === "paid" ? "paid" : "failed");
+          // Refresh order details to reflect the new status.
+          const orderRes = await api.get<IOrder>(`/api/v1/orders/${orderId}`);
+          if (orderRes.success && orderRes.data) setOrder(orderRes.data);
+          clearInterval(timer);
+          return;
+        }
+      } catch {
+        // ignore transient errors; keep polling until MAX_POLLS
+      }
+
+      if (pollCountRef.current >= MAX_POLLS) {
+        clearInterval(timer);
+      }
+    }, POLL_INTERVAL_MS);
+
+    return () => {
+      cancelled = true;
+      clearInterval(timer);
+    };
+  }, [paymentState, orderId]);
+
   if (loading) {
     return (
       <div className="mx-auto max-w-3xl px-4 py-20 text-center space-y-4">
@@ -47,18 +103,43 @@ function SuccessContent() {
     );
   }
 
+  // Header content varies by payment state.
+  const header = {
+    paid: {
+      icon: <CheckCircle2 className="h-10 w-10" />,
+      iconWrap: "bg-emerald-500/10 border-emerald-500/30 text-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.2)]",
+      title: "Order Placed Successfully!",
+      subtitle:
+        "Thank you for shopping with VastraHub. Your order is confirmed and is currently being processed.",
+    },
+    processing: {
+      icon: <Clock className="h-10 w-10" />,
+      iconWrap: "bg-amber-500/10 border-amber-500/30 text-amber-400 shadow-[0_0_20px_rgba(245,158,11,0.2)]",
+      title: "Payment Processing",
+      subtitle:
+        "Your payment is being confirmed by the bank. This page will update automatically — you don't need to pay again.",
+    },
+    failed: {
+      icon: <XCircle className="h-10 w-10" />,
+      iconWrap: "bg-red-500/10 border-red-500/30 text-red-400 shadow-[0_0_20px_rgba(239,68,68,0.2)]",
+      title: "Payment Failed",
+      subtitle:
+        "We couldn't confirm your payment. No amount was captured. You can retry checkout or choose another payment method.",
+    },
+  }[paymentState];
+
   return (
     <div className="mx-auto max-w-3xl px-4 md:px-6 py-12">
-      {/* Celebration Header */}
+      {/* State Header */}
       <div className="text-center space-y-4 mb-10 animate-fade-in">
-        <div className="inline-flex h-20 w-20 items-center justify-center rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 mb-2 shadow-[0_0_20px_rgba(16,185,129,0.2)]">
-          <CheckCircle2 className="h-10 w-10" />
+        <div className={`inline-flex h-20 w-20 items-center justify-center rounded-full border mb-2 ${header.iconWrap}`}>
+          {paymentState === "processing" ? <Loader2 className="h-10 w-10 animate-spin" /> : header.icon}
         </div>
         <h1 className="font-heading text-3xl md:text-4xl font-bold tracking-tight">
-          Order Placed Successfully!
+          {header.title}
         </h1>
         <p className="text-[hsl(var(--muted-foreground))] text-sm md:text-base max-w-md mx-auto leading-relaxed">
-          Thank you for shopping with VastraHub. Your order is confirmed and is currently being processed.
+          {header.subtitle}
         </p>
       </div>
 
@@ -82,7 +163,7 @@ function SuccessContent() {
           </div>
         </CardHeader>
         <CardContent className="pt-6 space-y-6">
-          
+
           {/* Purchased Items */}
           {order?.items && order.items.length > 0 && (
             <div className="space-y-4">
@@ -181,7 +262,7 @@ function SuccessContent() {
                     </div>
                     <Separator className="bg-border/30" />
                     <div className="flex justify-between font-bold text-sm pt-1">
-                      <span>Total Paid</span>
+                      <span>{paymentState === "paid" ? "Total Paid" : "Total Amount"}</span>
                       <span className="text-brand-400">{formatPrice(order.pricing.totalPaise)}</span>
                     </div>
                   </>
@@ -194,12 +275,26 @@ function SuccessContent() {
 
       {/* Call to actions */}
       <div className="flex flex-col sm:flex-row gap-4 justify-center">
-        <Button variant="brand" size="lg" className="shadow-md shadow-brand-500/10" asChild>
-          <Link href="/">
-            Continue Shopping
-            <ArrowRight className="ml-2 h-4 w-4" />
-          </Link>
-        </Button>
+        {paymentState === "failed" ? (
+          <>
+            <Button variant="brand" size="lg" className="shadow-md shadow-brand-500/10" asChild>
+              <Link href="/cart">
+                Retry Checkout
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
+            </Button>
+            <Button variant="outline" size="lg" asChild>
+              <Link href="/">Continue Shopping</Link>
+            </Button>
+          </>
+        ) : (
+          <Button variant="brand" size="lg" className="shadow-md shadow-brand-500/10" asChild>
+            <Link href="/">
+              Continue Shopping
+              <ArrowRight className="ml-2 h-4 w-4" />
+            </Link>
+          </Button>
+        )}
       </div>
     </div>
   );

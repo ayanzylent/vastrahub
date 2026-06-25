@@ -7,7 +7,7 @@ import { Order, Payment, Sku, Address, Coupon } from '../../db/models/index.js';
 import type { IOrderDocument, IPaymentDocument, IShippingAddress } from '../../db/models/index.js';
 import { NotFoundError, ValidationError } from '../../lib/errors.js';
 import { getRazorpay } from '../../lib/razorpay.js';
-import { createIciciOrder } from '../../lib/icici.js';
+import { initiateIciciSale } from '../../lib/icici.js';
 import { getConfig } from '../../config/env.js';
 import { getCart, clearCart } from '../cart/cart.service.js';
 import { generateOrderNumber, validateOrderPricing } from '../order/order.service.js';
@@ -78,6 +78,10 @@ interface CreateOrderInput {
  * Create a new order from the user's cart.
  */
 export async function createOrder(userId: string, input: CreateOrderInput) {
+  if (input.paymentMethod === 'razorpay') {
+    throw new ValidationError('Razorpay payment method is temporarily disabled.');
+  }
+
   // 1. Validate cart
   const validation = await validateCart(userId);
   if (!validation.valid) {
@@ -229,22 +233,36 @@ export async function createOrder(userId: string, input: CreateOrderInput) {
   // 11 & 12. Handle payment gateway specifics
   let razorpayOrderId: string | undefined;
   let iciciOrderId: string | undefined;
+  let iciciRedirectURI: string | undefined;
   const config = getConfig();
 
+  /*
   if (input.paymentMethod === 'razorpay') {
+    // Razorpay is temporarily disabled
+    throw new ValidationError('Razorpay payment method is temporarily disabled.');
     const rzp = getRazorpay();
     const rzpOrder = await rzp.orders.create({
       amount: totalPaise,
       currency: 'INR',
       receipt: orderNumber,
     });
-    
+
     razorpayOrderId = rzpOrder.id;
     payment.gatewayOrderId = razorpayOrderId;
-  } else if (input.paymentMethod === 'icici') {
-    const iciciOrder = createIciciOrder(totalPaise, 'INR', orderNumber);
-    iciciOrderId = iciciOrder.id;
+  } else
+  */
+  if (input.paymentMethod === 'icici') {
+    // Redirect (hosted-page) flow: ask ICICI to initiate the sale and hand us
+    // the URL to send the buyer to. The order number doubles as merchantTxnNo.
+    const iciciSale = await initiateIciciSale(totalPaise, orderNumber);
+    iciciOrderId = iciciSale.merchantTxnNo;
+    iciciRedirectURI = iciciSale.redirectURI;
     payment.gatewayOrderId = iciciOrderId;
+    payment.webhookEvents.push({
+      eventType: 'icici.initiated',
+      payload: iciciSale.raw,
+      receivedAt: new Date(),
+    });
   } else if (input.paymentMethod === 'cod') {
     order.status = 'confirmed';
     order.statusHistory.push({
@@ -294,6 +312,7 @@ export async function createOrder(userId: string, input: CreateOrderInput) {
     razorpayKeyId: config.RAZORPAY_KEY_ID,
     iciciOrderId,
     iciciMerchantId: config.ICICI_MERCHANT_ID,
+    iciciRedirectURI,
     gatewayOrderId: razorpayOrderId || iciciOrderId,
     totalPaise,
     paymentMethod: input.paymentMethod,
@@ -314,6 +333,10 @@ interface BuyNowInput {
  * Bypasses the cart entirely.
  */
 export async function createBuyNowOrder(userId: string, input: BuyNowInput) {
+  if (input.paymentMethod === 'razorpay') {
+    throw new ValidationError('Razorpay payment method is temporarily disabled.');
+  }
+
   // 1. Validate SKU
   if (!mongoose.Types.ObjectId.isValid(input.skuId)) {
     throw new ValidationError('Invalid SKU ID');
@@ -483,9 +506,13 @@ export async function createBuyNowOrder(userId: string, input: BuyNowInput) {
   // 10. Handle payment gateway
   let razorpayOrderId: string | undefined;
   let iciciOrderId: string | undefined;
+  let iciciRedirectURI: string | undefined;
   const config = getConfig();
 
+  /*
   if (input.paymentMethod === 'razorpay') {
+    // Razorpay is temporarily disabled
+    throw new ValidationError('Razorpay payment method is temporarily disabled.');
     const rzp = getRazorpay();
     const rzpOrder = await rzp.orders.create({
       amount: totalPaise,
@@ -494,10 +521,18 @@ export async function createBuyNowOrder(userId: string, input: BuyNowInput) {
     });
     razorpayOrderId = rzpOrder.id;
     payment.gatewayOrderId = razorpayOrderId;
-  } else if (input.paymentMethod === 'icici') {
-    const iciciOrder = createIciciOrder(totalPaise, 'INR', orderNumber);
-    iciciOrderId = iciciOrder.id;
+  } else
+  */
+  if (input.paymentMethod === 'icici') {
+    const iciciSale = await initiateIciciSale(totalPaise, orderNumber);
+    iciciOrderId = iciciSale.merchantTxnNo;
+    iciciRedirectURI = iciciSale.redirectURI;
     payment.gatewayOrderId = iciciOrderId;
+    payment.webhookEvents.push({
+      eventType: 'icici.initiated',
+      payload: iciciSale.raw,
+      receivedAt: new Date(),
+    });
   } else if (input.paymentMethod === 'cod') {
     order.status = 'confirmed';
     order.statusHistory.push({
@@ -539,6 +574,7 @@ export async function createBuyNowOrder(userId: string, input: BuyNowInput) {
     razorpayKeyId: config.RAZORPAY_KEY_ID,
     iciciOrderId,
     iciciMerchantId: config.ICICI_MERCHANT_ID,
+    iciciRedirectURI,
     gatewayOrderId: razorpayOrderId || iciciOrderId,
     totalPaise,
     paymentMethod: input.paymentMethod,

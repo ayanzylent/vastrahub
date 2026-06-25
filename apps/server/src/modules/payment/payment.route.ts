@@ -14,27 +14,39 @@ export default fp(async function paymentRoutes(fastify: FastifyInstance) {
     },
   }, handler.verify);
 
-  fastify.post('/api/v1/payment/simulate-icici', {
-    preHandler: [authenticate],
-    schema: {
-      tags: ['Payment'],
-      summary: 'Simulate ICICI Bank payment response signature',
-    },
-  }, handler.simulateIcici);
-
+  /*
   fastify.post('/api/v1/payment/webhook/razorpay', {
     schema: {
       tags: ['Payment'],
       summary: 'Razorpay webhook handler',
     },
   }, handler.razorpayWebhook);
+  */
 
   fastify.post('/api/v1/payment/webhook/icici', {
     schema: {
       tags: ['Payment'],
-      summary: 'ICICI webhook handler',
+      summary: 'ICICI server-to-server webhook (Payment Advice)',
     },
   }, handler.iciciWebhook);
+
+  // Browser return URL ICICI POSTs the result to (public; verified via secureHash).
+  fastify.post('/api/v1/payment/icici/callback', {
+    schema: {
+      tags: ['Payment'],
+      summary: 'ICICI hosted-page return callback (redirects to storefront)',
+    },
+  }, handler.iciciCallback);
+
+  // Poll live ICICI status for an order (resolves "processing" payments).
+  fastify.get('/api/v1/payment/icici/status/:orderId', {
+    preHandler: [authenticate],
+    schema: {
+      params: PaymentOrderIdParams,
+      tags: ['Payment'],
+      summary: 'Query and reconcile ICICI payment status for an order',
+    },
+  }, handler.iciciStatus);
 
   fastify.get('/api/v1/payment/:orderId', {
     preHandler: [authenticate],

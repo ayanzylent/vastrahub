@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import Script from "next/script";
 import Link from "next/link";
 import Image from "next/image";
 import { api } from "@/lib/api";
@@ -42,33 +41,12 @@ interface CheckoutOrderResult {
   orderId: string;
   orderNumber: string;
   paymentId: string;
-  razorpayOrderId?: string;
-  razorpayKeyId?: string;
   iciciOrderId?: string;
   iciciMerchantId?: string;
+  iciciRedirectURI?: string;
   gatewayOrderId?: string;
   totalPaise: number;
-  paymentMethod: "razorpay" | "icici" | "cod";
-}
-
-interface RazorpaySuccessResponse {
-  razorpay_order_id: string;
-  razorpay_payment_id: string;
-  razorpay_signature: string;
-}
-
-interface RazorpayWindow extends Window {
-  Razorpay?: new (options: Record<string, unknown>) => { open: () => void };
-}
-
-interface PaymentVerifyResult {
-  success: boolean;
-}
-
-interface IciciSimulationResult {
-  iciciOrderId: string;
-  iciciPaymentId: string;
-  iciciSignature: string;
+  paymentMethod: "icici" | "cod";
 }
 
 interface EnrichedStorefrontSku {
@@ -127,7 +105,7 @@ function CheckoutContent() {
   const [applyingCoupon, setApplyingCoupon] = useState(false);
 
   // Payment State
-  const [paymentMethod, setPaymentMethod] = useState<"razorpay" | "icici" | "cod">("razorpay");
+  const [paymentMethod, setPaymentMethod] = useState<"icici" | "cod">("icici");
   const [customerNotes, setCustomerNotes] = useState("");
   const [processingOrder, setProcessingOrder] = useState(false);
 
@@ -376,99 +354,21 @@ function CheckoutContent() {
           await clearCart();
         }
         router.push(`/checkout/success?orderNumber=${orderNumber}&orderId=${orderId}`);
-      } else if (paymentMethod === "razorpay") {
-        // Initialize Razorpay Checkout
-        if (!(window as unknown as RazorpayWindow).Razorpay) {
-          toast.error("Razorpay SDK failed to load. Please try again.");
+      } else if (paymentMethod === "icici") {
+        // Redirect to the ICICI hosted payment page. The bank POSTs the result
+        // back to our server callback, which redirects to /checkout/success.
+        if (!orderData.iciciRedirectURI) {
+          toast.error("Could not start ICICI payment. Please try again.");
           setProcessingOrder(false);
           return;
         }
-
-        const options = {
-          key: orderData.razorpayKeyId,
-          amount: orderData.totalPaise,
-          currency: "INR",
-          name: "VastraHub",
-          description: `Order #${orderNumber}`,
-          order_id: orderData.razorpayOrderId,
-          prefill: {
-            name: session?.user.name || "",
-            email: session?.user.email || "",
-          },
-          theme: {
-            color: "#6366f1",
-          },
-          handler: async function (response: RazorpaySuccessResponse) {
-            setProcessingOrder(true);
-            try {
-              const verifyRes = await api.post<PaymentVerifyResult>("/api/v1/payment/verify", {
-                gatewayName: "razorpay",
-                razorpayOrderId: response.razorpay_order_id,
-                razorpayPaymentId: response.razorpay_payment_id,
-                razorpaySignature: response.razorpay_signature,
-              });
-
-              if (verifyRes.success) {
-                toast.success("Payment verified and order placed successfully!");
-                if (mode !== "buynow") {
-                  await clearCart();
-                }
-                router.push(`/checkout/success?orderNumber=${orderNumber}&orderId=${orderId}`);
-              } else {
-                toast.error(verifyRes.error || "Payment verification failed. Please contact support.");
-              }
-            } catch {
-              toast.error("Payment verification request failed.");
-            } finally {
-              setProcessingOrder(false);
-            }
-          },
-          modal: {
-            ondismiss: function () {
-              toast.warning("Payment cancelled by user.");
-              setProcessingOrder(false);
-            },
-          },
-        };
-
-        const rzp = new (window as unknown as RazorpayWindow).Razorpay!(options);
-        rzp.open();
-      } else if (paymentMethod === "icici") {
-        // Mock ICICI Payment simulation via API
-        toast.info("Simulating ICICI Bank gateway verification...");
-        try {
-          const simRes = await api.post<IciciSimulationResult>("/api/v1/payment/simulate-icici", {
-            iciciOrderId: orderData.iciciOrderId,
-          });
-
-          if (simRes.success && simRes.data) {
-            const { iciciOrderId, iciciPaymentId, iciciSignature } = simRes.data;
-
-            // Verify Mock Transaction
-            const verifyRes = await api.post<PaymentVerifyResult>("/api/v1/payment/verify", {
-              gatewayName: "icici",
-              iciciOrderId,
-              iciciPaymentId,
-              iciciSignature,
-            });
-
-            if (verifyRes.success) {
-              toast.success("Mock ICICI payment successful! Order placed.");
-              if (mode !== "buynow") {
-                await clearCart();
-              }
-              router.push(`/checkout/success?orderNumber=${orderNumber}&orderId=${orderId}`);
-            } else {
-              toast.error("Mock ICICI signature verification failed.");
-            }
-          } else {
-            toast.error("Mock ICICI simulation failed.");
-          }
-        } catch {
-          toast.error("ICICI simulation request failed.");
-        } finally {
-          setProcessingOrder(false);
+        toast.info("Redirecting to ICICI Bank secure payment page...");
+        // Cart is already cleared server-side on order creation; clear locally
+        // before leaving the site so the browser doesn't navigate back to stale state.
+        if (mode !== "buynow") {
+          await clearCart();
         }
+        window.location.href = orderData.iciciRedirectURI;
       }
     } catch (err) {
       const message = err instanceof Error ? err.message : "An unexpected error occurred.";
@@ -502,8 +402,6 @@ function CheckoutContent() {
 
   return (
     <div className="mx-auto max-w-7xl px-4 md:px-6 py-8">
-      {/* Script to load Razorpay modal */}
-      <Script src="https://checkout.razorpay.com/v1/checkout.js" strategy="lazyOnload" />
 
       {/* Header breadcrumbs */}
       <div className="flex items-center gap-2 text-xs text-[hsl(var(--muted-foreground))] mb-6 font-medium">
@@ -726,32 +624,9 @@ function CheckoutContent() {
               </div>
             </CardHeader>
             <CardContent className="pt-6 space-y-4">
-              <div className="grid md:grid-cols-3 gap-4">
-                
-                {/* Razorpay Option */}
-                <div
-                  onClick={() => setPaymentMethod("razorpay")}
-                  className={`p-4 rounded-xl border-2 text-left cursor-pointer transition-all duration-200 ${
-                    paymentMethod === "razorpay"
-                      ? "border-brand-500 bg-brand-500/5 shadow-[0_0_12px_rgba(99,102,241,0.15)]"
-                      : "border-border/60 hover:border-border-hover bg-surface-secondary/40"
-                  }`}
-                >
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="text-sm font-semibold">Razorpay Secure</span>
-                    <input
-                      type="radio"
-                      checked={paymentMethod === "razorpay"}
-                      onChange={() => setPaymentMethod("razorpay")}
-                      className="text-brand-500 focus:ring-brand-500"
-                    />
-                  </div>
-                  <p className="text-[11px] text-[hsl(var(--muted-foreground))] leading-normal">
-                    Pay securely using UPI, Credit/Debit cards, Net Banking, or Wallets via Razorpay.
-                  </p>
-                </div>
+              <div className="grid md:grid-cols-2 gap-4">
 
-                {/* ICICI Bank mock gateway */}
+                {/* ICICI Bank gateway */}
                 <div
                   onClick={() => setPaymentMethod("icici")}
                   className={`p-4 rounded-xl border-2 text-left cursor-pointer transition-all duration-200 ${
@@ -770,7 +645,7 @@ function CheckoutContent() {
                     />
                   </div>
                   <p className="text-[11px] text-[hsl(var(--muted-foreground))] leading-normal">
-                    Simulate a direct net banking transaction with ICICI Bank Gateway (Mock).
+                    Pay securely via the ICICI Bank hosted gateway using UPI, cards, or net banking.
                   </p>
                 </div>
 
@@ -935,18 +810,12 @@ function CheckoutContent() {
               </div>
 
               {/* Place Order Button */}
-              {/* 
-                DEVELOPMENT NOTE - NEXT PHASE:
-                The Place Order button is temporarily disabled here for staging purposes as requested.
-                Comment: "Need to code on stage, we are disableing it"
-                We will re-enable handlePlaceOrder integration when starting next phase development.
-              */}
               <Button
                 variant="brand"
                 size="lg"
-                className="w-full font-bold shadow-md shadow-brand-500/20 opacity-60 cursor-not-allowed"
+                className="w-full font-bold shadow-md shadow-brand-500/20"
                 onClick={handlePlaceOrder}
-                disabled={true /* Need to code on stage, we are disableing it */}
+                disabled={processingOrder || !selectedAddressId}
               >
                 {processingOrder ? (
                   <>
