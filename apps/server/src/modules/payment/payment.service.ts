@@ -114,9 +114,12 @@ export async function reconcileIciciPayment(
 
   // Always record the event for auditability.
   if (rawEvent) {
+    // Standardise rawEvent to a plain object to prevent isPOJO errors in Mongoose
+    // caused by objects with custom prototypes parsed by Fastify's body/query parser.
+    const cleanEvent = JSON.parse(JSON.stringify(rawEvent));
     payment.webhookEvents.push({
       eventType: `icici.${source}.${result.outcome}`,
-      payload: rawEvent,
+      payload: cleanEvent,
       receivedAt: new Date(),
     });
   }

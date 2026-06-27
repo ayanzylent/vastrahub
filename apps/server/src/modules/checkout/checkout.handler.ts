@@ -4,7 +4,7 @@ import { validateCart, createOrder, createBuyNowOrder } from './checkout.service
 export async function validate(request: FastifyRequest, reply: FastifyReply) {
   const userId = request.user!.id;
   const result = await validateCart(userId);
-  return reply.status(200).send(result);
+  return reply.status(200).send({ success: true, data: result, statusCode: 200 });
 }
 
 export async function createOrderHandler(request: FastifyRequest, reply: FastifyReply) {
@@ -23,7 +23,7 @@ export async function createOrderHandler(request: FastifyRequest, reply: Fastify
     customerNotes: body.customerNotes,
   });
 
-  return reply.status(201).send(result);
+  return reply.status(201).send({ success: true, data: result, statusCode: 201 });
 }
 
 export async function buyNowHandler(request: FastifyRequest, reply: FastifyReply) {
@@ -46,5 +46,5 @@ export async function buyNowHandler(request: FastifyRequest, reply: FastifyReply
     customerNotes: body.customerNotes,
   });
 
-  return reply.status(201).send(result);
+  return reply.status(201).send({ success: true, data: result, statusCode: 201 });
 }

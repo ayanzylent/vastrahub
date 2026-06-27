@@ -70,7 +70,7 @@ function getIciciConfig(): IciciResolvedConfig {
 
   return {
     merchantId: config.ICICI_MERCHANT_ID,
-    aggregatorID: config.ICICI_AGGREGATOR_ID || '' ,
+    aggregatorID: config.ICICI_AGGREGATOR_ID || '',
     secret: config.ICICI_SHARED_SECRET,
     baseURL: (config.ICICI_BASE_URL || 'https://pgpayuat.icicibank.com').replace(/\/+$/, ''),
     returnURL: getIciciReturnURL(),
@@ -207,8 +207,8 @@ async function postForm(
 
 async function iciciFetch(url: string, init: RequestInit): Promise<Record<string, unknown>> {
   console.log({
-    ICICI_URL:url,
-    REQ_BODY:init
+    ICICI_URL: url,
+    REQ_BODY: init
   })
   let res: Response;
   try {
@@ -291,7 +291,8 @@ export async function initiateIciciSale(
   const raw = await postJson(`${config.baseURL}${INITIATE_SALE_PATH}`, payload);
 
   const responseCode = String(raw.responseCode ?? '');
-  const redirectURI = raw.redirectURI ? String(raw.redirectURI) : '';
+  let redirectURI = raw.redirectURI ? String(raw.redirectURI) : '';
+  const tranCtx = raw.tranCtx ? String(raw.tranCtx) : '';
 
   if (responseCode !== 'R1000' || !redirectURI) {
     throw new AppError(
@@ -302,9 +303,13 @@ export async function initiateIciciSale(
     );
   }
 
+  if (tranCtx) {
+    const separator = redirectURI.includes('?') ? '&' : '?';
+    redirectURI = `${redirectURI}${separator}tranCtx=${tranCtx}`;
+  }
+
   return { merchantTxnNo, redirectURI, raw };
 }
-
 // ─── API: Transaction Status (Command API) ───────────────────────────
 
 /**
