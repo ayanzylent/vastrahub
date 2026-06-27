@@ -14,7 +14,7 @@
   "scripts": {
     "build": "tsc --build",
     "type-check": "tsc --noEmit",
-    "clean": "rm -rf dist .tsbuildinfo"
+    "clean": "rm -rf dist tsconfig.tsbuildinfo"
   },
   "devDependencies": {
     "typescript": "^5"

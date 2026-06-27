@@ -9,7 +9,8 @@
     "start": "node dist/server.js",
     "lint": "echo 'No linter configured yet'",
     "type-check": "tsc --noEmit",
-    "seed": "tsx --env-file=.env src/db/seed/seed.ts"
+    "seed": "tsx --env-file=.env src/db/seed/seed.ts",
+    "clean": "rm -rf dist tsconfig.tsbuildinfo"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3",
