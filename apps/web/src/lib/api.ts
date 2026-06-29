@@ -1,6 +1,11 @@
 import type { ApiResponse, PaginatedResponse } from "@vastrahub/shared-types";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
+/**
+ * API base URL — uses same-origin when proxying is enabled (NEXT_PUBLIC_API_PROXY="true"),
+ * otherwise calls the backend directly. See next.config.ts for proxy setup.
+ */
+const useApiProxy = process.env.NEXT_PUBLIC_API_PROXY === "true";
+const API_BASE_URL = useApiProxy ? "" : (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001");
 
 type RequestMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 
@@ -41,7 +46,7 @@ async function request<T>(
   const url = `${API_BASE_URL}${endpoint.startsWith("/") ? endpoint : `/${endpoint}`}`;
 
   const requestHeaders: Record<string, string> = {
-    "Content-Type": "application/json",
+...(body ? { "Content-Type": "application/json" } : {}),
     ...headers,
   };
 

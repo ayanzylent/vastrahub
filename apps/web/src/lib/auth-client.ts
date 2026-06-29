@@ -3,8 +3,17 @@
 import { createAuthClient } from "better-auth/react";
 import { useState, useEffect, useCallback } from "react";
 
+/**
+ * When API proxy is enabled (NEXT_PUBLIC_API_PROXY="true"), all /api requests
+ * are rewritten by Next.js to the backend. Using same-origin (empty baseURL)
+ * makes cookies first-party — fixing mobile Safari / ITP cookie blocking.
+ *
+ * When proxy is off (custom domains or local dev), use the direct backend URL.
+ */
+const useApiProxy = process.env.NEXT_PUBLIC_API_PROXY === "true";
+
 export const authClient = createAuthClient({
-  baseURL: process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001",
+  baseURL: useApiProxy ? "" : (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001"),
   fetchOptions: {
     credentials: "include",
   },
