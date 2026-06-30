@@ -51,7 +51,7 @@ export default function SignupPage() {
   }
 
   return (
-    <Card className="w-full glass-card">
+    <Card className="w-full bg-card/60 backdrop-blur-md border">
       <CardHeader className="text-center">
         <CardTitle className="font-heading text-2xl">Create Account</CardTitle>
         <CardDescription>
@@ -61,7 +61,7 @@ export default function SignupPage() {
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
           {error && (
-            <div className="rounded-lg bg-red-500/10 border border-red-500/20 p-3 text-sm text-red-400">
+            <div className="rounded-lg bg-destructive/10 border border-destructive/20 p-3 text-sm text-destructive">
               {error}
             </div>
           )}
@@ -111,7 +111,7 @@ export default function SignupPage() {
             />
           </div>
 
-          <Button variant="brand" className="w-full" size="lg" type="submit" disabled={loading}>
+          <Button variant="default" className="w-full" size="lg" type="submit" disabled={loading}>
             {loading ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -122,20 +122,20 @@ export default function SignupPage() {
             )}
           </Button>
 
-          <p className="text-center text-xs text-[hsl(var(--muted-foreground))]">
+          <p className="text-center text-xs text-muted-foreground">
             By signing up, you agree to our{" "}
-            <Link href="/terms" className="underline hover:text-brand-400">
+            <Link href="/terms" className="underline hover:text-primary">
               Terms of Service
             </Link>{" "}
             and{" "}
-            <Link href="/privacy" className="underline hover:text-brand-400">
+            <Link href="/privacy" className="underline hover:text-primary">
               Privacy Policy
             </Link>
           </p>
 
-          <p className="text-center text-sm text-[hsl(var(--muted-foreground))]">
+          <p className="text-center text-sm text-muted-foreground">
             Already have an account?{" "}
-            <Link href="/login" className="text-brand-400 hover:underline font-medium">
+            <Link href="/login" className="text-primary hover:underline font-medium">
               Sign in
             </Link>
           </p>

@@ -11,7 +11,7 @@ import {
   AlertTriangle,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { StatusBadge } from "@/components/shared/status-badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { api } from "@/lib/api";
 import { formatPrice } from "@/lib/utils";
@@ -78,7 +78,7 @@ export default function AdminDashboardPage() {
       {/* Page Header */}
       <div>
         <h1 className="font-heading text-2xl md:text-3xl font-bold">Dashboard</h1>
-        <p className="mt-1 text-[hsl(var(--muted-foreground))]">
+        <p className="mt-1 text-muted-foreground">
           Welcome back! Here&apos;s what&apos;s happening with your store.
         </p>
       </div>
@@ -101,11 +101,11 @@ export default function AdminDashboardPage() {
           : statCards.map((stat) => (
               <Card key={stat.title} className="relative overflow-hidden">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium text-[hsl(var(--muted-foreground))]">
+                  <CardTitle className="text-sm font-medium text-muted-foreground">
                     {stat.title}
                   </CardTitle>
-                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-500/10">
-                    <stat.icon className="h-4 w-4 text-brand-400" />
+                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10">
+                    <stat.icon className="h-4 w-4 text-primary" />
                   </div>
                 </CardHeader>
                 <CardContent>
@@ -117,12 +117,12 @@ export default function AdminDashboardPage() {
 
       {/* Low Stock Alert */}
       {stats && stats.lowStockCount > 0 && (
-        <Card className="border-amber-500/30 bg-amber-500/5">
+        <Card className="border-amber-500/30 bg-amber-500/10">
           <CardContent className="flex items-center gap-3 p-4">
-            <AlertTriangle className="h-5 w-5 text-amber-400 shrink-0" />
+            <AlertTriangle className="h-5 w-5 text-amber-600 dark:text-amber-400 shrink-0" />
             <div>
-              <p className="text-sm font-medium text-amber-400">Low Stock Alert</p>
-              <p className="text-xs text-[hsl(var(--muted-foreground))]">
+              <p className="text-sm font-medium text-amber-600 dark:text-amber-400">Low Stock Alert</p>
+              <p className="text-xs text-muted-foreground">
                 {stats.lowStockCount} products are running low on stock
               </p>
             </div>
@@ -136,19 +136,19 @@ export default function AdminDashboardPage() {
         <Card className="lg:col-span-4">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <TrendingUp className="h-4 w-4 text-brand-400" />
+              <TrendingUp className="h-4 w-4 text-primary" />
               Revenue Overview
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="flex items-end justify-between gap-2 h-[300px] border-b border-l border-[hsl(var(--border))]/40 p-4">
+            <div className="flex items-end justify-between gap-2 h-[300px] border-b border-l border-border/40 p-4">
               {Array.from({ length: 12 }).map((_, i) => (
                 <div key={i} className="flex-1 flex flex-col items-center gap-2">
                   <div
-                    className="w-full rounded-t bg-gradient-to-t from-brand-500/60 to-brand-400/30 transition-all hover:from-brand-500 hover:to-brand-400"
+                    className="w-full rounded-t bg-gradient-to-t from-primary/60 to-primary/30 transition-all hover:from-primary hover:to-primary/70"
                     style={{ height: `${30 + Math.random() * 70}%` }}
                   />
-                  <span className="text-[10px] text-[hsl(var(--muted-foreground))]">
+                  <span className="text-[10px] text-muted-foreground">
                     {["J", "F", "M", "A", "M", "J", "J", "A", "S", "O", "N", "D"][i]}
                   </span>
                 </div>
@@ -177,37 +177,40 @@ export default function AdminDashboardPage() {
                   ))
                 : recentOrders.length === 0
                   ? (
-                    <p className="text-sm text-[hsl(var(--muted-foreground))] text-center py-8">
+                    <p className="text-sm text-muted-foreground text-center py-8">
                       No orders yet
                     </p>
                   )
                   : recentOrders.slice(0, 5).map((order) => (
                     <div key={order._id} className="flex items-center gap-4">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-brand-500/10 text-xs font-bold text-brand-400">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-xs font-bold text-primary">
                         {order.orderNumber?.slice(-4) || order._id.slice(-4)}
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium truncate">
                           {order.customerName || "Customer"}
                         </p>
-                        <p className="text-xs text-[hsl(var(--muted-foreground))]">
+                        <p className="text-xs text-muted-foreground">
                           {new Date(order.createdAt).toLocaleDateString("en-IN")}
                         </p>
                       </div>
                       <div className="text-right">
                         <p className="text-sm font-medium">{formatPrice(order.totalPaise)}</p>
-                        <Badge
-                          variant={
+                        <StatusBadge
+                          tone={
                             order.status === "delivered"
                               ? "success"
-                              : order.status === "processing"
-                                ? "brand"
-                                : "accent"
+                              : order.status === "cancelled" ||
+                                  order.status === "refunded"
+                                ? "danger"
+                                : order.status === "pending"
+                                  ? "warning"
+                                  : "info"
                           }
-                          className="text-[10px] mt-0.5"
+                          className="text-[10px] mt-0.5 capitalize"
                         >
                           {order.status}
-                        </Badge>
+                        </StatusBadge>
                       </div>
                     </div>
                   ))}

@@ -7,7 +7,7 @@ import { Plus, Search, MoreHorizontal, Eye, Pencil, Trash2, Loader2 } from "luci
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { StatusBadge } from "@/components/shared/status-badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   DropdownMenu,
@@ -100,11 +100,11 @@ export default function AdminProductsPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="font-heading text-2xl md:text-3xl font-bold">Products</h1>
-          <p className="mt-1 text-[hsl(var(--muted-foreground))]">
+          <p className="mt-1 text-muted-foreground">
             Manage your product catalog
           </p>
         </div>
-        <Button variant="brand" asChild>
+        <Button variant="default" asChild>
           <Link href="/admin/products/new">
             <Plus className="mr-2 h-4 w-4" />
             Add Product
@@ -116,7 +116,7 @@ export default function AdminProductsPage() {
       <Card>
         <CardContent className="p-4">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[hsl(var(--muted-foreground))]" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder="Search products..."
               className="pl-10"
@@ -139,26 +139,26 @@ export default function AdminProductsPage() {
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr className="border-b border-[hsl(var(--border))]/40">
-                  <th className="px-4 py-3 text-left text-xs font-medium text-[hsl(var(--muted-foreground))] uppercase tracking-wider">
+                <tr className="border-b border-border/40">
+                  <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                     Product
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-[hsl(var(--muted-foreground))] uppercase tracking-wider hidden md:table-cell">
+                  <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider hidden md:table-cell">
                     Category
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-[hsl(var(--muted-foreground))] uppercase tracking-wider">
+                  <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                     Price
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-[hsl(var(--muted-foreground))] uppercase tracking-wider hidden sm:table-cell">
+                  <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider hidden sm:table-cell">
                     Stock
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-[hsl(var(--muted-foreground))] uppercase tracking-wider">
+                  <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                     Published
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-[hsl(var(--muted-foreground))] uppercase tracking-wider">
+                  <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                     Status
                   </th>
-                  <th className="px-4 py-3 text-right text-xs font-medium text-[hsl(var(--muted-foreground))] uppercase tracking-wider">
+                  <th className="px-4 py-3 text-right text-xs font-medium text-muted-foreground uppercase tracking-wider">
                     Actions
                   </th>
                 </tr>
@@ -166,7 +166,7 @@ export default function AdminProductsPage() {
               <tbody>
                 {loading
                   ? Array.from({ length: 5 }).map((_, i) => (
-                    <tr key={i} className="border-b border-[hsl(var(--border))]/20">
+                    <tr key={i} className="border-b border-border/20">
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-3">
                           <Skeleton className="h-10 w-10 rounded-lg" />
@@ -186,15 +186,15 @@ export default function AdminProductsPage() {
                     return (
                       <tr
                         key={product._id}
-                        className="border-b border-[hsl(var(--border))]/20 hover:bg-[hsl(var(--muted))]/30 transition-colors"
+                        className="border-b border-border/20 hover:bg-muted/30 transition-colors"
                       >
                         <td className="px-4 py-3">
                           <div className="flex items-center gap-3">
-                            <div className="relative h-10 w-10 rounded-lg overflow-hidden bg-surface-secondary shrink-0">
+                            <div className="relative h-10 w-10 rounded-lg overflow-hidden bg-muted shrink-0">
                               {coverImg ? (
                                 <Image src={coverImg} alt={product.name} fill className="object-cover" sizes="40px" />
                               ) : (
-                                <div className="flex h-full w-full items-center justify-center text-brand-400/30 text-sm font-bold">
+                                <div className="flex h-full w-full items-center justify-center text-primary/30 text-sm font-bold">
                                   {product.name[0]}
                                 </div>
                               )}
@@ -204,34 +204,32 @@ export default function AdminProductsPage() {
                             </span>
                           </div>
                         </td>
-                        <td className="px-4 py-3 text-sm text-[hsl(var(--muted-foreground))] hidden md:table-cell">
+                        <td className="px-4 py-3 text-sm text-muted-foreground hidden md:table-cell">
                           {product.category?.name || "—"}
                         </td>
                         <td className="px-4 py-3 text-sm font-medium">
                           {product.basePricePaise ? formatPrice(product.basePricePaise) : "—"}
                         </td>
                         <td className="px-4 py-3 text-sm hidden sm:table-cell">
-                          <span className={product.totalStock === 0 ? "text-red-400" : ""}>
+                          <span className={product.totalStock === 0 ? "text-destructive" : ""}>
                             {product.totalStock ?? "—"}
                           </span>
                         </td>
                         <td className="px-4 py-3">
-                          <Badge
-                            variant={product.publishedAt ? "success" : "secondary"}
+                          <StatusBadge
+                            tone={product.publishedAt ? "success" : "neutral"}
                             className="text-[10px]"
                           >
                             {product.publishedAt ? "Yes" : "No"}
-                          </Badge>
+                          </StatusBadge>
                         </td>
                         <td className="px-4 py-3">
-                          <Badge
-                            variant={
-                              product.isActive ? "success" : "secondary"
-                            }
+                          <StatusBadge
+                            tone={product.isActive ? "success" : "warning"}
                             className="text-[10px]"
                           >
                             {product.isActive ? "Active" : "Draft"}
-                          </Badge>
+                          </StatusBadge>
                         </td>
                         <td className="px-4 py-3 text-right">
                           <DropdownMenu>
@@ -252,7 +250,7 @@ export default function AdminProductsPage() {
                                 </Link>
                               </DropdownMenuItem>
                               <DropdownMenuItem
-                                className="text-red-400"
+                                className="text-destructive"
                                 onClick={() => setDeleteId(product._id)}
                               >
                                 <Trash2 className="h-4 w-4 mr-2" /> Delete
@@ -266,7 +264,7 @@ export default function AdminProductsPage() {
               </tbody>
             </table>
             {!loading && products.length === 0 && (
-              <div className="py-12 text-center text-sm text-[hsl(var(--muted-foreground))]">
+              <div className="py-12 text-center text-sm text-muted-foreground">
                 No products found
               </div>
             )}

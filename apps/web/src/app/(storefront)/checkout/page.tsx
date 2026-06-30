@@ -381,7 +381,7 @@ function CheckoutContent() {
     return (
       <div className="mx-auto max-w-7xl px-4 md:px-6 py-12">
         <div className="space-y-4 max-w-lg mx-auto py-20 text-center">
-          <Loader2 className="h-10 w-10 animate-spin text-brand-500 mx-auto" />
+          <Loader2 className="h-10 w-10 animate-spin text-primary mx-auto" />
           <h2 className="text-xl font-medium font-heading">Preparing secure checkout...</h2>
         </div>
       </div>
@@ -392,8 +392,8 @@ function CheckoutContent() {
     return (
       <div className="mx-auto max-w-7xl px-4 md:px-6 py-20 text-center">
         <h2 className="font-heading text-2xl font-bold">No items found for checkout</h2>
-        <p className="mt-2 text-[hsl(var(--muted-foreground))]">Your cart is empty or Buy Now SKU is invalid.</p>
-        <Button variant="brand" size="lg" className="mt-6" asChild>
+        <p className="mt-2 text-muted-foreground">Your cart is empty or Buy Now SKU is invalid.</p>
+        <Button variant="default" size="lg" className="mt-6" asChild>
           <Link href="/">Back to Shop</Link>
         </Button>
       </div>
@@ -404,10 +404,10 @@ function CheckoutContent() {
     <div className="mx-auto max-w-7xl px-4 md:px-6 py-8">
 
       {/* Header breadcrumbs */}
-      <div className="flex items-center gap-2 text-xs text-[hsl(var(--muted-foreground))] mb-6 font-medium">
-        <Link href="/cart" className="hover:text-brand-400">Cart</Link>
+      <div className="flex items-center gap-2 text-xs text-muted-foreground mb-6 font-medium">
+        <Link href="/cart" className="hover:text-primary">Cart</Link>
         <ChevronRight className="h-3.5 w-3.5" />
-        <span className="text-brand-400 font-semibold">Checkout</span>
+        <span className="text-primary font-semibold">Checkout</span>
       </div>
 
       <h1 className="font-heading text-3xl font-bold mb-8">Secure Checkout</h1>
@@ -417,10 +417,10 @@ function CheckoutContent() {
         <div className="lg:col-span-8 space-y-6">
           
           {/* Section 1: Delivery Address */}
-          <Card className="glass-card overflow-hidden">
+          <Card className="bg-card/60 backdrop-blur-md border overflow-hidden">
             <CardHeader className="flex flex-row items-center justify-between border-b border-border/40 pb-4">
               <div className="flex items-center gap-3">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-500/10 text-brand-400">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
                   <MapPin className="h-4 w-4" />
                 </div>
                 <CardTitle className="text-lg">Delivery Address</CardTitle>
@@ -522,7 +522,7 @@ function CheckoutContent() {
                       <Label htmlFor="state">State*</Label>
                       <select
                         id="state"
-                        className="flex h-10 w-full rounded-md border border-[hsl(var(--input))] bg-[hsl(var(--background))] px-3 py-2 text-sm ring-offset-[hsl(var(--background))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--ring))]"
+                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                         value={newAddress.state}
                         onChange={(e) => setNewAddress((prev) => ({ ...prev, state: e.target.value }))}
                       >
@@ -539,7 +539,7 @@ function CheckoutContent() {
                     <input
                       id="isDefault"
                       type="checkbox"
-                      className="rounded border-border bg-background text-brand-500 focus:ring-brand-500 h-4 w-4"
+                      className="rounded border-border bg-background text-primary focus:ring-primary h-4 w-4"
                       checked={newAddress.isDefault}
                       onChange={(e) => setNewAddress((prev) => ({ ...prev, isDefault: e.target.checked }))}
                     />
@@ -549,7 +549,7 @@ function CheckoutContent() {
                   </div>
 
                   <div className="flex gap-3 pt-4 border-t border-border/40">
-                    <Button type="submit" variant="brand" disabled={addingAddress}>
+                    <Button type="submit" variant="default" disabled={addingAddress}>
                       {addingAddress && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                       Save & Deliver Here
                     </Button>
@@ -562,9 +562,9 @@ function CheckoutContent() {
                 <div className="space-y-4">
                   {addresses.length === 0 ? (
                     <div className="text-center py-6">
-                      <p className="text-[hsl(var(--muted-foreground))] text-sm">No shipping addresses saved yet.</p>
+                      <p className="text-muted-foreground text-sm">No shipping addresses saved yet.</p>
                       <Button
-                        variant="brand"
+                        variant="default"
                         className="mt-4"
                         onClick={() => setShowAddressForm(true)}
                       >
@@ -579,29 +579,29 @@ function CheckoutContent() {
                           onClick={() => setSelectedAddressId(address._id)}
                           className={`relative p-4 rounded-xl border-2 text-left cursor-pointer transition-all duration-200 ${
                             selectedAddressId === address._id
-                              ? "border-brand-500 bg-brand-500/5 shadow-[0_0_12px_rgba(99,102,241,0.15)]"
-                              : "border-border/60 hover:border-border-hover bg-surface-secondary/40"
+                              ? "border-primary bg-primary/5 shadow-lg shadow-primary/15"
+                              : "border-border/60 hover:border-primary/50 bg-muted/40"
                           }`}
                         >
                           <div className="flex items-start justify-between mb-2">
-                            <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-brand-500/10 text-brand-400">
+                            <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-primary/10 text-primary">
                               {address.label}
                             </span>
                             {address.isDefault && (
-                              <span className="text-[10px] uppercase font-bold tracking-wider text-[hsl(var(--muted-foreground))]">
+                              <span className="text-[10px] uppercase font-bold tracking-wider text-muted-foreground">
                                 Default
                               </span>
                             )}
                           </div>
                           <p className="font-semibold text-sm truncate">{address.fullName}</p>
-                          <p className="text-xs text-[hsl(var(--muted-foreground))] mt-1 leading-relaxed">
+                          <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
                             {address.addressLine1}
                             {address.addressLine2 ? `, ${address.addressLine2}` : ""}
                           </p>
-                          <p className="text-xs text-[hsl(var(--muted-foreground))]">
+                          <p className="text-xs text-muted-foreground">
                             {address.city}, {address.state} - {address.pincode}
                           </p>
-                          <p className="text-xs font-medium mt-3 text-[hsl(var(--muted-foreground))]">
+                          <p className="text-xs font-medium mt-3 text-muted-foreground">
                             Phone: {address.phone}
                           </p>
                         </div>
@@ -614,10 +614,10 @@ function CheckoutContent() {
           </Card>
 
           {/* Section 2: Payment Gateway Selection */}
-          <Card className="glass-card">
+          <Card className="bg-card/60 backdrop-blur-md border">
             <CardHeader className="border-b border-border/40 pb-4">
               <div className="flex items-center gap-3">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-500/10 text-brand-400">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
                   <CreditCard className="h-4 w-4" />
                 </div>
                 <CardTitle className="text-lg">Select Payment Method</CardTitle>
@@ -631,8 +631,8 @@ function CheckoutContent() {
                   onClick={() => setPaymentMethod("icici")}
                   className={`p-4 rounded-xl border-2 text-left cursor-pointer transition-all duration-200 ${
                     paymentMethod === "icici"
-                      ? "border-brand-500 bg-brand-500/5 shadow-[0_0_12px_rgba(99,102,241,0.15)]"
-                      : "border-border/60 hover:border-border-hover bg-surface-secondary/40"
+                      ? "border-primary bg-primary/5 shadow-lg shadow-primary/15"
+                      : "border-border/60 hover:border-primary/50 bg-muted/40"
                   }`}
                 >
                   <div className="flex items-center justify-between mb-3">
@@ -641,10 +641,10 @@ function CheckoutContent() {
                       type="radio"
                       checked={paymentMethod === "icici"}
                       onChange={() => setPaymentMethod("icici")}
-                      className="text-brand-500 focus:ring-brand-500"
+                      className="text-primary focus:ring-primary"
                     />
                   </div>
-                  <p className="text-[11px] text-[hsl(var(--muted-foreground))] leading-normal">
+                  <p className="text-[11px] text-muted-foreground leading-normal">
                     Pay securely via the ICICI Bank hosted gateway using UPI, cards, or net banking.
                   </p>
                 </div>
@@ -654,8 +654,8 @@ function CheckoutContent() {
                   onClick={() => setPaymentMethod("cod")}
                   className={`p-4 rounded-xl border-2 text-left cursor-pointer transition-all duration-200 ${
                     paymentMethod === "cod"
-                      ? "border-brand-500 bg-brand-500/5 shadow-[0_0_12px_rgba(99,102,241,0.15)]"
-                      : "border-border/60 hover:border-border-hover bg-surface-secondary/40"
+                      ? "border-primary bg-primary/5 shadow-lg shadow-primary/15"
+                      : "border-border/60 hover:border-primary/50 bg-muted/40"
                   }`}
                 >
                   <div className="flex items-center justify-between mb-3">
@@ -664,10 +664,10 @@ function CheckoutContent() {
                       type="radio"
                       checked={paymentMethod === "cod"}
                       onChange={() => setPaymentMethod("cod")}
-                      className="text-brand-500 focus:ring-brand-500"
+                      className="text-primary focus:ring-primary"
                     />
                   </div>
-                  <p className="text-[11px] text-[hsl(var(--muted-foreground))] leading-normal">
+                  <p className="text-[11px] text-muted-foreground leading-normal">
                     Pay with cash at the time of delivery. Additional verification may apply.
                   </p>
                 </div>
@@ -693,7 +693,7 @@ function CheckoutContent() {
         <div className="lg:col-span-4 space-y-6">
           
           {/* Order Summary & Cart items */}
-          <Card className="glass-card sticky top-24">
+          <Card className="bg-card/60 backdrop-blur-md border sticky top-24">
             <CardHeader className="border-b border-border/40 pb-4">
               <CardTitle className="text-lg">Order Summary</CardTitle>
             </CardHeader>
@@ -703,7 +703,7 @@ function CheckoutContent() {
               <div className="space-y-4 max-h-[220px] overflow-y-auto pr-1">
                 {checkoutItems.map((item) => (
                   <div key={item.skuId} className="flex gap-3 text-sm">
-                    <div className="relative h-14 w-11 shrink-0 rounded-lg overflow-hidden bg-surface-secondary">
+                    <div className="relative h-14 w-11 shrink-0 rounded-lg overflow-hidden bg-muted">
                       {item.imageUrl ? (
                         <Image
                           src={item.imageUrl}
@@ -713,17 +713,17 @@ function CheckoutContent() {
                           sizes="44px"
                         />
                       ) : (
-                        <div className="flex h-full w-full items-center justify-center text-brand-400/30 font-bold text-lg">
+                        <div className="flex h-full w-full items-center justify-center text-primary/30 font-bold text-lg">
                           {item.productName[0]}
                         </div>
                       )}
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="font-medium truncate text-xs">{item.productName}</p>
-                      <p className="text-[10px] text-[hsl(var(--muted-foreground))] mt-0.5">
+                      <p className="text-[10px] text-muted-foreground mt-0.5">
                         {item.variantLabel} × {item.quantity}
                       </p>
-                      <p className="text-xs font-semibold text-brand-400 mt-1">
+                      <p className="text-xs font-semibold text-primary mt-1">
                         {formatPrice(item.pricePaise * item.quantity)}
                       </p>
                     </div>
@@ -754,7 +754,7 @@ function CheckoutContent() {
                     </Button>
                   </div>
                   {couponError && (
-                    <p className="text-xs text-red-400 flex items-center gap-1">
+                    <p className="text-xs text-destructive flex items-center gap-1">
                       <AlertCircle className="h-3.5 w-3.5 shrink-0" />
                       {couponError}
                     </p>
@@ -763,16 +763,16 @@ function CheckoutContent() {
               ) : (
                 <div className="bg-emerald-500/10 border border-emerald-500/20 p-3 rounded-lg flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <Sparkles className="h-4 w-4 text-emerald-400" />
+                    <Sparkles className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
                     <div>
-                      <p className="text-xs font-semibold text-emerald-400">Coupon Applied</p>
+                      <p className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">Coupon Applied</p>
                       <p className="text-xs font-mono font-bold">{appliedCoupon.code}</p>
                     </div>
                   </div>
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="text-red-400 hover:text-red-300 hover:bg-transparent h-fit p-1"
+                    className="text-destructive hover:text-destructive/80 hover:bg-transparent h-fit p-1"
                     onClick={handleRemoveCoupon}
                   >
                     Remove
@@ -785,35 +785,35 @@ function CheckoutContent() {
               {/* Pricing Breakdown */}
               <div className="space-y-3 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-[hsl(var(--muted-foreground))]">Subtotal</span>
+                  <span className="text-muted-foreground">Subtotal</span>
                   <span>{formatPrice(subtotal)}</span>
                 </div>
                 {discount > 0 && (
-                  <div className="flex justify-between text-emerald-400 font-medium">
+                  <div className="flex justify-between text-emerald-600 dark:text-emerald-400 font-medium">
                     <span>Discount</span>
                     <span>-{formatPrice(discount)}</span>
                   </div>
                 )}
                 <div className="flex justify-between">
-                  <span className="text-[hsl(var(--muted-foreground))]">Shipping</span>
-                  <span className="text-emerald-400">Free</span>
+                  <span className="text-muted-foreground">Shipping</span>
+                  <span className="text-emerald-600 dark:text-emerald-400">Free</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-[hsl(var(--muted-foreground))]">Estimated GST</span>
+                  <span className="text-muted-foreground">Estimated GST</span>
                   <span>₹0.00</span>
                 </div>
                 <Separator className="bg-border/60" />
                 <div className="flex justify-between font-bold text-lg pt-1">
                   <span>Total Amount</span>
-                  <span className="text-brand-400">{formatPrice(total)}</span>
+                  <span className="text-primary">{formatPrice(total)}</span>
                 </div>
               </div>
 
               {/* Place Order Button */}
               <Button
-                variant="brand"
+                variant="default"
                 size="lg"
-                className="w-full font-bold shadow-md shadow-brand-500/20"
+                className="w-full font-bold shadow-md shadow-primary/20"
                 onClick={handlePlaceOrder}
                 disabled={processingOrder || !selectedAddressId}
               >
@@ -827,7 +827,7 @@ function CheckoutContent() {
                 )}
               </Button>
 
-              <p className="text-[10px] text-center text-[hsl(var(--muted-foreground))]">
+              <p className="text-[10px] text-center text-muted-foreground">
                 By completing your order, you agree to our Terms & Conditions and Refund Policy.
               </p>
             </CardContent>
@@ -843,7 +843,7 @@ export default function CheckoutPage() {
     <Suspense fallback={
       <div className="mx-auto max-w-7xl px-4 md:px-6 py-12">
         <div className="space-y-4 max-w-lg mx-auto py-20 text-center">
-          <Loader2 className="h-10 w-10 animate-spin text-brand-500 mx-auto" />
+          <Loader2 className="h-10 w-10 animate-spin text-primary mx-auto" />
           <h2 className="text-xl font-medium font-heading">Preparing secure checkout...</h2>
         </div>
       </div>

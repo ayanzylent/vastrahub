@@ -49,14 +49,14 @@ export default function CartPage() {
   if (!cart || cart.items.length === 0) {
     return (
       <div className="mx-auto max-w-7xl px-4 md:px-6 py-20 text-center">
-        <div className="flex h-20 w-20 items-center justify-center rounded-full bg-[hsl(var(--muted))] mx-auto">
-          <ShoppingBag className="h-10 w-10 text-[hsl(var(--muted-foreground))]" />
+        <div className="flex h-20 w-20 items-center justify-center rounded-full bg-muted mx-auto">
+          <ShoppingBag className="h-10 w-10 text-muted-foreground" />
         </div>
         <h2 className="mt-6 font-heading text-2xl font-bold">Your cart is empty</h2>
-        <p className="mt-2 text-[hsl(var(--muted-foreground))]">
+        <p className="mt-2 text-muted-foreground">
           Looks like you haven&apos;t added anything yet.
         </p>
-        <Button variant="brand" size="lg" asChild className="mt-6">
+        <Button variant="default" size="lg" asChild className="mt-6">
           <Link href="/">Start Shopping</Link>
         </Button>
       </div>
@@ -76,7 +76,7 @@ export default function CartPage() {
         <h1 className="font-heading text-2xl md:text-3xl font-bold">
           Shopping Cart ({itemCount})
         </h1>
-        <Button variant="ghost" size="sm" className="text-red-400" onClick={() => clearCart()}>
+        <Button variant="ghost" size="sm" className="text-destructive" onClick={() => clearCart()}>
           <Trash2 className="mr-1 h-4 w-4" /> Clear Cart
         </Button>
       </div>
@@ -89,7 +89,7 @@ export default function CartPage() {
               <CardContent className="p-4">
                 <div className="flex gap-4">
                   {/* Item Image */}
-                  <div className="relative h-28 w-22 shrink-0 rounded-lg overflow-hidden bg-surface-secondary">
+                  <div className="relative h-28 w-22 shrink-0 rounded-lg overflow-hidden bg-muted">
                     {item.imageUrl ? (
                       <Image
                         src={item.imageUrl}
@@ -99,7 +99,7 @@ export default function CartPage() {
                         sizes="88px"
                       />
                     ) : (
-                      <div className="flex h-full w-full items-center justify-center text-brand-400/30 text-2xl font-bold">
+                      <div className="flex h-full w-full items-center justify-center text-primary/30 text-2xl font-bold">
                         {(item.productName ?? "P")[0]}
                       </div>
                     )}
@@ -108,15 +108,15 @@ export default function CartPage() {
                   {/* Item Details */}
                   <div className="flex-1 min-w-0">
                     <h3 className="text-sm font-medium truncate">{item.productName}</h3>
-                    <p className="text-xs text-[hsl(var(--muted-foreground))] mt-0.5">
+                    <p className="text-xs text-muted-foreground mt-0.5">
                       {item.variantLabel}
                     </p>
                     <div className="flex items-baseline gap-2 mt-2">
-                      <span className="text-sm font-bold text-brand-400">
+                      <span className="text-sm font-bold text-primary">
                         {formatPrice(item.pricePaise ?? 0)}
                       </span>
                       {item.mrpPaise !== undefined && item.pricePaise !== undefined && item.mrpPaise > item.pricePaise && (
-                        <span className="text-xs text-[hsl(var(--muted-foreground))] line-through">
+                        <span className="text-xs text-muted-foreground line-through">
                           {formatPrice(item.mrpPaise)}
                         </span>
                       )}
@@ -148,7 +148,7 @@ export default function CartPage() {
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="h-7 w-7 text-red-400 hover:text-red-300"
+                        className="h-7 w-7 text-destructive hover:text-destructive/80"
                         onClick={() => removeItem(item.skuId)}
                       >
                         <Trash2 className="h-3.5 w-3.5" />
@@ -175,23 +175,23 @@ export default function CartPage() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex justify-between text-sm">
-              <span className="text-[hsl(var(--muted-foreground))]">Subtotal</span>
+              <span className="text-muted-foreground">Subtotal</span>
               <span>{formatPrice(subtotal)}</span>
             </div>
             <div className="flex justify-between text-sm">
-              <span className="text-[hsl(var(--muted-foreground))]">Estimated GST (5%)</span>
+              <span className="text-muted-foreground">Estimated GST (5%)</span>
               <span>{formatPrice(estimatedGst)}</span>
             </div>
             <div className="flex justify-between text-sm">
-              <span className="text-[hsl(var(--muted-foreground))]">Shipping</span>
-              <span className="text-emerald-400">Free</span>
+              <span className="text-muted-foreground">Shipping</span>
+              <span className="text-emerald-600 dark:text-emerald-400">Free</span>
             </div>
             <Separator />
             <div className="flex justify-between font-bold text-lg">
               <span>Total</span>
-              <span className="text-brand-400">{formatPrice(total)}</span>
+              <span className="text-primary">{formatPrice(total)}</span>
             </div>
-            <Button variant="brand" size="lg" className="w-full" asChild>
+            <Button variant="default" size="lg" className="w-full" asChild>
               <Link href="/checkout">
                 Proceed to Checkout
                 <ArrowRight className="ml-2 h-4 w-4" />

@@ -56,10 +56,10 @@ function StepIndicator({ current }: { current: number }) {
           <div className="flex flex-col items-center">
             <div
               className={`h-8 w-8 rounded-full flex items-center justify-center text-sm font-semibold transition-all ${step.id < current
-                ? "bg-brand-500 text-white"
+                ? "bg-primary text-primary-foreground"
                 : step.id === current
-                  ? "bg-brand-500 text-white ring-4 ring-brand-500/20"
-                  : "bg-[hsl(var(--muted))] text-[hsl(var(--muted-foreground))]"
+                  ? "bg-primary text-primary-foreground ring-4 ring-primary/20"
+                  : "bg-muted text-muted-foreground"
                 }`}
             >
               {step.id < current ? (
@@ -70,8 +70,8 @@ function StepIndicator({ current }: { current: number }) {
             </div>
             <span
               className={`mt-1.5 text-xs font-medium whitespace-nowrap ${step.id === current
-                ? "text-[hsl(var(--foreground))]"
-                : "text-[hsl(var(--muted-foreground))]"
+                ? "text-foreground"
+                : "text-muted-foreground"
                 }`}
             >
               {step.label}
@@ -80,8 +80,8 @@ function StepIndicator({ current }: { current: number }) {
           {i < STEPS.length - 1 && (
             <div
               className={`h-px w-16 mx-2 mb-5 transition-colors ${step.id < current
-                ? "bg-brand-500"
-                : "bg-[hsl(var(--border))]"
+                ? "bg-primary"
+                : "bg-border"
                 }`}
             />
           )}
@@ -417,7 +417,7 @@ export default function NewProductPage() {
         </Button>
         <div>
           <h1 className="font-heading text-2xl font-bold">New Product</h1>
-          <p className="text-sm text-[hsl(var(--muted-foreground))]">
+          <p className="text-sm text-muted-foreground">
             Fill in the details to add a product to your catalog
           </p>
         </div>
@@ -439,7 +439,7 @@ export default function NewProductPage() {
             <CardContent className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="name">
-                  Product Name <span className="text-red-400">*</span>
+                  Product Name <span className="text-destructive">*</span>
                 </Label>
                 <Input
                   id="name"
@@ -448,7 +448,7 @@ export default function NewProductPage() {
                   placeholder="e.g. Banarasi Silk Saree"
                   maxLength={200}
                 />
-                <p className="text-xs text-[hsl(var(--muted-foreground))]">
+                <p className="text-xs text-muted-foreground">
                   {name.length}/200 — Slug will be auto-generated from this
                 </p>
               </div>
@@ -464,7 +464,7 @@ export default function NewProductPage() {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="desc">
-                  Description <span className="text-red-400">*</span>
+                  Description <span className="text-destructive">*</span>
                 </Label>
                 <textarea
                   id="desc"
@@ -473,9 +473,9 @@ export default function NewProductPage() {
                   placeholder="Full product description, material details, style notes..."
                   rows={5}
                   maxLength={5000}
-                  className="flex w-full rounded-md border border-[hsl(var(--input))] bg-transparent px-3 py-2 text-sm placeholder:text-[hsl(var(--muted-foreground))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--ring))] resize-y"
+                  className="flex w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring resize-y"
                 />
-                <p className="text-xs text-[hsl(var(--muted-foreground))]">
+                <p className="text-xs text-muted-foreground">
                   {description.length}/5000
                 </p>
               </div>
@@ -491,13 +491,13 @@ export default function NewProductPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="category">
-                    Category <span className="text-red-400">*</span>
+                    Category <span className="text-destructive">*</span>
                   </Label>
                   <select
                     id="category"
                     value={categoryId}
                     onChange={(e) => setCategoryId(e.target.value)}
-                    className="flex h-10 w-full rounded-md border border-[hsl(var(--input))] bg-transparent px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--ring))]"
+                    className="flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                   >
                     <option value="">— Select category —</option>
                     {categories.map((cat) => (
@@ -548,7 +548,7 @@ export default function NewProductPage() {
                         {t}
                         <button
                           onClick={() => setTags(tags.filter((x) => x !== t))}
-                          className="ml-1 rounded-full hover:text-red-400 transition-colors"
+                          className="ml-1 rounded-full hover:text-destructive transition-colors"
                         >
                           <X className="h-3 w-3" />
                         </button>
@@ -571,7 +571,7 @@ export default function NewProductPage() {
               <div className="space-y-2">
                 <Label htmlFor="style-code">
                   Style Code{" "}
-                  <span className="text-[hsl(var(--muted-foreground))] font-normal text-xs">
+                  <span className="text-muted-foreground font-normal text-xs">
                     (links same style in different colors as sister products)
                   </span>
                 </Label>
@@ -598,7 +598,7 @@ export default function NewProductPage() {
                     id="gst"
                     value={gstPercentage}
                     onChange={(e) => setGstPercentage(e.target.value)}
-                    className="flex h-10 w-full rounded-md border border-[hsl(var(--input))] bg-transparent px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--ring))]"
+                    className="flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                   >
                     {[0, 5, 12, 18, 28].map((v) => (
                       <option key={v} value={v}>
@@ -634,7 +634,7 @@ export default function NewProductPage() {
                   onChange={(e) => setCareInstructions(e.target.value)}
                   placeholder="e.g. Dry clean only. Do not bleach."
                   rows={2}
-                  className="flex w-full rounded-md border border-[hsl(var(--input))] bg-transparent px-3 py-2 text-sm placeholder:text-[hsl(var(--muted-foreground))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--ring))] resize-none"
+                  className="flex w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring resize-none"
                 />
               </div>
             </CardContent>
@@ -697,7 +697,7 @@ export default function NewProductPage() {
             </CardHeader>
             <CardContent className="space-y-5">
               {variantOptions.length === 0 && (
-                <div className="text-center py-6 text-sm text-[hsl(var(--muted-foreground))] border-2 border-dashed border-[hsl(var(--border))] rounded-lg">
+                <div className="text-center py-6 text-sm text-muted-foreground border-2 border-dashed border-border rounded-lg">
                   No variant options yet. Add Color, Size, or any other axis.
                 </div>
               )}
@@ -733,7 +733,7 @@ export default function NewProductPage() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <p className="text-sm text-[hsl(var(--muted-foreground))]">
+                <p className="text-sm text-muted-foreground">
                   Which variant axis drives the product image groups? (e.g.
                   Color = one image set per color)
                 </p>
@@ -742,8 +742,8 @@ export default function NewProductPage() {
                     type="button"
                     onClick={() => setVisualAttributeName("")}
                     className={`px-3 py-1.5 rounded-full text-sm font-medium border transition-all ${!visualAttributeName
-                      ? "bg-brand-500 text-white border-brand-500"
-                      : "border-[hsl(var(--border))] hover:border-brand-400"
+                      ? "bg-primary text-primary-foreground border-primary"
+                      : "border-border hover:border-primary"
                       }`}
                   >
                     None
@@ -756,8 +756,8 @@ export default function NewProductPage() {
                         type="button"
                         onClick={() => setVisualAttributeName(opt.name)}
                         className={`px-3 py-1.5 rounded-full text-sm font-medium border transition-all ${visualAttributeName === opt.name
-                          ? "bg-brand-500 text-white border-brand-500"
-                          : "border-[hsl(var(--border))] hover:border-brand-400"
+                          ? "bg-primary text-primary-foreground border-primary"
+                          : "border-border hover:border-primary"
                           }`}
                       >
                         {opt.name}
@@ -784,7 +784,7 @@ export default function NewProductPage() {
                   }
                 />
                 {!showVisualSelector && (
-                  <p className="mt-3 text-xs text-amber-400 bg-amber-400/10 rounded-md px-3 py-2">
+                  <p className="mt-3 text-xs text-chart-2 bg-chart-2/10 rounded-md px-3 py-2">
                     ✦ The visual attribute ({visualAttributeName}) will still be used to organize media groups internally,
                     but won&apos;t appear as a selector on the storefront product page.
                   </p>
@@ -799,13 +799,13 @@ export default function NewProductPage() {
               <CardHeader>
                 <CardTitle className="text-base">
                   Media Groups
-                  <span className="ml-2 text-xs font-normal text-[hsl(var(--muted-foreground))]">
+                  <span className="ml-2 text-xs font-normal text-muted-foreground">
                     — one group per {visualAttributeName} value
                   </span>
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">
-                <p className="text-xs text-[hsl(var(--muted-foreground))] bg-[hsl(var(--muted))]/50 rounded-md px-3 py-2">
+                <p className="text-xs text-muted-foreground bg-muted/50 rounded-md px-3 py-2">
                   ✦ Mark exactly one group as <strong>Cover</strong> — this is
                   the gallery shown on listing pages.
                 </p>
@@ -813,8 +813,8 @@ export default function NewProductPage() {
                   <div
                     key={group.variantValue}
                     className={`rounded-lg border-2 p-4 space-y-4 transition-all ${group.isCoverGroup
-                      ? "border-brand-500/60 bg-brand-500/5"
-                      : "border-[hsl(var(--border))]"
+                      ? "border-primary/60 bg-primary/5"
+                      : "border-border"
                       }`}
                   >
                     <div className="flex items-center justify-between">
@@ -823,7 +823,7 @@ export default function NewProductPage() {
                           {group.variantLabel}
                         </span>
                         {group.isCoverGroup && (
-                          <Badge variant="brand" className="text-[10px]">
+                          <Badge variant="default" className="text-[10px]">
                             Cover
                           </Badge>
                         )}
@@ -858,7 +858,7 @@ export default function NewProductPage() {
                                 e.target.value
                               )
                             }
-                            className="h-8 rounded-md border border-[hsl(var(--input))] bg-transparent px-2 text-xs w-20"
+                            className="h-8 rounded-md border border-input bg-transparent px-2 text-xs w-20"
                           >
                             <option value="image">Image</option>
                             <option value="video">Video</option>
@@ -882,7 +882,7 @@ export default function NewProductPage() {
                           <button
                             type="button"
                             onClick={() => removeMediaItem(gi, mi)}
-                            className="opacity-0 group-hover/media:opacity-100 transition-opacity text-red-400 hover:text-red-500"
+                            className="opacity-0 group-hover/media:opacity-100 transition-opacity text-destructive hover:text-destructive/80"
                           >
                             <X className="h-4 w-4" />
                           </button>
@@ -892,7 +892,7 @@ export default function NewProductPage() {
                         type="button"
                         variant="ghost"
                         size="sm"
-                        className="h-7 text-xs text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))]"
+                        className="h-7 text-xs text-muted-foreground hover:text-foreground"
                         onClick={() => addMediaItem(gi)}
                       >
                         <ImageIcon className="mr-1.5 h-3 w-3" />
@@ -906,7 +906,7 @@ export default function NewProductPage() {
           )}
 
           {variantOptions.length === 0 && (
-            <div className="rounded-lg border border-dashed border-[hsl(var(--border))] p-8 text-center text-sm text-[hsl(var(--muted-foreground))]">
+            <div className="rounded-lg border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
               <p>Skip this step if your product has no variants.</p>
               <p className="text-xs mt-1">
                 Media can also be added from the product edit page later.
@@ -935,7 +935,7 @@ export default function NewProductPage() {
               {brand && <ReviewRow label="Brand" value={brand} />}
               {tags.length > 0 && (
                 <div>
-                  <p className="text-xs text-[hsl(var(--muted-foreground))] mb-1.5">
+                  <p className="text-xs text-muted-foreground mb-1.5">
                     Tags
                   </p>
                   <div className="flex flex-wrap gap-1.5">
@@ -953,7 +953,7 @@ export default function NewProductPage() {
               />
               {variantOptions.length > 0 && (
                 <div>
-                  <p className="text-xs text-[hsl(var(--muted-foreground))] mb-1.5">
+                  <p className="text-xs text-muted-foreground mb-1.5">
                     Variant Options
                   </p>
                   {variantOptions.map((opt) => (
@@ -964,7 +964,7 @@ export default function NewProductPage() {
                       <span className="font-medium min-w-[80px]">
                         {opt.name}:
                       </span>
-                      <span className="text-[hsl(var(--muted-foreground))]">
+                      <span className="text-muted-foreground">
                         {opt.values.map((v) => v.label).join(", ") || "—"}
                       </span>
                     </div>
@@ -989,7 +989,7 @@ export default function NewProductPage() {
             </CardContent>
           </Card>
 
-          <div className="rounded-lg bg-brand-500/10 border border-brand-500/20 p-4 text-sm text-brand-400">
+          <div className="rounded-lg bg-primary/10 border border-primary/20 p-4 text-sm text-primary">
             <strong>After saving:</strong> You&apos;ll be taken directly to the SKU
             management page to add pricing and stock for each variant.
           </div>
@@ -1008,7 +1008,7 @@ export default function NewProductPage() {
         </div>
         <div className="flex gap-3">
           {step < 3 && (
-            <Button variant="brand" onClick={goNext}>
+            <Button variant="default" onClick={goNext}>
               Next
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
@@ -1024,7 +1024,7 @@ export default function NewProductPage() {
                 Save as Draft
               </Button>
               <Button
-                variant="brand"
+                variant="default"
                 onClick={() => handleSave(true)}
                 disabled={saving}
               >
@@ -1065,12 +1065,12 @@ function ToggleField({
           onChange={(e) => onChange(e.target.checked)}
           className="sr-only peer"
         />
-        <div className="w-9 h-5 bg-[hsl(var(--muted))] rounded-full peer peer-checked:bg-brand-500 transition-colors" />
-        <div className="absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform peer-checked:translate-x-4" />
+        <div className="w-9 h-5 bg-muted rounded-full peer peer-checked:bg-primary transition-colors" />
+        <div className="absolute top-0.5 left-0.5 w-4 h-4 bg-primary-foreground rounded-full shadow transition-transform peer-checked:translate-x-4" />
       </div>
       <div>
         <p className="text-sm font-medium">{label}</p>
-        <p className="text-xs text-[hsl(var(--muted-foreground))]">{desc}</p>
+        <p className="text-xs text-muted-foreground">{desc}</p>
       </div>
     </label>
   );
@@ -1079,7 +1079,7 @@ function ToggleField({
 function ReviewRow({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex items-start gap-4">
-      <p className="text-xs text-[hsl(var(--muted-foreground))] min-w-[120px]">
+      <p className="text-xs text-muted-foreground min-w-[120px]">
         {label}
       </p>
       <p className="text-sm font-medium">{value}</p>
@@ -1103,7 +1103,7 @@ function VariantOptionRow({
   const [valInput, setValInput] = useState("");
 
   return (
-    <div className="rounded-lg border border-[hsl(var(--border))] p-4 space-y-3">
+    <div className="rounded-lg border border-border p-4 space-y-3">
       <div className="flex gap-2 items-center">
         <Input
           value={option.name}
@@ -1115,7 +1115,7 @@ function VariantOptionRow({
           type="button"
           variant="ghost"
           size="icon"
-          className="h-9 w-9 text-red-400 hover:text-red-500 hover:bg-red-400/10 shrink-0"
+          className="h-9 w-9 text-destructive hover:text-destructive/80 hover:bg-destructive/10 shrink-0"
           onClick={onRemove}
         >
           <X className="h-4 w-4" />
@@ -1160,7 +1160,7 @@ function VariantOptionRow({
               <button
                 type="button"
                 onClick={() => onRemoveValue(i)}
-                className="ml-1 rounded-full hover:text-red-400 transition-colors"
+                className="ml-1 rounded-full hover:text-destructive transition-colors"
               >
                 <X className="h-3 w-3" />
               </button>

@@ -23,6 +23,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { StatusBadge } from "@/components/shared/status-badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { DeleteConfirmationDialog } from "@/components/shared/delete-confirmation-dialog";
@@ -544,9 +545,9 @@ export default function EditProductPage() {
   if (!product) {
     return (
       <div className="text-center py-20 space-y-4">
-        <Package className="h-12 w-12 mx-auto text-[hsl(var(--muted-foreground))]" />
+        <Package className="h-12 w-12 mx-auto text-muted-foreground" />
         <h2 className="font-heading text-xl font-bold">Product not found</h2>
-        <Button variant="brand" asChild>
+        <Button variant="default" asChild>
           <Link href="/admin/products">← Back to Products</Link>
         </Button>
       </div>
@@ -571,7 +572,7 @@ export default function EditProductPage() {
             <h1 className="font-heading text-2xl font-bold truncate max-w-[400px]">
               {product.name}
             </h1>
-            <p className="text-xs text-[hsl(var(--muted-foreground))] mt-0.5 font-mono">
+            <p className="text-xs text-muted-foreground mt-0.5 font-mono">
               /{product.slug}
             </p>
           </div>
@@ -579,9 +580,9 @@ export default function EditProductPage() {
 
         {/* Status + Publish button */}
         <div className="flex items-center gap-2 shrink-0">
-          <Badge variant={isPublished ? "success" : "secondary"}>
+          <StatusBadge tone={isPublished ? "success" : "warning"}>
             {isPublished ? "Published" : "Draft"}
-          </Badge>
+          </StatusBadge>
           {isPublished ? (
             <Button
               variant="outline"
@@ -599,7 +600,7 @@ export default function EditProductPage() {
             </Button>
           ) : (
             <Button
-              variant="brand"
+              variant="default"
               size="sm"
               onClick={handlePublish}
               disabled={publishing || activeSkuCount === 0}
@@ -678,7 +679,7 @@ export default function EditProductPage() {
                   onChange={(e) => setDescription(e.target.value)}
                   rows={5}
                   maxLength={5000}
-                  className="flex w-full rounded-md border border-[hsl(var(--input))] bg-transparent px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--ring))] resize-y"
+                  className="flex w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring resize-y"
                 />
               </div>
             </CardContent>
@@ -695,7 +696,7 @@ export default function EditProductPage() {
                   <select
                     value={categoryId}
                     onChange={(e) => setCategoryId(e.target.value)}
-                    className="flex h-10 w-full rounded-md border border-[hsl(var(--input))] bg-transparent px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--ring))]"
+                    className="flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                   >
                     <option value="">— Select —</option>
                     {categories.map((cat) => (
@@ -744,7 +745,7 @@ export default function EditProductPage() {
                     {tags.map((t) => (
                       <Badge key={t} variant="secondary" className="gap-1 pl-2 pr-1 py-0.5">
                         {t}
-                        <button onClick={() => setTags(tags.filter((x) => x !== t))} className="ml-1 hover:text-red-400 transition-colors">
+                        <button onClick={() => setTags(tags.filter((x) => x !== t))} className="ml-1 hover:text-destructive transition-colors">
                           <X className="h-3 w-3" />
                         </button>
                       </Badge>
@@ -771,7 +772,7 @@ export default function EditProductPage() {
                   <select
                     value={gstPercentage}
                     onChange={(e) => setGstPercentage(e.target.value)}
-                    className="flex h-10 w-full rounded-md border border-[hsl(var(--input))] bg-transparent px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--ring))]"
+                    className="flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                   >
                     {[0, 5, 12, 18, 28].map((v) => <option key={v} value={v}>{v}%</option>)}
                   </select>
@@ -791,7 +792,7 @@ export default function EditProductPage() {
                   value={careInstructions}
                   onChange={(e) => setCareInstructions(e.target.value)}
                   rows={2}
-                  className="flex w-full rounded-md border border-[hsl(var(--input))] bg-transparent px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--ring))] resize-none"
+                  className="flex w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring resize-none"
                 />
               </div>
               <div className="flex gap-6">
@@ -802,7 +803,7 @@ export default function EditProductPage() {
           </Card>
 
           <div className="flex justify-end pb-6">
-            <Button variant="brand" onClick={handleSaveDetails} disabled={saving}>
+            <Button variant="default" onClick={handleSaveDetails} disabled={saving}>
               {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Save Details
             </Button>
@@ -817,7 +818,7 @@ export default function EditProductPage() {
             </CardHeader>
             <CardContent className="space-y-5">
               {variantOptions.length === 0 && (
-                <div className="text-center py-5 text-sm text-[hsl(var(--muted-foreground))] border-2 border-dashed border-[hsl(var(--border))] rounded-lg">
+                <div className="text-center py-5 text-sm text-muted-foreground border-2 border-dashed border-border rounded-lg">
                   No variant options defined yet.
                 </div>
               )}
@@ -844,17 +845,17 @@ export default function EditProductPage() {
                 <CardTitle className="text-base">Visual Attribute (Image Gallery Axis)</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                <p className="text-sm text-[hsl(var(--muted-foreground))]">
+                <p className="text-sm text-muted-foreground">
                   Which variant drives the image groups?
                 </p>
                 <div className="flex flex-wrap gap-2">
                   <button type="button" onClick={() => setVisualAttributeName("")}
-                    className={`px-3 py-1.5 rounded-full text-sm font-medium border transition-all ${!visualAttributeName ? "bg-brand-500 text-white border-brand-500" : "border-[hsl(var(--border))] hover:border-brand-400"}`}>
+                    className={`px-3 py-1.5 rounded-full text-sm font-medium border transition-all ${!visualAttributeName ? "bg-primary text-primary-foreground border-primary" : "border-border hover:border-primary"}`}>
                     None
                   </button>
                   {variantOptions.filter((o) => o.name && o.values.length > 0).map((opt) => (
                     <button key={opt.name} type="button" onClick={() => setVisualAttributeName(opt.name)}
-                      className={`px-3 py-1.5 rounded-full text-sm font-medium border transition-all ${visualAttributeName === opt.name ? "bg-brand-500 text-white border-brand-500" : "border-[hsl(var(--border))] hover:border-brand-400"}`}>
+                      className={`px-3 py-1.5 rounded-full text-sm font-medium border transition-all ${visualAttributeName === opt.name ? "bg-primary text-primary-foreground border-primary" : "border-border hover:border-primary"}`}>
                       {opt.name}
                     </button>
                   ))}
@@ -879,7 +880,7 @@ export default function EditProductPage() {
                   }
                 />
                 {!showVisualSelector && (
-                  <p className="mt-3 text-xs text-amber-400 bg-amber-400/10 rounded-md px-3 py-2">
+                  <p className="mt-3 text-xs text-amber-600 dark:text-amber-400 bg-amber-500/10 rounded-md px-3 py-2">
                     ✦ The visual attribute ({visualAttributeName}) will still be used to organize media groups internally,
                     but won&apos;t appear as a selector on the storefront product page.
                   </p>
@@ -894,16 +895,16 @@ export default function EditProductPage() {
                 <CardTitle className="text-base">Media Groups</CardTitle>
               </CardHeader>
               <CardContent className="space-y-5">
-                <p className="text-xs text-[hsl(var(--muted-foreground))] bg-[hsl(var(--muted))]/50 rounded px-3 py-2">
+                <p className="text-xs text-muted-foreground bg-muted/50 rounded px-3 py-2">
                   Mark exactly one group as Cover — shown on listing pages.
                 </p>
                 {variantMedia.map((group, gi) => (
                   <div key={group.variantValue}
-                    className={`rounded-lg border-2 p-4 space-y-4 ${group.isCoverGroup ? "border-brand-500/60 bg-brand-500/5" : "border-[hsl(var(--border))]"}`}>
+                    className={`rounded-lg border-2 p-4 space-y-4 ${group.isCoverGroup ? "border-primary/60 bg-primary/5" : "border-border"}`}>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <span className="font-medium text-sm capitalize">{group.variantLabel}</span>
-                        {group.isCoverGroup && <Badge variant="brand" className="text-[10px]">Cover</Badge>}
+                        {group.isCoverGroup && <Badge variant="default" className="text-[10px]">Cover</Badge>}
                       </div>
                       {!group.isCoverGroup && (
                         <Button type="button" size="sm" variant="outline" className="h-7 text-xs" onClick={() => setCoverGroup(gi)}>
@@ -918,18 +919,18 @@ export default function EditProductPage() {
                             updateMediaItem(gi, mi, "type", e.target.value);
                             updateMediaItem(gi, mi, "mimeType", e.target.value === "video" ? "video/mp4" : "image/jpeg");
                           }}
-                            className="h-8 rounded border border-[hsl(var(--input))] bg-transparent px-2 text-xs w-20">
+                            className="h-8 rounded border border-input bg-transparent px-2 text-xs w-20">
                             <option value="image">Image</option>
                             <option value="video">Video</option>
                           </select>
                           <Input className="h-8 text-xs flex-1" value={m.url} onChange={(e) => updateMediaItem(gi, mi, "url", e.target.value)} placeholder="https://..." />
                           <Input className="h-8 text-xs w-32" value={m.alt} onChange={(e) => updateMediaItem(gi, mi, "alt", e.target.value)} placeholder="Alt text" />
-                          <button type="button" onClick={() => removeMediaItem(gi, mi)} className="opacity-0 group-hover/media:opacity-100 transition-opacity text-red-400">
+                          <button type="button" onClick={() => removeMediaItem(gi, mi)} className="opacity-0 group-hover/media:opacity-100 transition-opacity text-destructive">
                             <X className="h-4 w-4" />
                           </button>
                         </div>
                       ))}
-                      <Button type="button" variant="ghost" size="sm" className="h-7 text-xs text-[hsl(var(--muted-foreground))]" onClick={() => addMediaItem(gi)}>
+                      <Button type="button" variant="ghost" size="sm" className="h-7 text-xs text-muted-foreground" onClick={() => addMediaItem(gi)}>
                         <ImageIcon className="mr-1.5 h-3 w-3" />
                         Add Media URL
                       </Button>
@@ -954,7 +955,7 @@ export default function EditProductPage() {
                 }}>
                   Add Default Media Group
                 </Button>
-                <p className="text-xs text-[hsl(var(--muted-foreground))] mt-2">
+                <p className="text-xs text-muted-foreground mt-2">
                   Use this if your product has no variants but needs images.
                 </p>
               </CardContent>
@@ -962,7 +963,7 @@ export default function EditProductPage() {
           )}
 
           <div className="flex justify-end pb-6">
-            <Button variant="brand" onClick={handleSaveVariants} disabled={saving}>
+            <Button variant="default" onClick={handleSaveVariants} disabled={saving}>
               {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Save Variants & Media
             </Button>
@@ -978,20 +979,20 @@ export default function EditProductPage() {
               { label: "Active SKUs", value: activeSkuCount },
               { label: "Total Stock", value: totalStock },
             ].map((stat) => (
-              <div key={stat.label} className="rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--card))] p-4 text-center">
+              <div key={stat.label} className="rounded-lg border border-border bg-card p-4 text-center">
                 <p className="text-2xl font-bold font-heading">{stat.value}</p>
-                <p className="text-xs text-[hsl(var(--muted-foreground))] mt-0.5">{stat.label}</p>
+                <p className="text-xs text-muted-foreground mt-0.5">{stat.label}</p>
               </div>
             ))}
           </div>
 
           {/* Add SKU button */}
           <div className="flex justify-between items-center">
-            <p className="text-sm text-[hsl(var(--muted-foreground))]">
+            <p className="text-sm text-muted-foreground">
               Manage price, stock, and attributes for each variant.
             </p>
             <Button
-              variant="brand"
+              variant="default"
               size="sm"
               onClick={() => { setEditingSku(null); setSkuSheetOpen(true); }}
             >
@@ -1005,13 +1006,13 @@ export default function EditProductPage() {
             <CardContent className="p-0">
               {skus.length === 0 ? (
                 <div className="py-16 text-center space-y-3">
-                  <Package className="h-10 w-10 mx-auto text-[hsl(var(--muted-foreground))]" />
+                  <Package className="h-10 w-10 mx-auto text-muted-foreground" />
                   <p className="font-medium">No SKUs yet</p>
-                  <p className="text-sm text-[hsl(var(--muted-foreground))]">
+                  <p className="text-sm text-muted-foreground">
                     Add SKUs to set price and stock for each variant.
                   </p>
                   <Button
-                    variant="brand"
+                    variant="default"
                     size="sm"
                     className="mt-2"
                     onClick={() => { setEditingSku(null); setSkuSheetOpen(true); }}
@@ -1024,9 +1025,9 @@ export default function EditProductPage() {
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">
                     <thead>
-                      <tr className="border-b border-[hsl(var(--border))]/40">
+                      <tr className="border-b border-border/40">
                         {["SKU Code", "Attributes", "Price", "MRP", "Stock", "Status", ""].map((h) => (
-                          <th key={h} className={`px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-[hsl(var(--muted-foreground))] ${h === "" ? "text-right" : ""}`}>
+                          <th key={h} className={`px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground ${h === "" ? "text-right" : ""}`}>
                             {h}
                           </th>
                         ))}
@@ -1042,7 +1043,7 @@ export default function EditProductPage() {
                         return (
                           <tr
                             key={sku._id}
-                            className="border-b border-[hsl(var(--border))]/20 hover:bg-[hsl(var(--muted))]/20 transition-colors"
+                            className="border-b border-border/20 hover:bg-muted/20 transition-colors"
                           >
                             {/* SKU code */}
                             <td className="px-4 py-3">
@@ -1067,7 +1068,7 @@ export default function EditProductPage() {
                             </td>
 
                             {/* MRP */}
-                            <td className="px-4 py-3 text-[hsl(var(--muted-foreground))] line-through text-xs">
+                            <td className="px-4 py-3 text-muted-foreground line-through text-xs">
                               {formatPrice(sku.mrpPaise)}
                             </td>
 
@@ -1118,30 +1119,30 @@ export default function EditProductPage() {
                                 >
                                   <span
                                     className={`font-medium ${(sku.stockQuantity ?? 0) === 0
-                                      ? "text-red-400"
+                                      ? "text-destructive"
                                       : isLowStock
-                                        ? "text-amber-400"
+                                        ? "text-amber-600 dark:text-amber-400"
                                         : ""
                                       }`}
                                   >
                                     {sku.stockQuantity ?? 0}
                                   </span>
                                   {isLowStock && (
-                                    <AlertTriangle className="h-3 w-3 text-amber-400" />
+                                    <AlertTriangle className="h-3 w-3 text-amber-600 dark:text-amber-400" />
                                   )}
-                                  <Pencil className="h-3 w-3 opacity-0 group-hover/stock:opacity-60 transition-opacity text-[hsl(var(--muted-foreground))]" />
+                                  <Pencil className="h-3 w-3 opacity-0 group-hover/stock:opacity-60 transition-opacity text-muted-foreground" />
                                 </button>
                               )}
                             </td>
 
                             {/* Status */}
                             <td className="px-4 py-3">
-                              <Badge
-                                variant={sku.isActive ? "success" : "secondary"}
+                              <StatusBadge
+                                tone={sku.isActive ? "success" : "neutral"}
                                 className="text-[10px]"
                               >
                                 {sku.isActive ? "Active" : "Inactive"}
-                              </Badge>
+                              </StatusBadge>
                             </td>
 
                             {/* Actions */}
@@ -1162,7 +1163,7 @@ export default function EditProductPage() {
                                 <Button
                                   variant="ghost"
                                   size="icon"
-                                  className="h-7 w-7 text-red-400 hover:text-red-500 hover:bg-red-400/10"
+                                  className="h-7 w-7 text-destructive hover:text-destructive hover:bg-destructive/10"
                                   title="Delete SKU"
                                   onClick={() => {
                                     setDeletingSkuId(sku._id);
@@ -1183,7 +1184,7 @@ export default function EditProductPage() {
             </CardContent>
           </Card>
 
-          <p className="text-xs text-[hsl(var(--muted-foreground))] text-center">
+          <p className="text-xs text-muted-foreground text-center">
             💡 Click the stock number to edit it inline. Press Enter to save, Esc to cancel.
           </p>
         </TabsContent>
@@ -1220,7 +1221,7 @@ export default function EditProductPage() {
                     <RefreshCw className="h-4 w-4" />
                   </Button>
                 </div>
-                <p className="text-xs text-[hsl(var(--muted-foreground))]">
+                <p className="text-xs text-muted-foreground">
                   Old slugs are kept as redirects automatically.
                 </p>
               </div>
@@ -1233,22 +1234,22 @@ export default function EditProductPage() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label>Meta Title <span className="text-xs font-normal text-[hsl(var(--muted-foreground))]">(max 120 chars)</span></Label>
+                <Label>Meta Title <span className="text-xs font-normal text-muted-foreground">(max 120 chars)</span></Label>
                 <Input value={metaTitle} onChange={(e) => setMetaTitle(e.target.value)} maxLength={120} placeholder="Leave blank to auto-generate from product name" />
               </div>
               <div className="space-y-2">
-                <Label>Meta Description <span className="text-xs font-normal text-[hsl(var(--muted-foreground))]">(max 320 chars)</span></Label>
+                <Label>Meta Description <span className="text-xs font-normal text-muted-foreground">(max 320 chars)</span></Label>
                 <textarea
                   value={metaDescription}
                   onChange={(e) => setMetaDescription(e.target.value)}
                   maxLength={320}
                   rows={3}
                   placeholder="Leave blank to auto-generate from description"
-                  className="flex w-full rounded-md border border-[hsl(var(--input))] bg-transparent px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--ring))] resize-none"
+                  className="flex w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring resize-none"
                 />
               </div>
               <div className="flex justify-end">
-                <Button variant="brand" onClick={handleSaveSeo} disabled={saving}>
+                <Button variant="default" onClick={handleSaveSeo} disabled={saving}>
                   {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                   Save SEO
                 </Button>
@@ -1296,11 +1297,11 @@ function PublishReadinessBar({
   const allDone = checks.every((c) => c.done);
   return (
     <div className={`rounded-lg border px-4 py-3 flex flex-wrap gap-x-6 gap-y-2 items-center text-sm ${allDone ? "border-green-500/30 bg-green-500/5" : "border-amber-500/30 bg-amber-500/5"}`}>
-      <p className="font-medium text-xs uppercase tracking-wide text-[hsl(var(--muted-foreground))]">
+      <p className="font-medium text-xs uppercase tracking-wide text-muted-foreground">
         Publish requirements
       </p>
       {checks.map((c) => (
-        <div key={c.label} className={`flex items-center gap-1.5 text-xs ${c.done ? "text-green-500" : "text-amber-500"}`}>
+        <div key={c.label} className={`flex items-center gap-1.5 text-xs ${c.done ? "text-green-600 dark:text-green-400" : "text-amber-600 dark:text-amber-400"}`}>
           {c.done ? <CheckCircle2 className="h-3.5 w-3.5" /> : <AlertTriangle className="h-3.5 w-3.5" />}
           {c.label}
         </div>
@@ -1326,12 +1327,12 @@ function ToggleField({
     <label htmlFor={id} className="flex items-center gap-3 cursor-pointer">
       <div className="relative">
         <input id={id} type="checkbox" checked={checked} onChange={(e) => onChange(e.target.checked)} className="sr-only peer" />
-        <div className="w-9 h-5 bg-[hsl(var(--muted))] rounded-full peer peer-checked:bg-brand-500 transition-colors" />
-        <div className="absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform peer-checked:translate-x-4" />
+        <div className="w-9 h-5 bg-muted rounded-full peer peer-checked:bg-primary transition-colors" />
+        <div className="absolute top-0.5 left-0.5 w-4 h-4 bg-background rounded-full shadow transition-transform peer-checked:translate-x-4" />
       </div>
       <div>
         <p className="text-sm font-medium">{label}</p>
-        <p className="text-xs text-[hsl(var(--muted-foreground))]">{desc}</p>
+        <p className="text-xs text-muted-foreground">{desc}</p>
       </div>
     </label>
   );
@@ -1352,10 +1353,10 @@ function VariantOptionRow({
 }) {
   const [valInput, setValInput] = useState("");
   return (
-    <div className="rounded-lg border border-[hsl(var(--border))] p-4 space-y-3">
+    <div className="rounded-lg border border-border p-4 space-y-3">
       <div className="flex gap-2 items-center">
         <Input value={option.name} onChange={(e) => onNameChange(e.target.value)} placeholder="Option name (e.g. Color, Size)" className="flex-1 h-9" />
-        <Button type="button" variant="ghost" size="icon" className="h-9 w-9 text-red-400 hover:bg-red-400/10 shrink-0" onClick={onRemove}>
+        <Button type="button" variant="ghost" size="icon" className="h-9 w-9 text-destructive hover:bg-destructive/10 shrink-0" onClick={onRemove}>
           <X className="h-4 w-4" />
         </Button>
       </div>
@@ -1378,7 +1379,7 @@ function VariantOptionRow({
           {option.values.map((v, i) => (
             <Badge key={v.value} variant="secondary" className="gap-1 pl-2 pr-1 py-0.5">
               {v.label}
-              <button type="button" onClick={() => onRemoveValue(i)} className="ml-1 hover:text-red-400 transition-colors">
+              <button type="button" onClick={() => onRemoveValue(i)} className="ml-1 hover:text-destructive transition-colors">
                 <X className="h-3 w-3" />
               </button>
             </Badge>

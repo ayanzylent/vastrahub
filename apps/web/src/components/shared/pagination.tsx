@@ -41,7 +41,7 @@ export function Pagination({ page, totalPages, onPageChange }: PaginationProps) 
       </Button>
       {getPages().map((p, i) =>
         p === "..." ? (
-          <span key={`ellipsis-${i}`} className="px-2 text-sm text-[hsl(var(--muted-foreground))]">
+          <span key={`ellipsis-${i}`} className="px-2 text-sm text-muted-foreground">
             …
           </span>
         ) : (
@@ -49,7 +49,7 @@ export function Pagination({ page, totalPages, onPageChange }: PaginationProps) 
             key={p}
             variant={p === page ? "default" : "outline"}
             size="icon"
-            className={`h-9 w-9 ${p === page ? "bg-brand-500 hover:bg-brand-600" : ""}`}
+            className={`h-9 w-9 ${p === page ? "bg-primary hover:bg-primary/90" : ""}`}
             onClick={() => onPageChange(p)}
           >
             {p}

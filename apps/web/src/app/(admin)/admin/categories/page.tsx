@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { StatusBadge } from "@/components/shared/status-badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Dialog,
@@ -191,11 +191,11 @@ export default function AdminCategoriesPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="font-heading text-2xl md:text-3xl font-bold">Categories</h1>
-          <p className="mt-1 text-[hsl(var(--muted-foreground))]">
+          <p className="mt-1 text-muted-foreground">
             Manage your product categories
           </p>
         </div>
-        <Button variant="brand" onClick={openAddDialog}>
+        <Button variant="default" onClick={openAddDialog}>
           <Plus className="mr-2 h-4 w-4" />
           Add Category
         </Button>
@@ -205,7 +205,7 @@ export default function AdminCategoriesPage() {
       <Card>
         <CardHeader>
           <CardTitle className="text-base flex items-center gap-2">
-            <FolderTree className="h-4 w-4 text-brand-400" />
+            <FolderTree className="h-4 w-4 text-primary" />
             All Categories ({categories.length})
           </CardTitle>
         </CardHeader>
@@ -213,23 +213,23 @@ export default function AdminCategoriesPage() {
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr className="border-b border-[hsl(var(--border))]/40">
-                  <th className="px-4 py-3 text-left text-xs font-medium text-[hsl(var(--muted-foreground))] uppercase tracking-wider">
+                <tr className="border-b border-border/40">
+                  <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                     Name
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-[hsl(var(--muted-foreground))] uppercase tracking-wider hidden md:table-cell">
+                  <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider hidden md:table-cell">
                     Slug
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-[hsl(var(--muted-foreground))] uppercase tracking-wider hidden sm:table-cell">
+                  <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider hidden sm:table-cell">
                     Parent
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-[hsl(var(--muted-foreground))] uppercase tracking-wider">
+                  <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                     Products
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-[hsl(var(--muted-foreground))] uppercase tracking-wider">
+                  <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground uppercase tracking-wider">
                     Status
                   </th>
-                  <th className="px-4 py-3 text-right text-xs font-medium text-[hsl(var(--muted-foreground))] uppercase tracking-wider">
+                  <th className="px-4 py-3 text-right text-xs font-medium text-muted-foreground uppercase tracking-wider">
                     Actions
                   </th>
                 </tr>
@@ -237,7 +237,7 @@ export default function AdminCategoriesPage() {
               <tbody>
                 {loading
                   ? Array.from({ length: 5 }).map((_, i) => (
-                    <tr key={i} className="border-b border-[hsl(var(--border))]/20">
+                    <tr key={i} className="border-b border-border/20">
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-3">
                           <Skeleton className="h-8 w-8 rounded-md animate-pulse" />
@@ -254,16 +254,16 @@ export default function AdminCategoriesPage() {
                   : categories.map((cat) => (
                     <tr
                       key={cat._id}
-                      className="border-b border-[hsl(var(--border))]/20 hover:bg-[hsl(var(--muted))]/30 transition-colors"
+                      className="border-b border-border/20 hover:bg-muted/30 transition-colors"
                     >
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-3">
                           {cat.ancestors?.length > 0 && (
-                            <span className="text-[hsl(var(--muted-foreground))] whitespace-pre shrink-0">
+                            <span className="text-muted-foreground whitespace-pre shrink-0">
                               {"  ".repeat(cat.ancestors.length)}↳{" "}
                             </span>
                           )}
-                          <div className="relative h-8 w-8 rounded-md overflow-hidden bg-[hsl(var(--muted))]/50 border border-[hsl(var(--border))]/50 shrink-0 flex items-center justify-center">
+                          <div className="relative h-8 w-8 rounded-md overflow-hidden bg-muted/50 border border-border/50 shrink-0 flex items-center justify-center">
                             {cat.image ? (
                               <img
                                 src={getMediaUrl(cat.image)}
@@ -271,7 +271,7 @@ export default function AdminCategoriesPage() {
                                 className="h-full w-full object-cover"
                               />
                             ) : (
-                              <FolderTree className="h-4 w-4 text-brand-400/50" />
+                              <FolderTree className="h-4 w-4 text-primary/50" />
                             )}
                           </div>
                           <span className="text-sm font-medium truncate max-w-[200px]">
@@ -279,20 +279,20 @@ export default function AdminCategoriesPage() {
                           </span>
                         </div>
                       </td>
-                      <td className="px-4 py-3 text-sm text-[hsl(var(--muted-foreground))] hidden md:table-cell font-mono text-xs">
+                      <td className="px-4 py-3 text-sm text-muted-foreground hidden md:table-cell font-mono text-xs">
                         {cat.slug}
                       </td>
-                      <td className="px-4 py-3 text-sm text-[hsl(var(--muted-foreground))] hidden sm:table-cell">
+                      <td className="px-4 py-3 text-sm text-muted-foreground hidden sm:table-cell">
                         {getParentName(cat.parentId)}
                       </td>
                       <td className="px-4 py-3 text-sm">{cat.productCount}</td>
                       <td className="px-4 py-3">
-                        <Badge
-                          variant={cat.isActive ? "success" : "secondary"}
+                        <StatusBadge
+                          tone={cat.isActive ? "success" : "neutral"}
                           className="text-[10px]"
                         >
                           {cat.isActive ? "Active" : "Inactive"}
-                        </Badge>
+                        </StatusBadge>
                       </td>
                       <td className="px-4 py-3 text-right">
                         <div className="flex gap-1 justify-end">
@@ -315,7 +315,7 @@ export default function AdminCategoriesPage() {
                           <Button
                             variant="ghost"
                             size="icon"
-                            className="h-8 w-8 text-red-400"
+                            className="h-8 w-8 text-destructive"
                             onClick={() => setDeleteId(cat._id)}
                           >
                             <Trash2 className="h-3.5 w-3.5" />
@@ -327,7 +327,7 @@ export default function AdminCategoriesPage() {
               </tbody>
             </table>
             {!loading && categories.length === 0 && (
-              <div className="py-12 text-center text-sm text-[hsl(var(--muted-foreground))]">
+              <div className="py-12 text-center text-sm text-muted-foreground">
                 No categories yet. Create your first one!
               </div>
             )}
@@ -367,7 +367,7 @@ export default function AdminCategoriesPage() {
               <Label>Category Image</Label>
               <div className="flex items-center gap-4">
                 {formImage && (
-                  <div className="h-16 w-16 rounded-md overflow-hidden bg-[hsl(var(--muted))]/50 flex-shrink-0 border border-[hsl(var(--border))]/50">
+                  <div className="h-16 w-16 rounded-md overflow-hidden bg-muted/50 flex-shrink-0 border border-border/50">
                     <img src={getMediaUrl(formImage)} alt="Category" className="h-full w-full object-cover" />
                   </div>
                 )}
@@ -403,7 +403,7 @@ export default function AdminCategoriesPage() {
               <select
                 value={formParentId}
                 onChange={(e) => setFormParentId(e.target.value)}
-                className="flex h-10 w-full rounded-md border border-[hsl(var(--input))] bg-transparent px-3 py-2 text-sm"
+                className="flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm"
               >
                 <option value="">None (Top Level)</option>
                 {categories
@@ -425,7 +425,7 @@ export default function AdminCategoriesPage() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
-            <Button variant="brand" onClick={handleSave} disabled={saving}>
+            <Button variant="default" onClick={handleSave} disabled={saving}>
               {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               {editingCategory ? "Update" : "Create"}
             </Button>
@@ -443,7 +443,7 @@ export default function AdminCategoriesPage() {
             <div className="space-y-6">
               {/* Image & Main Info */}
               <div className="flex items-start gap-4">
-                <div className="h-24 w-24 rounded-lg overflow-hidden bg-[hsl(var(--muted))]/50 border border-[hsl(var(--border))]/50 flex-shrink-0 flex items-center justify-center">
+                <div className="h-24 w-24 rounded-lg overflow-hidden bg-muted/50 border border-border/50 flex-shrink-0 flex items-center justify-center">
                   {viewingCategory.image ? (
                     <img
                       src={getMediaUrl(viewingCategory.image)}
@@ -451,35 +451,35 @@ export default function AdminCategoriesPage() {
                       className="h-full w-full object-cover"
                     />
                   ) : (
-                    <FolderTree className="h-12 w-12 text-brand-400/30" />
+                    <FolderTree className="h-12 w-12 text-primary/30" />
                   )}
                 </div>
                 <div className="space-y-1">
                   <h3 className="font-heading text-lg font-bold">{viewingCategory.name}</h3>
-                  <p className="font-mono text-xs text-[hsl(var(--muted-foreground))] break-all">
+                  <p className="font-mono text-xs text-muted-foreground break-all">
                     Slug: {viewingCategory.slug}
                   </p>
                   <div className="pt-1">
-                    <Badge variant={viewingCategory.isActive ? "success" : "secondary"}>
+                    <StatusBadge tone={viewingCategory.isActive ? "success" : "neutral"}>
                       {viewingCategory.isActive ? "Active" : "Inactive"}
-                    </Badge>
+                    </StatusBadge>
                   </div>
                 </div>
               </div>
 
               {/* Details List */}
-              <div className="space-y-3 border-t border-[hsl(var(--border))]/40 pt-4 text-sm">
+              <div className="space-y-3 border-t border-border/40 pt-4 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-[hsl(var(--muted-foreground))]">Parent Category:</span>
+                  <span className="text-muted-foreground">Parent Category:</span>
                   <span className="font-medium">{getParentName(viewingCategory.parentId)}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-[hsl(var(--muted-foreground))]">Products Count:</span>
+                  <span className="text-muted-foreground">Products Count:</span>
                   <span className="font-medium">{viewingCategory.productCount}</span>
                 </div>
                 <div className="space-y-1">
-                  <span className="text-[hsl(var(--muted-foreground))]">Description:</span>
-                  <p className="text-[hsl(var(--foreground))]/90 bg-[hsl(var(--muted))]/30 rounded-md p-3 text-xs leading-relaxed min-h-[60px] whitespace-pre-wrap break-words">
+                  <span className="text-muted-foreground">Description:</span>
+                  <p className="text-foreground/90 bg-muted/30 rounded-md p-3 text-xs leading-relaxed min-h-[60px] whitespace-pre-wrap break-words">
                     {viewingCategory.description || "No description provided."}
                   </p>
                 </div>
@@ -492,7 +492,7 @@ export default function AdminCategoriesPage() {
             </Button>
             {viewingCategory && (
               <Button
-                variant="brand"
+                variant="default"
                 onClick={() => {
                   const cat = viewingCategory;
                   setViewingCategory(null);

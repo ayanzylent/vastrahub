@@ -47,18 +47,18 @@ export function AdminTopbar() {
   }
 
   return (
-    <header className="flex h-16 items-center justify-between border-b border-[hsl(var(--border))]/40 bg-[hsl(var(--card))] px-6">
+    <header className="flex h-16 items-center justify-between border-b border-border/40 bg-card px-6">
       {/* Breadcrumb Area */}
       <nav className="flex items-center gap-2 text-sm">
         {breadcrumb.map((crumb, i) => (
           <span key={crumb.href} className="flex items-center gap-2">
-            {i > 0 && <span className="text-[hsl(var(--muted-foreground))]">/</span>}
+            {i > 0 && <span className="text-muted-foreground">/</span>}
             {i === breadcrumb.length - 1 ? (
               <span className="font-medium">{crumb.label}</span>
             ) : (
               <Link
                 href={crumb.href}
-                className="text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))]"
+                className="text-muted-foreground hover:text-foreground"
               >
                 {crumb.label}
               </Link>
@@ -75,7 +75,7 @@ export function AdminTopbar() {
         <Button variant="ghost" size="icon" className="relative">
           <Bell className="h-5 w-5" />
           <Badge
-            className="absolute -top-1 -right-1 h-4 w-4 flex items-center justify-center p-0 text-[10px] rounded-full bg-red-500 text-white border-0"
+            className="absolute -top-1 -right-1 h-4 w-4 flex items-center justify-center p-0 text-[10px] rounded-full bg-destructive text-destructive-foreground border-0"
           >
             5
           </Badge>
@@ -88,7 +88,7 @@ export function AdminTopbar() {
             <Button variant="ghost" className="relative h-8 w-8 rounded-full">
               <Avatar className="h-8 w-8">
                 <AvatarImage src={user?.image || ""} alt={user?.name || "Admin"} />
-                <AvatarFallback className="bg-brand-500/20 text-brand-400 text-xs">
+                <AvatarFallback className="bg-primary/20 text-primary text-xs">
                   {initials}
                 </AvatarFallback>
               </Avatar>
@@ -98,7 +98,7 @@ export function AdminTopbar() {
             <DropdownMenuLabel className="font-normal">
               <div className="flex flex-col space-y-1">
                 <p className="text-sm font-medium leading-none">{user?.name || "Admin"}</p>
-                <p className="text-xs leading-none text-[hsl(var(--muted-foreground))]">
+                <p className="text-xs leading-none text-muted-foreground">
                   {user?.email || "admin@vastrahub.com"}
                 </p>
               </div>
@@ -109,7 +109,7 @@ export function AdminTopbar() {
             </DropdownMenuItem>
             <DropdownMenuItem>Settings</DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem className="text-red-400" onClick={handleSignOut}>
+            <DropdownMenuItem className="text-destructive" onClick={handleSignOut}>
               <LogOut className="mr-2 h-4 w-4" />
               Log out
             </DropdownMenuItem>
