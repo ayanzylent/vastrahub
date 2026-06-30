@@ -71,18 +71,18 @@ function AdminLoginForm() {
   }
 
   return (
-    <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-surface-primary">
+    <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-background">
       {/* Background effects */}
       <div className="pointer-events-none absolute inset-0">
-        <div className="absolute inset-0 bg-gradient-to-br from-purple-950/40 via-surface-primary to-slate-900/30" />
-        <div className="absolute top-1/4 left-1/4 h-[400px] w-[400px] rounded-full bg-purple-500/5 blur-3xl" />
-        <div className="absolute bottom-1/4 right-1/4 h-[350px] w-[350px] rounded-full bg-indigo-500/5 blur-3xl" />
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-muted/30" />
+        <div className="absolute top-1/4 left-1/4 h-[400px] w-[400px] rounded-full bg-primary/5 blur-3xl" />
+        <div className="absolute bottom-1/4 right-1/4 h-[350px] w-[350px] rounded-full bg-chart-2/10 blur-3xl" />
         {/* Grid pattern overlay */}
         <div
-          className="absolute inset-0 opacity-[0.03]"
+          className="absolute inset-0 text-foreground opacity-[0.03]"
           style={{
             backgroundImage:
-              "linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)",
+              "linear-gradient(currentColor 1px, transparent 1px), linear-gradient(90deg, currentColor 1px, transparent 1px)",
             backgroundSize: "40px 40px",
           }}
         />
@@ -92,40 +92,40 @@ function AdminLoginForm() {
       <div className="relative z-10 flex flex-col items-center gap-8 w-full max-w-md px-4">
         {/* Admin branding */}
         <div className="flex flex-col items-center gap-3">
-          <div className="flex items-center justify-center h-16 w-16 rounded-2xl bg-purple-500/10 border border-purple-500/20 shadow-lg shadow-purple-500/5">
-            <ShieldCheck className="h-8 w-8 text-purple-400" />
+          <div className="flex items-center justify-center h-16 w-16 rounded-2xl bg-primary/10 border border-primary/20 shadow-lg shadow-primary/5">
+            <ShieldCheck className="h-8 w-8 text-primary" />
           </div>
           <div className="text-center">
-            <h1 className="font-heading text-2xl font-bold text-white tracking-tight">
+            <h1 className="font-heading text-2xl font-bold text-foreground tracking-tight">
               Admin Panel
             </h1>
-            <p className="text-sm text-slate-400 mt-1">
+            <p className="text-sm text-muted-foreground mt-1">
               VastraHub Management Console
             </p>
           </div>
         </div>
 
         {/* Login card */}
-        <Card className="w-full border-purple-500/10 bg-surface-secondary/80 backdrop-blur-xl shadow-2xl shadow-purple-500/5">
+        <Card className="w-full border-primary/10 bg-card/80 backdrop-blur-xl shadow-2xl shadow-primary/5">
           <CardHeader className="text-center pb-4">
-            <CardTitle className="font-heading text-xl text-white flex items-center justify-center gap-2">
-              <Lock className="h-4 w-4 text-purple-400" />
+            <CardTitle className="font-heading text-xl text-foreground flex items-center justify-center gap-2">
+              <Lock className="h-4 w-4 text-primary" />
               Secure Login
             </CardTitle>
-            <CardDescription className="text-slate-400">
+            <CardDescription className="text-muted-foreground">
               Enter your admin credentials to continue
             </CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
               {error && (
-                <div className="rounded-lg bg-red-500/10 border border-red-500/20 p-3 text-sm text-red-400">
+                <div className="rounded-lg bg-destructive/10 border border-destructive/20 p-3 text-sm text-destructive">
                   {error}
                 </div>
               )}
 
               <div className="space-y-2">
-                <Label htmlFor="admin-email" className="text-slate-300">
+                <Label htmlFor="admin-email" className="text-foreground">
                   Email
                 </Label>
                 <Input
@@ -135,11 +135,11 @@ function AdminLoginForm() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   disabled={loading}
-                  className="bg-surface-tertiary/50 border-purple-500/10 focus:border-purple-500/30 focus:ring-purple-500/20"
+                  className="bg-muted/50 border-primary/10 focus:border-primary/30 focus:ring-primary/20"
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="admin-password" className="text-slate-300">
+                <Label htmlFor="admin-password" className="text-foreground">
                   Password
                 </Label>
                 <Input
@@ -149,12 +149,12 @@ function AdminLoginForm() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   disabled={loading}
-                  className="bg-surface-tertiary/50 border-purple-500/10 focus:border-purple-500/30 focus:ring-purple-500/20"
+                  className="bg-muted/50 border-primary/10 focus:border-primary/30 focus:ring-primary/20"
                 />
               </div>
 
               <Button
-                className="w-full bg-purple-600 hover:bg-purple-700 text-white cursor-pointer"
+                className="w-full bg-primary text-primary-foreground hover:bg-primary/90 cursor-pointer"
                 size="lg"
                 type="submit"
                 disabled={loading}
@@ -174,10 +174,10 @@ function AdminLoginForm() {
             </form>
 
             {/* Back to store link */}
-            <div className="mt-6 pt-4 border-t border-purple-500/10 text-center">
+            <div className="mt-6 pt-4 border-t border-primary/10 text-center">
               <Link
                 href="/"
-                className="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-300 transition-colors"
+                className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
               >
                 <ArrowLeft className="h-3.5 w-3.5" />
                 Back to store
@@ -187,7 +187,7 @@ function AdminLoginForm() {
         </Card>
 
         {/* Security notice */}
-        <p className="text-xs text-slate-600 text-center max-w-xs">
+        <p className="text-xs text-muted-foreground text-center max-w-xs">
           This area is restricted to authorized personnel only.
           Unauthorized access attempts are logged.
         </p>
@@ -198,9 +198,9 @@ function AdminLoginForm() {
 
 function AdminLoginFallback() {
   return (
-    <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-surface-primary">
+    <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-background">
       <div className="pointer-events-none absolute inset-0">
-        <div className="absolute inset-0 bg-gradient-to-br from-purple-950/40 via-surface-primary to-slate-900/30" />
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-muted/30" />
       </div>
       <div className="relative z-10 flex flex-col items-center gap-8 w-full max-w-md px-4">
         <div className="flex flex-col items-center gap-3">
@@ -208,7 +208,7 @@ function AdminLoginFallback() {
           <Skeleton className="h-6 w-32" />
           <Skeleton className="h-4 w-48" />
         </div>
-        <Card className="w-full border-purple-500/10 bg-surface-secondary/80 backdrop-blur-xl">
+        <Card className="w-full border-primary/10 bg-card/80 backdrop-blur-xl">
           <CardHeader className="text-center pb-4">
             <Skeleton className="h-6 w-36 mx-auto" />
             <Skeleton className="h-4 w-56 mx-auto mt-2" />

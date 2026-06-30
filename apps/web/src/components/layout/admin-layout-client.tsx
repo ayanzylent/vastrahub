@@ -30,7 +30,7 @@ export function AdminLayoutClient({ children }: { children: React.ReactNode }) {
         <div className="space-y-4 text-center">
           <Skeleton className="h-12 w-12 rounded-full mx-auto" />
           <Skeleton className="h-4 w-40 mx-auto" />
-          <p className="text-sm text-[hsl(var(--muted-foreground))]">Verifying access...</p>
+          <p className="text-sm text-muted-foreground">Verifying access...</p>
         </div>
       </div>
     );
@@ -44,11 +44,11 @@ export function AdminLayoutClient({ children }: { children: React.ReactNode }) {
             <ShieldAlert className="h-8 w-8 text-red-400" />
           </div>
           <h1 className="font-heading text-2xl font-bold">Access Denied</h1>
-          <p className="text-[hsl(var(--muted-foreground))]">
+          <p className="text-muted-foreground">
             You don&apos;t have permission to access the admin panel.
             Admin or Super Admin privileges are required.
           </p>
-          <Button variant="brand" asChild>
+          <Button variant="default" asChild>
             <Link href="/">Back to Store</Link>
           </Button>
         </div>

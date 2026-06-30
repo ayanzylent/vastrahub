@@ -58,7 +58,7 @@ function getRoleBadge(role: string) {
   switch (role) {
     case 'superadmin':
       return (
-        <Badge className="border-transparent bg-purple-500/10 text-purple-400">
+        <Badge className="border-transparent bg-primary/10 text-primary">
           <Crown className="mr-1 h-3 w-3" />
           Super Admin
         </Badge>
@@ -172,7 +172,7 @@ export default function AdminUsersPage() {
             <ShieldAlert className="h-8 w-8 text-red-400" />
           </div>
           <h1 className="font-heading text-2xl font-bold">Superadmin Access Required</h1>
-          <p className="text-[hsl(var(--muted-foreground))]">
+          <p className="text-muted-foreground">
             Only Super Admins can manage user roles and permissions.
           </p>
         </div>
@@ -185,12 +185,12 @@ export default function AdminUsersPage() {
       {/* Header */}
       <div className="flex flex-col gap-1">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-purple-500/10">
-            <Users className="h-5 w-5 text-purple-400" />
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
+            <Users className="h-5 w-5 text-primary" />
           </div>
           <div>
             <h1 className="font-heading text-2xl font-bold">User Management</h1>
-            <p className="text-sm text-[hsl(var(--muted-foreground))]">
+            <p className="text-sm text-muted-foreground">
               Manage user roles and permissions &middot; {total} users total
             </p>
           </div>
@@ -199,7 +199,7 @@ export default function AdminUsersPage() {
 
       {/* Search */}
       <div className="relative max-w-md">
-        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[hsl(var(--muted-foreground))]" />
+        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
         <Input
           id="user-search"
           placeholder="Search by name or email..."
@@ -210,29 +210,29 @@ export default function AdminUsersPage() {
       </div>
 
       {/* Table */}
-      <div className="glass-card overflow-hidden rounded-xl border border-[hsl(var(--border))]/40">
+      <div className="bg-card/60 backdrop-blur-md overflow-hidden rounded-xl border border-border/40">
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
-              <tr className="border-b border-[hsl(var(--border))]/40 bg-[hsl(var(--muted))]/30">
-                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-[hsl(var(--muted-foreground))]">
+              <tr className="border-b border-border/40 bg-muted/30">
+                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
                   Name
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-[hsl(var(--muted-foreground))]">
+                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
                   Email
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-[hsl(var(--muted-foreground))]">
+                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
                   Role
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-[hsl(var(--muted-foreground))]">
+                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
                   Created
                 </th>
-                <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-[hsl(var(--muted-foreground))]">
+                <th className="px-6 py-3 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground">
                   Actions
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[hsl(var(--border))]/20">
+            <tbody className="divide-y divide-border/20">
               {loading ? (
                 Array.from({ length: 5 }).map((_, i) => (
                   <tr key={i}>
@@ -255,7 +255,7 @@ export default function AdminUsersPage() {
                 ))
               ) : users.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="px-6 py-12 text-center text-[hsl(var(--muted-foreground))]">
+                  <td colSpan={5} className="px-6 py-12 text-center text-muted-foreground">
                     No users found
                   </td>
                 </tr>
@@ -268,28 +268,28 @@ export default function AdminUsersPage() {
                   return (
                     <tr
                       key={u.id}
-                      className="transition-colors duration-150 hover:bg-[hsl(var(--muted))]/20"
+                      className="transition-colors duration-150 hover:bg-muted/20"
                     >
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
-                          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-brand-500/10 text-sm font-semibold text-brand-400">
+                          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-sm font-semibold text-primary">
                             {u.name?.charAt(0)?.toUpperCase() || '?'}
                           </div>
-                          <span className="font-medium text-[hsl(var(--foreground))]">
+                          <span className="font-medium text-foreground">
                             {u.name}
                             {isSelf && (
-                              <span className="ml-2 text-xs text-[hsl(var(--muted-foreground))]">(you)</span>
+                              <span className="ml-2 text-xs text-muted-foreground">(you)</span>
                             )}
                           </span>
                         </div>
                       </td>
-                      <td className="px-6 py-4 text-sm text-[hsl(var(--muted-foreground))]">
+                      <td className="px-6 py-4 text-sm text-muted-foreground">
                         {u.email}
                       </td>
                       <td className="px-6 py-4">
                         {getRoleBadge(u.role)}
                       </td>
-                      <td className="px-6 py-4 text-sm text-[hsl(var(--muted-foreground))]">
+                      <td className="px-6 py-4 text-sm text-muted-foreground">
                         {new Date(u.createdAt).toLocaleDateString('en-US', {
                           year: 'numeric',
                           month: 'short',
@@ -323,7 +323,7 @@ export default function AdminUsersPage() {
                             </DropdownMenuContent>
                           </DropdownMenu>
                         ) : (
-                          <span className="text-xs text-[hsl(var(--muted-foreground))]">
+                          <span className="text-xs text-muted-foreground">
                             {isSelf ? 'Current user' : 'Protected'}
                           </span>
                         )}
@@ -338,8 +338,8 @@ export default function AdminUsersPage() {
 
         {/* Pagination */}
         {!loading && totalPages > 1 && (
-          <div className="flex items-center justify-between border-t border-[hsl(var(--border))]/40 px-6 py-3">
-            <p className="text-sm text-[hsl(var(--muted-foreground))]">
+          <div className="flex items-center justify-between border-t border-border/40 px-6 py-3">
+            <p className="text-sm text-muted-foreground">
               Page {page} of {totalPages}
             </p>
             <div className="flex items-center gap-2">
@@ -373,7 +373,7 @@ export default function AdminUsersPage() {
             <DialogTitle>Confirm Role Change</DialogTitle>
             <DialogDescription>
               Are you sure you want to change{' '}
-              <span className="font-semibold text-[hsl(var(--foreground))]">
+              <span className="font-semibold text-foreground">
                 {roleChangeTarget?.user.name}
               </span>
               &apos;s role from{' '}
@@ -391,7 +391,7 @@ export default function AdminUsersPage() {
               Cancel
             </Button>
             <Button
-              variant="brand"
+              variant="default"
               onClick={handleRoleChange}
               disabled={changingRole}
             >

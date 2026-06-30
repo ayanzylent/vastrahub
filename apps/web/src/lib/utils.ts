@@ -42,7 +42,7 @@ export function capitalize(text: string): string {
  */
 export function placeholderImage(width: number, height: number, text?: string): string {
   const label = text ? encodeURIComponent(text) : `${width}x${height}`;
-  return `https://placehold.co/${width}x${height}/1e1b4b/818cf8?text=${label}`;
+  return `https://placehold.co/${width}x${height}/e5e5e5/737373?text=${label}`;
 }
 
 /**

@@ -132,7 +132,7 @@ export default function CategoryPage() {
           Filters
         </h2>
         <button
-          className="text-xs text-brand-400 hover:underline"
+          className="text-xs text-primary hover:underline"
           onClick={handleClearFilters}
         >
           Clear All
@@ -165,7 +165,7 @@ export default function CategoryPage() {
             onChange={(e) => setMinPrice(e.target.value)}
             className="text-sm"
           />
-          <span className="flex items-center text-[hsl(var(--muted-foreground))]">–</span>
+          <span className="flex items-center text-muted-foreground">–</span>
           <Input
             type="number"
             placeholder="Max"
@@ -184,12 +184,12 @@ export default function CategoryPage() {
           type="checkbox"
           checked={inStockOnly}
           onChange={(e) => setInStockOnly(e.target.checked)}
-          className="rounded border-[hsl(var(--border))] bg-transparent text-brand-500 focus:ring-brand-500/20"
+          className="rounded border-border bg-transparent text-primary focus:ring-primary/20"
         />
         <span className="text-sm">In Stock Only</span>
       </label>
 
-      <Button variant="brand" className="w-full" onClick={handleApplyFilters}>
+      <Button variant="default" className="w-full" onClick={handleApplyFilters}>
         Apply Filters
       </Button>
     </div>
@@ -198,22 +198,22 @@ export default function CategoryPage() {
   return (
     <div className="mx-auto max-w-7xl px-4 md:px-6 py-8">
       {/* Breadcrumb */}
-      <nav className="mb-6 flex items-center gap-2 text-sm text-[hsl(var(--muted-foreground))]">
-        <Link href="/" className="hover:text-[hsl(var(--foreground))]">Home</Link>
+      <nav className="mb-6 flex items-center gap-2 text-sm text-muted-foreground">
+        <Link href="/" className="hover:text-foreground">Home</Link>
         <span>/</span>
-        <Link href="/categories/all" className="hover:text-[hsl(var(--foreground))]">Categories</Link>
+        <Link href="/categories/all" className="hover:text-foreground">Categories</Link>
         <span>/</span>
-        <span className="text-[hsl(var(--foreground))]">{categoryName}</span>
+        <span className="text-foreground">{categoryName}</span>
       </nav>
 
       {/* Header */}
       <div className="mb-8">
         <h1 className="font-heading text-3xl md:text-4xl font-bold">{categoryName}</h1>
         {category?.description && (
-          <p className="mt-2 text-[hsl(var(--muted-foreground))]">{category.description}</p>
+          <p className="mt-2 text-muted-foreground">{category.description}</p>
         )}
         {!category?.description && (
-          <p className="mt-2 text-[hsl(var(--muted-foreground))]">
+          <p className="mt-2 text-muted-foreground">
             Explore our curated collection of {categoryName.toLowerCase()}
           </p>
         )}
@@ -231,12 +231,12 @@ export default function CategoryPage() {
         <div className="flex-1">
           {/* Toolbar */}
           <div className="mb-6 flex items-center justify-between">
-            <p className="text-sm text-[hsl(var(--muted-foreground))]">
+            <p className="text-sm text-muted-foreground">
               {loading ? (
                 <Skeleton className="h-4 w-32 inline-block" />
               ) : (
                 <>
-                  Showing <span className="font-medium text-[hsl(var(--foreground))]">{total}</span> products
+                  Showing <span className="font-medium text-foreground">{total}</span> products
                 </>
               )}
             </p>
@@ -253,7 +253,7 @@ export default function CategoryPage() {
                     <DropdownMenuItem
                       key={opt.value}
                       onClick={() => handleSort(opt.value)}
-                      className={sortBy === opt.value ? "text-brand-400" : ""}
+                      className={sortBy === opt.value ? "text-primary" : ""}
                     >
                       {opt.label}
                     </DropdownMenuItem>
@@ -319,11 +319,11 @@ export default function CategoryPage() {
             </div>
           ) : products.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-20 text-center">
-              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[hsl(var(--muted))]">
-                <Package className="h-8 w-8 text-[hsl(var(--muted-foreground))]" />
+              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-muted">
+                <Package className="h-8 w-8 text-muted-foreground" />
               </div>
               <h3 className="mt-4 font-heading text-lg font-semibold">No products found</h3>
-              <p className="mt-2 text-sm text-[hsl(var(--muted-foreground))] max-w-sm">
+              <p className="mt-2 text-sm text-muted-foreground max-w-sm">
                 Try adjusting your filters or search query to find what you&apos;re looking for.
               </p>
               <Button variant="outline" className="mt-4" onClick={handleClearFilters}>

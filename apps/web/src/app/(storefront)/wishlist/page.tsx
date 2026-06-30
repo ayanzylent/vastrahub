@@ -93,14 +93,14 @@ export default function WishlistPage() {
   if (!isAuthenticated) {
     return (
       <div className="mx-auto max-w-7xl px-4 md:px-6 py-20 text-center">
-        <div className="flex h-20 w-20 items-center justify-center rounded-full bg-[hsl(var(--muted))] mx-auto">
-          <Heart className="h-10 w-10 text-[hsl(var(--muted-foreground))]" />
+        <div className="flex h-20 w-20 items-center justify-center rounded-full bg-muted mx-auto">
+          <Heart className="h-10 w-10 text-muted-foreground" />
         </div>
         <h2 className="mt-6 font-heading text-2xl font-bold">Login to view your wishlist</h2>
-        <p className="mt-2 text-[hsl(var(--muted-foreground))]">
+        <p className="mt-2 text-muted-foreground">
           Save your favorite items and access them from anywhere.
         </p>
-        <Button variant="brand" size="lg" asChild className="mt-6">
+        <Button variant="default" size="lg" asChild className="mt-6">
           <Link href="/login">
             <LogIn className="mr-2 h-4 w-4" />
             Sign In
@@ -139,14 +139,14 @@ export default function WishlistPage() {
 
       {products.length === 0 ? (
         <div className="text-center py-20">
-          <div className="flex h-20 w-20 items-center justify-center rounded-full bg-[hsl(var(--muted))] mx-auto">
-            <Heart className="h-10 w-10 text-[hsl(var(--muted-foreground))]" />
+          <div className="flex h-20 w-20 items-center justify-center rounded-full bg-muted mx-auto">
+            <Heart className="h-10 w-10 text-muted-foreground" />
           </div>
           <h3 className="mt-6 font-heading text-lg font-semibold">Your wishlist is empty</h3>
-          <p className="mt-2 text-[hsl(var(--muted-foreground))]">
+          <p className="mt-2 text-muted-foreground">
             Browse our collection and tap the heart to save items.
           </p>
-          <Button variant="brand" size="lg" asChild className="mt-6">
+          <Button variant="default" size="lg" asChild className="mt-6">
             <Link href="/">Explore Products</Link>
           </Button>
         </div>

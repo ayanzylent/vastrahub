@@ -40,7 +40,7 @@ export function MobileNav({ open, onOpenChange }: MobileNavProps) {
               key={link.href}
               href={link.href}
               onClick={() => onOpenChange(false)}
-              className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-[hsl(var(--muted-foreground))] transition-colors hover:bg-[hsl(var(--accent-ui))] hover:text-[hsl(var(--foreground))]"
+              className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
             >
               <link.icon className="h-4 w-4" />
               {link.label}
@@ -49,7 +49,7 @@ export function MobileNav({ open, onOpenChange }: MobileNavProps) {
         </nav>
         <Separator />
         <div className="p-4">
-          <p className="text-xs text-[hsl(var(--muted-foreground))]">
+          <p className="text-xs text-muted-foreground">
             Premium Indian Fashion — Handpicked Elegance
           </p>
         </div>

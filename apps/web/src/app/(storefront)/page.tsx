@@ -59,53 +59,53 @@ export default function HomePage() {
       <section className="relative overflow-hidden py-20 md:py-32 lg:py-40">
         {/* Decorative blobs */}
         <div className="pointer-events-none absolute inset-0">
-          <div className="absolute -top-20 -left-20 h-[500px] w-[500px] rounded-full bg-brand-500/10 blur-3xl" />
-          <div className="absolute -bottom-20 -right-20 h-[400px] w-[400px] rounded-full bg-accent-500/8 blur-3xl" />
+          <div className="absolute -top-20 -left-20 h-[500px] w-[500px] rounded-full bg-primary/5 blur-3xl" />
+          <div className="absolute -bottom-20 -right-20 h-[400px] w-[400px] rounded-full bg-chart-2/10 blur-3xl" />
         </div>
 
         <div className="relative mx-auto max-w-7xl px-4 md:px-6 text-center">
-          <Badge variant="brand" className="mb-6 px-4 py-1.5 text-xs">
+          <Badge variant="default" className="mb-6 px-4 py-1.5 text-xs">
             <Sparkles className="h-3 w-3 mr-1" />
             New Collection 2026
           </Badge>
 
           <h1 className="font-heading text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight">
-            <span className="gradient-text">Premium Indian</span>
+            <span className="bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">Premium Indian</span>
             <br />
-            <span className="text-[hsl(var(--foreground))]">Fashion, </span>
-            <span className="gradient-text-accent">Redefined</span>
+            <span className="text-foreground">Fashion, </span>
+            <span className="bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">Redefined</span>
           </h1>
 
-          <p className="mx-auto mt-6 max-w-2xl text-lg text-[hsl(var(--muted-foreground))]">
+          <p className="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground">
             Discover handpicked elegance from India&apos;s finest weavers and
             designers. From heritage handlooms to contemporary chic — your
             wardrobe transformation starts here.
           </p>
 
           <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
-            <Button variant="brand" size="xl" asChild>
+            <Button variant="default" size="lg" asChild>
               <Link href="/categories/new-arrivals">
                 Shop New Arrivals
                 <ArrowRight className="ml-1 h-4 w-4" />
               </Link>
             </Button>
-            <Button variant="outline" size="xl" asChild>
+            <Button variant="outline" size="lg" asChild>
               <Link href="/categories/all">Explore Collections</Link>
             </Button>
           </div>
 
           {/* Trust badges */}
-          <div className="mt-12 flex flex-wrap items-center justify-center gap-8 text-sm text-[hsl(var(--muted-foreground))]">
+          <div className="mt-12 flex flex-wrap items-center justify-center gap-8 text-sm text-muted-foreground">
             <div className="flex items-center gap-2">
-              <Star className="h-4 w-4 text-accent-400" />
+              <Star className="h-4 w-4 text-primary" />
               <span>4.9/5 Rating</span>
             </div>
             <div className="flex items-center gap-2">
-              <TrendingUp className="h-4 w-4 text-emerald-400" />
+              <TrendingUp className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
               <span>50K+ Happy Customers</span>
             </div>
             <div className="flex items-center gap-2">
-              <Sparkles className="h-4 w-4 text-brand-400" />
+              <Sparkles className="h-4 w-4 text-primary" />
               <span>Handpicked Quality</span>
             </div>
           </div>
@@ -120,7 +120,7 @@ export default function HomePage() {
               <h2 className="font-heading text-2xl md:text-3xl font-bold">
                 Shop by Category
               </h2>
-              <p className="mt-2 text-[hsl(var(--muted-foreground))]">
+              <p className="mt-2 text-muted-foreground">
                 Explore our curated collections
               </p>
             </div>
@@ -146,9 +146,9 @@ export default function HomePage() {
                 ))
               : categories.map((cat) => (
                   <Link key={cat._id} href={`/categories/${cat.slug}`}>
-                    <Card className="group overflow-hidden hover:border-brand-500/30 transition-all duration-300">
+                    <Card className="group overflow-hidden hover:border-primary/30 transition-all duration-300">
                       <CardContent className="p-0">
-                        <div className="aspect-[4/5] bg-gradient-to-br from-brand-950 to-surface-tertiary flex items-center justify-center overflow-hidden">
+                        <div className="aspect-[4/5] bg-gradient-to-br from-primary/10 to-muted flex items-center justify-center overflow-hidden">
                           {cat.image ? (
                             <img
                               src={getMediaUrl(cat.image)}
@@ -156,16 +156,16 @@ export default function HomePage() {
                               className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                             />
                           ) : (
-                            <span className="text-3xl font-heading font-bold text-brand-400/30 group-hover:text-brand-400/50 transition-colors">
+                            <span className="text-3xl font-heading font-bold text-primary/30 group-hover:text-primary/50 transition-colors">
                               {cat.name[0]}
                             </span>
                           )}
                         </div>
                         <div className="p-3 text-center">
-                          <h3 className="text-sm font-medium group-hover:text-brand-400 transition-colors">
+                          <h3 className="text-sm font-medium group-hover:text-primary transition-colors">
                             {cat.name}
                           </h3>
-                          <p className="text-xs text-[hsl(var(--muted-foreground))]">
+                          <p className="text-xs text-muted-foreground">
                             {cat.productCount} items
                           </p>
                         </div>
@@ -178,14 +178,14 @@ export default function HomePage() {
       </section>
 
       {/* ─── Featured Products ─── */}
-      <section className="py-16 md:py-24 bg-[hsl(var(--card))]/50">
+      <section className="py-16 md:py-24 bg-card/50">
         <div className="mx-auto max-w-7xl px-4 md:px-6">
           <div className="flex items-center justify-between mb-10">
             <div>
               <h2 className="font-heading text-2xl md:text-3xl font-bold">
                 Featured Products
               </h2>
-              <p className="mt-2 text-[hsl(var(--muted-foreground))]">
+              <p className="mt-2 text-muted-foreground">
                 Handpicked for you
               </p>
             </div>
@@ -223,7 +223,7 @@ export default function HomePage() {
                 ))}
             {!loadingProducts && featuredProducts.length === 0 && (
               <div className="col-span-full text-center py-12">
-                <p className="text-[hsl(var(--muted-foreground))]">
+                <p className="text-muted-foreground">
                   No featured products yet. Check back soon!
                 </p>
               </div>
@@ -235,26 +235,26 @@ export default function HomePage() {
       {/* ─── CTA Banner ─── */}
       <section className="py-16 md:py-24">
         <div className="mx-auto max-w-7xl px-4 md:px-6">
-          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-brand-900 via-brand-800 to-brand-900 p-8 md:p-16">
+          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-primary to-primary/80 p-8 md:p-16">
             <div className="pointer-events-none absolute inset-0">
-              <div className="absolute top-0 right-0 h-[300px] w-[300px] rounded-full bg-accent-500/10 blur-3xl" />
+              <div className="absolute top-0 right-0 h-[300px] w-[300px] rounded-full bg-chart-2/10 blur-3xl" />
             </div>
             <div className="relative text-center">
-              <h2 className="font-heading text-2xl md:text-4xl font-bold text-white">
+              <h2 className="font-heading text-2xl md:text-4xl font-bold text-primary-foreground">
                 Get 20% Off Your First Order
               </h2>
-              <p className="mt-4 text-brand-200 max-w-lg mx-auto">
+              <p className="mt-4 text-primary-foreground/80 max-w-lg mx-auto">
                 Sign up today and get exclusive access to our newest collections
                 plus ₹500 off on your first purchase.
               </p>
               <div className="mt-8 flex flex-wrap justify-center gap-4">
-                <Button variant="accent" size="lg" asChild>
+                <Button variant="secondary" size="lg" asChild>
                   <Link href="/signup">Create Account</Link>
                 </Button>
                 <Button
-                  variant="outline"
+                  variant="secondary"
                   size="lg"
-                  className="border-white/20 text-white hover:bg-white/10"
+                  className=""
                 >
                   Learn More
                 </Button>

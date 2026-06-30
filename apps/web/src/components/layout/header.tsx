@@ -63,7 +63,7 @@ export function Header() {
 
   return (
     <>
-      <header className="sticky top-0 z-50 w-full glass border-b border-[hsl(var(--border))]/40">
+      <header className="sticky top-0 z-50 w-full bg-background/70 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border/40">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4 md:px-6">
           {/* Mobile Menu Trigger */}
           <Button
@@ -85,7 +85,7 @@ export function Header() {
               <Link
                 key={link.href}
                 href={link.href}
-                className="text-sm font-medium text-[hsl(var(--muted-foreground))] transition-colors hover:text-[hsl(var(--foreground))] hover:text-brand-400"
+                className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
               >
                 {link.label}
               </Link>
@@ -95,10 +95,10 @@ export function Header() {
           {/* Search Bar (Desktop) */}
           <form onSubmit={handleSearch} className="hidden lg:flex flex-1 max-w-md mx-4">
             <div className="relative w-full">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[hsl(var(--muted-foreground))]" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 placeholder="Search sarees, lehengas, kurtas..."
-                className="pl-10 bg-[hsl(var(--muted))]/50 border-transparent focus:border-brand-500/50"
+                className="pl-10 bg-muted/50 border-transparent focus:border-primary/50"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
@@ -128,8 +128,8 @@ export function Header() {
               <ShoppingBag className="h-5 w-5" />
               {itemCount > 0 && (
                 <Badge
-                  variant="accent"
-                  className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-[10px] rounded-full bg-accent-500 text-black font-bold"
+                  variant="secondary"
+                  className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-[10px] rounded-full bg-primary text-primary-foreground font-bold"
                 >
                   {itemCount > 99 ? "99+" : itemCount}
                 </Badge>
@@ -144,7 +144,7 @@ export function Header() {
                   <Button variant="ghost" className="relative h-8 w-8 rounded-full">
                     <Avatar className="h-8 w-8">
                       <AvatarImage src={user.image || ""} alt={user.name} />
-                      <AvatarFallback className="bg-brand-500/20 text-brand-400 text-xs">
+                      <AvatarFallback className="bg-primary/20 text-primary text-xs">
                         {userInitials}
                       </AvatarFallback>
                     </Avatar>
@@ -154,7 +154,7 @@ export function Header() {
                   <DropdownMenuLabel className="font-normal">
                     <div className="flex flex-col space-y-1">
                       <p className="text-sm font-medium leading-none">{user.name}</p>
-                      <p className="text-xs leading-none text-[hsl(var(--muted-foreground))]">
+                      <p className="text-xs leading-none text-muted-foreground">
                         {user.email}
                       </p>
                     </div>
@@ -182,7 +182,7 @@ export function Header() {
                   ) : null}
                   <DropdownMenuSeparator />
                   <DropdownMenuItem
-                    className="text-red-400 cursor-pointer"
+                    className="text-destructive cursor-pointer"
                     onClick={handleSignOut}
                   >
                     <LogOut className="mr-2 h-4 w-4" />

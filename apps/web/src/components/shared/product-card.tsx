@@ -76,10 +76,10 @@ export function ProductCard({ product, sku, lowestPricePaise, lowestMrpPaise, cl
   }
 
   return (
-    <Card className={cn("group overflow-hidden hover:border-brand-500/30 transition-all duration-300", className)}>
+    <Card className={cn("group overflow-hidden hover:border-primary/30 transition-all duration-300", className)}>
       <CardContent className="p-0">
         <Link href={`/products/${product.slug}`} className="block">
-          <div className="relative aspect-[3/4] bg-gradient-to-br from-surface-tertiary to-surface-secondary overflow-hidden">
+          <div className="relative aspect-[3/4] bg-gradient-to-br from-muted to-muted/60 overflow-hidden">
             {imageUrl ? (
               <Image
                 src={imageUrl}
@@ -90,7 +90,7 @@ export function ProductCard({ product, sku, lowestPricePaise, lowestMrpPaise, cl
               />
             ) : (
               <div className="flex h-full items-center justify-center">
-                <span className="text-4xl font-heading font-bold text-brand-400/20">
+                <span className="text-4xl font-heading font-bold text-primary/20">
                   {product.name[0]}
                 </span>
               </div>
@@ -99,17 +99,19 @@ export function ProductCard({ product, sku, lowestPricePaise, lowestMrpPaise, cl
             {/* Badges */}
             <div className="absolute top-2 left-2 flex flex-col gap-1">
               {product.isFeatured && (
-                <Badge variant="accent" className="text-[10px]">Bestseller</Badge>
+                <Badge variant="secondary" className="text-[10px]">Bestseller</Badge>
               )}
               {discount > 0 && (
-                <Badge variant="success" className="text-[10px]">{discount}% OFF</Badge>
+                <Badge className="border-transparent bg-emerald-600 text-[10px] text-white">
+                  {discount}% OFF
+                </Badge>
               )}
             </div>
 
             {/* Rating badge */}
             {product.avgRating > 0 && (
               <div className="absolute bottom-2 left-2 flex items-center gap-1 rounded-md bg-black/60 backdrop-blur-sm px-1.5 py-0.5 text-[10px] text-white">
-                <Star className="h-2.5 w-2.5 fill-accent-400 text-accent-400" />
+                <Star className="h-2.5 w-2.5 fill-primary text-primary" />
                 <span>{product.avgRating.toFixed(1)}</span>
                 {product.reviewCount > 0 && (
                   <span className="text-white/60">({product.reviewCount})</span>
@@ -122,22 +124,22 @@ export function ProductCard({ product, sku, lowestPricePaise, lowestMrpPaise, cl
         {/* Product info */}
         <div className="p-3 space-y-1.5">
           <Link href={`/products/${product.slug}`}>
-            <h3 className="text-sm font-medium leading-snug line-clamp-2 group-hover:text-brand-400 transition-colors">
+            <h3 className="text-sm font-medium leading-snug line-clamp-2 group-hover:text-primary transition-colors">
               {product.name}
             </h3>
           </Link>
           {product.brandName && (
-            <p className="text-xs text-[hsl(var(--muted-foreground))] truncate">
+            <p className="text-xs text-muted-foreground truncate">
               {product.brandName}
             </p>
           )}
           <div className="flex items-center justify-between pt-0.5">
             <div className="flex items-baseline gap-1.5">
-              <span className="text-sm font-bold text-brand-400">
+              <span className="text-sm font-bold text-primary">
                 {formatPrice(sellingPrice)}
               </span>
               {discount > 0 && (
-                <span className="text-xs text-[hsl(var(--muted-foreground))] line-through">
+                <span className="text-xs text-muted-foreground line-through">
                   {formatPrice(mrpPrice)}
                 </span>
               )}
@@ -154,7 +156,7 @@ export function ProductCard({ product, sku, lowestPricePaise, lowestMrpPaise, cl
                   <Loader2 className="h-3.5 w-3.5 animate-spin" />
                 ) : (
                   <ShoppingBag
-                    className="h-3.5 w-3.5 text-[hsl(var(--muted-foreground))] transition-colors hover:text-brand-400"
+                    className="h-3.5 w-3.5 text-muted-foreground transition-colors hover:text-primary"
                   />
                 )}
               </Button>
@@ -171,7 +173,7 @@ export function ProductCard({ product, sku, lowestPricePaise, lowestMrpPaise, cl
                 <Heart
                   className={cn(
                     "h-3.5 w-3.5 transition-colors",
-                    wishlisted ? "fill-red-500 text-red-500" : "text-[hsl(var(--muted-foreground))]"
+                    wishlisted ? "fill-red-500 text-red-500" : "text-muted-foreground"
                   )}
                 />
               </Button>

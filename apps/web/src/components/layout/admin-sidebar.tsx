@@ -49,14 +49,14 @@ export function AdminSidebar() {
   return (
     <aside
       className={cn(
-        "relative flex h-screen flex-col border-r border-[hsl(var(--border))]/40 bg-[hsl(var(--card))] transition-all duration-300",
+        "relative flex h-screen flex-col border-r border-border/40 bg-card transition-all duration-300",
         collapsed ? "w-[68px]" : "w-[240px]"
       )}
     >
       {/* Logo */}
       <div className={cn("flex h-16 items-center px-4", collapsed && "justify-center")}>
         {collapsed ? (
-          <span className="text-xl font-bold gradient-text">V</span>
+          <span className="text-xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">V</span>
         ) : (
           <Logo size="md" />
         )}
@@ -77,8 +77,8 @@ export function AdminSidebar() {
                   "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200",
                   collapsed && "justify-center px-2",
                   isActive
-                    ? "bg-brand-500/10 text-brand-400 shadow-sm"
-                    : "text-[hsl(var(--muted-foreground))] hover:bg-[hsl(var(--accent-ui))] hover:text-[hsl(var(--foreground))]"
+                    ? "bg-primary/10 text-primary shadow-sm"
+                    : "text-muted-foreground hover:bg-accent hover:text-foreground"
                 )}
                 title={collapsed ? link.label : undefined}
               >
@@ -97,8 +97,8 @@ export function AdminSidebar() {
             className={cn(
               "w-full justify-center border-transparent",
               user.role === 'superadmin'
-                ? 'bg-purple-500/10 text-purple-400'
-                : 'bg-blue-500/10 text-blue-400'
+                ? 'bg-primary/10 text-primary'
+                : 'bg-muted text-muted-foreground'
             )}
           >
             {user.role === 'superadmin' ? 'Super Admin' : 'Admin'}
@@ -107,7 +107,7 @@ export function AdminSidebar() {
       )}
 
       {/* Collapse Toggle */}
-      <div className="border-t border-[hsl(var(--border))]/40 p-2">
+      <div className="border-t border-border/40 p-2">
         <Button
           variant="ghost"
           size="sm"

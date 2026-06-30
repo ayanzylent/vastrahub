@@ -212,8 +212,8 @@ export default function ProductDetailPage() {
     return (
       <div className="mx-auto max-w-7xl px-4 md:px-6 py-20 text-center">
         <h2 className="font-heading text-2xl font-bold">Product not found</h2>
-        <p className="mt-2 text-[hsl(var(--muted-foreground))]">This product may have been removed.</p>
-        <Button variant="brand" asChild className="mt-6">
+        <p className="mt-2 text-muted-foreground">This product may have been removed.</p>
+        <Button variant="default" asChild className="mt-6">
           <Link href="/">Back to Home</Link>
         </Button>
       </div>
@@ -223,22 +223,22 @@ export default function ProductDetailPage() {
   return (
     <div className="mx-auto max-w-7xl px-4 md:px-6 py-8 md:py-12">
       {/* Breadcrumb */}
-      <nav className="mb-6 flex items-center gap-2 text-sm text-[hsl(var(--muted-foreground))]">
-        <Link href="/" className="hover:text-[hsl(var(--foreground))]">Home</Link>
+      <nav className="mb-6 flex items-center gap-2 text-sm text-muted-foreground">
+        <Link href="/" className="hover:text-foreground">Home</Link>
         <span>/</span>
         {product.category && (
           <>
-            <Link href={`/categories/${product.category.slug}`} className="hover:text-[hsl(var(--foreground))]">
+            <Link href={`/categories/${product.category.slug}`} className="hover:text-foreground">
               {product.category.name}
             </Link>
             <span>/</span>
           </>
         )}
-        <span className="text-[hsl(var(--foreground))] truncate">{product.name}</span>
+        <span className="text-foreground truncate">{product.name}</span>
         {product.showVisualSelector !== false && variantParam && (
           <>
             <span>/</span>
-            <span className="text-brand-400">{currentVariantGroup?.variantLabel || variantParam}</span>
+            <span className="text-primary">{currentVariantGroup?.variantLabel || variantParam}</span>
           </>
         )}
       </nav>
@@ -247,7 +247,7 @@ export default function ProductDetailPage() {
         {/* ─── Image Gallery ─── */}
         <div className="space-y-4">
           {/* Main Image */}
-          <div className="relative aspect-[3/4] w-full rounded-xl overflow-hidden bg-surface-secondary">
+          <div className="relative aspect-[3/4] w-full rounded-xl overflow-hidden bg-card">
             {selectedMedia ? (
               selectedMedia.type === "video" ? (
                 <video
@@ -267,7 +267,7 @@ export default function ProductDetailPage() {
               )
             ) : (
               <div className="flex h-full items-center justify-center">
-                <span className="text-6xl font-heading font-bold text-brand-400/20">
+                <span className="text-6xl font-heading font-bold text-primary/20">
                   {product.name[0]}
                 </span>
               </div>
@@ -283,12 +283,12 @@ export default function ProductDetailPage() {
                   className={cn(
                     "relative aspect-square rounded-lg overflow-hidden border-2 transition-all",
                     selectedMedia?.url === item.url
-                      ? "border-brand-500 ring-2 ring-brand-500/30"
-                      : "border-transparent hover:border-brand-500/30"
+                      ? "border-primary ring-2 ring-primary/30"
+                      : "border-transparent hover:border-primary/30"
                   )}
                 >
                   {item.type === "video" ? (
-                    <div className="flex items-center justify-center h-full bg-surface-tertiary text-xs">▶</div>
+                    <div className="flex items-center justify-center h-full bg-muted text-xs">▶</div>
                   ) : (
                     <Image
                       src={getMediaUrl(item.thumbnailUrl || item.url)}
@@ -307,12 +307,12 @@ export default function ProductDetailPage() {
         {/* ─── Product Info ─── */}
         <div className="space-y-6">
           <div>
-            {product.isFeatured && <Badge variant="accent" className="mb-3">Featured</Badge>}
+            {product.isFeatured && <Badge variant="secondary" className="mb-3">Featured</Badge>}
             <div className="flex items-start justify-between gap-4">
               <div className="space-y-1 flex-1 min-w-0">
                 <h1 className="font-heading text-2xl md:text-3xl font-bold break-words">{product.name}</h1>
                 {product.brand && (
-                  <p className="text-sm text-[hsl(var(--muted-foreground))]">{product.brand}</p>
+                  <p className="text-sm text-muted-foreground">{product.brand}</p>
                 )}
               </div>
               <div className="flex gap-2 shrink-0 pt-1">
@@ -343,18 +343,18 @@ export default function ProductDetailPage() {
               </div>
             </div>
             {product.shortDescription && (
-              <p className="mt-2 text-[hsl(var(--muted-foreground))]">{product.shortDescription}</p>
+              <p className="mt-2 text-muted-foreground">{product.shortDescription}</p>
             )}
           </div>
 
           {/* Rating */}
           {product.averageRating > 0 && (
             <div className="flex items-center gap-2">
-              <div className="flex items-center gap-1 bg-emerald-500/10 text-emerald-400 rounded-md px-2 py-0.5 text-sm font-medium">
+              <div className="flex items-center gap-1 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 rounded-md px-2 py-0.5 text-sm font-medium">
                 <Star className="h-3.5 w-3.5 fill-current" />
                 {product.averageRating.toFixed(1)}
               </div>
-              <span className="text-sm text-[hsl(var(--muted-foreground))]">
+              <span className="text-sm text-muted-foreground">
                 {product.reviewCount} reviews
               </span>
             </div>
@@ -362,13 +362,15 @@ export default function ProductDetailPage() {
 
           {/* Price */}
           <div className="flex items-baseline gap-3">
-            <span className="text-3xl font-bold text-brand-400">{formatPrice(sellingPrice)}</span>
+            <span className="text-3xl font-bold text-primary">{formatPrice(sellingPrice)}</span>
             {discount > 0 && (
               <>
-                <span className="text-lg text-[hsl(var(--muted-foreground))] line-through">
+                <span className="text-lg text-muted-foreground line-through">
                   {formatPrice(mrpPrice)}
                 </span>
-                <Badge variant="success">{discount}% OFF</Badge>
+                <Badge className="border-transparent bg-emerald-600 text-white">
+                  {discount}% OFF
+                </Badge>
               </>
             )}
           </div>
@@ -380,7 +382,7 @@ export default function ProductDetailPage() {
             <div>
               <h3 className="text-sm font-medium mb-3">
                 {colorOption.name}:{" "}
-                <span className="text-brand-400">
+                <span className="text-primary">
                   {currentVariantGroup?.variantLabel || "Select"}
                 </span>
               </h3>
@@ -394,8 +396,8 @@ export default function ProductDetailPage() {
                       className={cn(
                         "relative rounded-lg border-2 px-3 py-2 text-sm font-medium transition-all",
                         isActive
-                          ? "border-brand-500 bg-brand-500/10 text-brand-400"
-                          : "border-[hsl(var(--border))] hover:border-brand-500/50"
+                          ? "border-primary bg-primary/10 text-primary"
+                          : "border-border hover:border-primary/50"
                       )}
                       title={color.label}
                     >
@@ -427,8 +429,8 @@ export default function ProductDetailPage() {
                       className={cn(
                         "h-10 min-w-[44px] rounded-lg border px-3 text-sm font-medium transition-all",
                         isSelected
-                          ? "border-brand-500 bg-brand-500/10 text-brand-400"
-                          : "border-[hsl(var(--border))] hover:border-brand-500/50 hover:bg-brand-500/5",
+                          ? "border-primary bg-primary/10 text-primary"
+                          : "border-border hover:border-primary/50 hover:bg-primary/5",
                         outOfStock && "opacity-40 cursor-not-allowed line-through"
                       )}
                     >
@@ -472,7 +474,7 @@ export default function ProductDetailPage() {
           <div className="flex gap-3">
             <Button
               variant="outline"
-              size="xl"
+              size="lg"
               className="flex-1 h-11 sm:h-12 text-sm sm:text-base px-3 sm:px-6"
               onClick={handleAddToCart}
               disabled={addingToCart || !selectedSku}
@@ -481,8 +483,8 @@ export default function ProductDetailPage() {
               {addingToCart ? "Adding..." : "Add to Cart"}
             </Button>
             <Button
-              variant="brand"
-              size="xl"
+              variant="default"
+              size="lg"
               className="flex-1 h-11 sm:h-12 text-sm sm:text-base px-3 sm:px-6 font-bold"
               onClick={() => {
                 if (!selectedSku) {
@@ -504,9 +506,9 @@ export default function ProductDetailPage() {
               { icon: Shield, label: "Authentic" },
               { icon: RotateCcw, label: "Easy Returns" },
             ].map(({ icon: Icon, label }) => (
-              <div key={label} className="flex flex-col items-center gap-1.5 rounded-lg border border-[hsl(var(--border))]/50 p-3 text-center">
-                <Icon className="h-4 w-4 text-[hsl(var(--muted-foreground))]" />
-                <span className="text-xs text-[hsl(var(--muted-foreground))]">{label}</span>
+              <div key={label} className="flex flex-col items-center gap-1.5 rounded-lg border border-border/50 p-3 text-center">
+                <Icon className="h-4 w-4 text-muted-foreground" />
+                <span className="text-xs text-muted-foreground">{label}</span>
               </div>
             ))}
           </div>
@@ -516,20 +518,20 @@ export default function ProductDetailPage() {
       {/* ─── Tabs: Description / Details / Reviews ─── */}
       <div className="mt-12 md:mt-16">
         <Tabs defaultValue="description">
-          <TabsList className="w-full justify-start bg-transparent border-b border-[hsl(var(--border))] rounded-none p-0">
-            <TabsTrigger value="description" className="rounded-none border-b-2 border-transparent data-[state=active]:border-brand-500">
+          <TabsList className="w-full justify-start bg-transparent border-b border-border rounded-none p-0">
+            <TabsTrigger value="description" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary">
               Description
             </TabsTrigger>
-            <TabsTrigger value="details" className="rounded-none border-b-2 border-transparent data-[state=active]:border-brand-500">
+            <TabsTrigger value="details" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary">
               Details
             </TabsTrigger>
-            <TabsTrigger value="reviews" className="rounded-none border-b-2 border-transparent data-[state=active]:border-brand-500">
+            <TabsTrigger value="reviews" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary">
               Reviews ({product.reviewCount})
             </TabsTrigger>
           </TabsList>
           <TabsContent value="description" className="pt-6">
             <div className="prose prose-sm dark:prose-invert max-w-none">
-              <p className="text-[hsl(var(--muted-foreground))] whitespace-pre-wrap">
+              <p className="text-muted-foreground whitespace-pre-wrap">
                 {product.description || "No description available."}
               </p>
             </div>
@@ -538,21 +540,21 @@ export default function ProductDetailPage() {
             <div className="grid grid-cols-2 gap-4 text-sm max-w-md">
               {product.brand && (
                 <>
-                  <div className="text-[hsl(var(--muted-foreground))]">Brand</div>
+                  <div className="text-muted-foreground">Brand</div>
                   <div>{product.brand}</div>
                 </>
               )}
               {product.hsn && (
                 <>
-                  <div className="text-[hsl(var(--muted-foreground))]">HSN Code</div>
+                  <div className="text-muted-foreground">HSN Code</div>
                   <div>{product.hsn}</div>
                 </>
               )}
-              <div className="text-[hsl(var(--muted-foreground))]">GST</div>
+              <div className="text-muted-foreground">GST</div>
               <div>{product.gstPercentage ?? "—"}%</div>
               {product.tags?.length > 0 && (
                 <>
-                  <div className="text-[hsl(var(--muted-foreground))]">Tags</div>
+                  <div className="text-muted-foreground">Tags</div>
                   <div className="flex flex-wrap gap-1">
                     {product.tags.map((tag) => (
                       <Badge key={tag} variant="secondary" className="text-xs">{tag}</Badge>
@@ -564,9 +566,9 @@ export default function ProductDetailPage() {
           </TabsContent>
           <TabsContent value="reviews" className="pt-6">
             {product.reviewCount === 0 ? (
-              <p className="text-[hsl(var(--muted-foreground))]">No reviews yet. Be the first to review!</p>
+              <p className="text-muted-foreground">No reviews yet. Be the first to review!</p>
             ) : (
-              <p className="text-[hsl(var(--muted-foreground))]">Reviews coming soon.</p>
+              <p className="text-muted-foreground">Reviews coming soon.</p>
             )}
           </TabsContent>
         </Tabs>

@@ -219,10 +219,10 @@ export function SkuFormSheet({
         className="w-full sm:max-w-lg flex flex-col p-0"
       >
         {/* Header */}
-        <SheetHeader className="px-6 py-5 border-b border-[hsl(var(--border))]">
+        <SheetHeader className="px-6 py-5 border-b border-border">
           <div className="flex items-center gap-3">
-            <div className="h-8 w-8 rounded-lg bg-brand-500/10 flex items-center justify-center">
-              <Package className="h-4 w-4 text-brand-500" />
+            <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
+              <Package className="h-4 w-4 text-primary" />
             </div>
             <div>
               <SheetTitle className="text-base">
@@ -241,12 +241,12 @@ export function SkuFormSheet({
         <div className="flex-1 overflow-y-auto px-6 py-5 space-y-6">
           {/* SKU Code + Barcode */}
           <div className="space-y-4">
-            <h3 className="text-xs font-semibold uppercase tracking-wider text-[hsl(var(--muted-foreground))]">
+            <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
               Identification
             </h3>
             <div className="space-y-2">
               <Label htmlFor="sku-code">
-                SKU Code <span className="text-red-400">*</span>
+                SKU Code <span className="text-destructive">*</span>
               </Label>
               <div className="flex gap-2">
                 <Input
@@ -268,14 +268,14 @@ export function SkuFormSheet({
                   Auto
                 </Button>
               </div>
-              <p className="text-xs text-[hsl(var(--muted-foreground))]">
+              <p className="text-xs text-muted-foreground">
                 Globally unique. Auto-uppercased.
               </p>
             </div>
             <div className="space-y-2">
               <Label htmlFor="barcode">
                 Barcode{" "}
-                <span className="text-[hsl(var(--muted-foreground))] font-normal">
+                <span className="text-muted-foreground font-normal">
                   (optional)
                 </span>
               </Label>
@@ -291,7 +291,7 @@ export function SkuFormSheet({
           {/* Variant Attributes */}
           {variantOptions.length > 0 && (
             <div className="space-y-4">
-              <h3 className="text-xs font-semibold uppercase tracking-wider text-[hsl(var(--muted-foreground))]">
+              <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                 Variant Attributes
               </h3>
               {variantOptions.map((opt) => (
@@ -306,7 +306,7 @@ export function SkuFormSheet({
                           [opt.name]: e.target.value,
                         })
                       }
-                      className="flex h-10 w-full rounded-md border border-[hsl(var(--input))] bg-transparent px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--ring))]"
+                      className="flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                     >
                       <option value="">— Select {opt.name} —</option>
                       {opt.values.map((v) => (
@@ -334,16 +334,16 @@ export function SkuFormSheet({
 
           {/* Pricing */}
           <div className="space-y-4">
-            <h3 className="text-xs font-semibold uppercase tracking-wider text-[hsl(var(--muted-foreground))]">
+            <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
               Pricing
             </h3>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
                 <Label htmlFor="price">
-                  Selling Price <span className="text-red-400">*</span>
+                  Selling Price <span className="text-destructive">*</span>
                 </Label>
                 <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-medium text-[hsl(var(--muted-foreground))]">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-medium text-muted-foreground">
                     ₹
                   </span>
                   <Input
@@ -360,10 +360,10 @@ export function SkuFormSheet({
               </div>
               <div className="space-y-2">
                 <Label htmlFor="mrp">
-                  MRP <span className="text-red-400">*</span>
+                  MRP <span className="text-destructive">*</span>
                 </Label>
                 <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-medium text-[hsl(var(--muted-foreground))]">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-medium text-muted-foreground">
                     ₹
                   </span>
                   <Input
@@ -380,25 +380,25 @@ export function SkuFormSheet({
               </div>
             </div>
             {discount > 0 && (
-              <p className="text-xs text-green-500 font-medium">
+              <p className="text-xs text-emerald-600 dark:text-emerald-400 font-medium">
                 ✓ {discount}% discount off MRP
               </p>
             )}
             {parseFloat(priceRupees) > parseFloat(mrpRupees) &&
               mrpRupees && (
-                <p className="text-xs text-red-400">
+                <p className="text-xs text-destructive">
                   ✗ Price cannot exceed MRP
                 </p>
               )}
             <div className="space-y-2">
               <Label htmlFor="cost">
                 Cost Price{" "}
-                <span className="text-[hsl(var(--muted-foreground))] font-normal text-xs">
+                <span className="text-muted-foreground font-normal text-xs">
                   (internal, optional)
                 </span>
               </Label>
               <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-medium text-[hsl(var(--muted-foreground))]">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-medium text-muted-foreground">
                   ₹
                 </span>
                 <Input
@@ -417,13 +417,13 @@ export function SkuFormSheet({
 
           {/* Stock */}
           <div className="space-y-4">
-            <h3 className="text-xs font-semibold uppercase tracking-wider text-[hsl(var(--muted-foreground))]">
+            <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
               Inventory
             </h3>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-2">
                 <Label htmlFor="stock">
-                  Stock Quantity <span className="text-red-400">*</span>
+                  Stock Quantity <span className="text-destructive">*</span>
                 </Label>
                 <Input
                   id="stock"
@@ -448,7 +448,7 @@ export function SkuFormSheet({
 
           {/* Shipping */}
           <div className="space-y-4">
-            <h3 className="text-xs font-semibold uppercase tracking-wider text-[hsl(var(--muted-foreground))]">
+            <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
               Shipping{" "}
               <span className="normal-case font-normal">(optional)</span>
             </h3>
@@ -504,7 +504,7 @@ export function SkuFormSheet({
 
           {/* Toggles */}
           <div className="space-y-3">
-            <h3 className="text-xs font-semibold uppercase tracking-wider text-[hsl(var(--muted-foreground))]">
+            <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
               Options
             </h3>
             <div className="flex flex-col gap-3">
@@ -517,12 +517,12 @@ export function SkuFormSheet({
                     onChange={(e) => setIsDefault(e.target.checked)}
                     className="sr-only peer"
                   />
-                  <div className="w-9 h-5 bg-[hsl(var(--muted))] rounded-full peer peer-checked:bg-brand-500 transition-colors" />
-                  <div className="absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform peer-checked:translate-x-4" />
+                  <div className="w-9 h-5 bg-muted rounded-full peer peer-checked:bg-primary transition-colors" />
+                  <div className="absolute top-0.5 left-0.5 w-4 h-4 bg-background rounded-full shadow transition-transform peer-checked:translate-x-4" />
                 </div>
                 <div>
                   <p className="text-sm font-medium">Default SKU</p>
-                  <p className="text-xs text-[hsl(var(--muted-foreground))]">
+                  <p className="text-xs text-muted-foreground">
                     Shown first when customers view the product
                   </p>
                 </div>
@@ -536,12 +536,12 @@ export function SkuFormSheet({
                     onChange={(e) => setIsActive(e.target.checked)}
                     className="sr-only peer"
                   />
-                  <div className="w-9 h-5 bg-[hsl(var(--muted))] rounded-full peer peer-checked:bg-brand-500 transition-colors" />
-                  <div className="absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform peer-checked:translate-x-4" />
+                  <div className="w-9 h-5 bg-muted rounded-full peer peer-checked:bg-primary transition-colors" />
+                  <div className="absolute top-0.5 left-0.5 w-4 h-4 bg-background rounded-full shadow transition-transform peer-checked:translate-x-4" />
                 </div>
                 <div>
                   <p className="text-sm font-medium">Active</p>
-                  <p className="text-xs text-[hsl(var(--muted-foreground))]">
+                  <p className="text-xs text-muted-foreground">
                     Inactive SKUs are hidden from the storefront
                   </p>
                 </div>
@@ -551,7 +551,7 @@ export function SkuFormSheet({
         </div>
 
         {/* Sticky footer */}
-        <div className="px-6 py-4 border-t border-[hsl(var(--border))] bg-[hsl(var(--background))] flex gap-3">
+        <div className="px-6 py-4 border-t border-border bg-background flex gap-3">
           <Button
             variant="outline"
             className="flex-1"
@@ -561,7 +561,7 @@ export function SkuFormSheet({
             Cancel
           </Button>
           <Button
-            variant="brand"
+            variant="default"
             className="flex-1"
             onClick={handleSubmit}
             disabled={saving}

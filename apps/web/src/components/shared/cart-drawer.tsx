@@ -49,13 +49,13 @@ export function CartDrawer() {
         className="flex w-full flex-col p-0 sm:max-w-md"
       >
         {/* Header */}
-        <SheetHeader className="border-b border-[hsl(var(--border))]/40 px-6 py-4">
+        <SheetHeader className="border-b border-border/40 px-6 py-4">
           <SheetTitle className="flex items-center gap-2 text-lg font-bold">
-            <ShoppingBag className="h-5 w-5 text-brand-400" />
+            <ShoppingBag className="h-5 w-5 text-primary" />
             Shopping Cart
             {itemCount > 0 && (
               <Badge
-                variant="brand"
+                variant="default"
                 className="ml-1 h-5 min-w-[20px] px-1.5 text-[10px]"
               >
                 {itemCount}
@@ -70,19 +70,19 @@ export function CartDrawer() {
         {/* Empty state */}
         {items.length === 0 ? (
           <div className="flex flex-1 flex-col items-center justify-center gap-4 p-8 text-center">
-            <div className="flex h-20 w-20 items-center justify-center rounded-full bg-[hsl(var(--muted))]">
-              <ShoppingBag className="h-10 w-10 text-[hsl(var(--muted-foreground))]" />
+            <div className="flex h-20 w-20 items-center justify-center rounded-full bg-muted">
+              <ShoppingBag className="h-10 w-10 text-muted-foreground" />
             </div>
             <div>
               <p className="font-heading text-lg font-semibold">
                 Your cart is empty
               </p>
-              <p className="mt-1 text-sm text-[hsl(var(--muted-foreground))]">
+              <p className="mt-1 text-sm text-muted-foreground">
                 Looks like you haven&apos;t added anything yet.
               </p>
             </div>
             <Button
-              variant="brand"
+              variant="default"
               size="lg"
               asChild
               onClick={closeDrawer}
@@ -94,7 +94,7 @@ export function CartDrawer() {
           <>
             {/* Scrollable items list */}
             <ScrollArea className="flex-1">
-              <div className="divide-y divide-[hsl(var(--border))]/30 px-6">
+              <div className="divide-y divide-border/30 px-6">
                 {items.map((item: ICartItem) => (
                   <CartDrawerItem
                     key={item._id}
@@ -107,24 +107,24 @@ export function CartDrawer() {
             </ScrollArea>
 
             {/* Footer with subtotal + CTAs */}
-            <div className="border-t border-[hsl(var(--border))]/40 bg-[hsl(var(--card))]/80 px-6 py-5 space-y-4">
+            <div className="border-t border-border/40 bg-card/80 px-6 py-5 space-y-4">
               {/* Savings callout */}
               {totalSavings > 0 && (
-                <div className="flex items-center justify-center gap-2 rounded-lg bg-emerald-500/10 px-3 py-2 text-sm font-medium text-emerald-400">
+                <div className="flex items-center justify-center gap-2 rounded-lg bg-emerald-500/10 px-3 py-2 text-sm font-medium text-emerald-600 dark:text-emerald-400">
                   🎉 You&apos;re saving {formatPrice(totalSavings)}!
                 </div>
               )}
 
               <div className="flex items-center justify-between">
-                <span className="text-sm text-[hsl(var(--muted-foreground))]">
+                <span className="text-sm text-muted-foreground">
                   Subtotal ({itemCount} {itemCount === 1 ? "item" : "items"})
                 </span>
-                <span className="text-lg font-bold text-brand-400">
+                <span className="text-lg font-bold text-primary">
                   {formatPrice(subtotal)}
                 </span>
               </div>
 
-              <p className="text-xs text-center text-[hsl(var(--muted-foreground))]">
+              <p className="text-xs text-center text-muted-foreground">
                 Shipping & taxes calculated at checkout
               </p>
 
@@ -138,7 +138,7 @@ export function CartDrawer() {
                   <Link href="/cart">View Cart</Link>
                 </Button>
                 <Button
-                  variant="brand"
+                  variant="default"
                   size="lg"
                   asChild
                   onClick={closeDrawer}
@@ -181,7 +181,7 @@ function CartDrawerItem({ item, onUpdate, onRemove }: CartDrawerItemProps) {
   return (
     <div className="flex gap-3 py-4 group">
       {/* Image */}
-      <div className="relative h-[88px] w-[68px] shrink-0 overflow-hidden rounded-lg bg-surface-secondary">
+      <div className="relative h-[88px] w-[68px] shrink-0 overflow-hidden rounded-lg bg-muted">
         {item.imageUrl ? (
           <Image
             src={item.imageUrl}
@@ -191,7 +191,7 @@ function CartDrawerItem({ item, onUpdate, onRemove }: CartDrawerItemProps) {
             sizes="68px"
           />
         ) : (
-          <div className="flex h-full w-full items-center justify-center text-lg font-bold text-brand-400/30">
+          <div className="flex h-full w-full items-center justify-center text-lg font-bold text-primary/30">
             {(item.productName ?? "P")[0]}
           </div>
         )}
@@ -203,22 +203,22 @@ function CartDrawerItem({ item, onUpdate, onRemove }: CartDrawerItemProps) {
           {item.productName}
         </h4>
         {item.variantLabel && (
-          <p className="mt-0.5 text-xs text-[hsl(var(--muted-foreground))]">
+          <p className="mt-0.5 text-xs text-muted-foreground">
             {item.variantLabel}
           </p>
         )}
 
         {/* Price row */}
         <div className="flex items-baseline gap-1.5 mt-1">
-          <span className="text-sm font-semibold text-brand-400">
+          <span className="text-sm font-semibold text-primary">
             {formatPrice(price)}
           </span>
           {discount > 0 && (
             <>
-              <span className="text-[10px] text-[hsl(var(--muted-foreground))] line-through">
+              <span className="text-[10px] text-muted-foreground line-through">
                 {formatPrice(mrp)}
               </span>
-              <span className="text-[10px] font-medium text-emerald-400">
+              <span className="text-[10px] font-medium text-emerald-600 dark:text-emerald-400">
                 {discount}% off
               </span>
             </>
@@ -253,7 +253,7 @@ function CartDrawerItem({ item, onUpdate, onRemove }: CartDrawerItemProps) {
           <Button
             variant="ghost"
             size="icon"
-            className="h-6 w-6 text-red-400 opacity-0 group-hover:opacity-100 transition-opacity"
+            className="h-6 w-6 text-destructive opacity-0 group-hover:opacity-100 transition-opacity"
             onClick={() => onRemove(item.skuId)}
           >
             <Trash2 className="h-3 w-3" />

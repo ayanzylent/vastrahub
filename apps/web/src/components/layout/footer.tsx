@@ -27,13 +27,13 @@ const footerLinks = {
 
 export function Footer() {
   return (
-    <footer className="border-t border-[hsl(var(--border))]/40 bg-[hsl(var(--card))]">
+    <footer className="border-t border-border/40 bg-card">
       <div className="mx-auto max-w-7xl px-4 md:px-6 py-12 md:py-16">
         <div className="grid grid-cols-2 gap-8 md:grid-cols-4">
           {/* Brand Column */}
           <div className="col-span-2 md:col-span-1">
             <Logo size="lg" asLink={false} />
-            <p className="mt-4 text-sm text-[hsl(var(--muted-foreground))] max-w-xs">
+            <p className="mt-4 text-sm text-muted-foreground max-w-xs">
               Premium Indian fashion curated for the modern you. Handpicked
               elegance from India&apos;s finest weavers and designers.
             </p>
@@ -42,7 +42,7 @@ export function Footer() {
               {["Instagram", "Twitter", "Facebook"].map((social) => (
                 <span
                   key={social}
-                  className="flex h-9 w-9 items-center justify-center rounded-full bg-[hsl(var(--muted))] text-xs text-[hsl(var(--muted-foreground))] transition-colors hover:bg-brand-500/20 hover:text-brand-400 cursor-pointer"
+                  className="flex h-9 w-9 items-center justify-center rounded-full bg-muted text-xs text-muted-foreground transition-colors hover:bg-primary/20 hover:text-primary cursor-pointer"
                 >
                   {social[0]}
                 </span>
@@ -58,7 +58,7 @@ export function Footer() {
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className="text-sm text-[hsl(var(--muted-foreground))] transition-colors hover:text-[hsl(var(--foreground))]"
+                    className="text-sm text-muted-foreground transition-colors hover:text-foreground"
                   >
                     {link.label}
                   </Link>
@@ -74,7 +74,7 @@ export function Footer() {
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className="text-sm text-[hsl(var(--muted-foreground))] transition-colors hover:text-[hsl(var(--foreground))]"
+                    className="text-sm text-muted-foreground transition-colors hover:text-foreground"
                   >
                     {link.label}
                   </Link>
@@ -90,7 +90,7 @@ export function Footer() {
                 <li key={link.href}>
                   <Link
                     href={link.href}
-                    className="text-sm text-[hsl(var(--muted-foreground))] transition-colors hover:text-[hsl(var(--foreground))]"
+                    className="text-sm text-muted-foreground transition-colors hover:text-foreground"
                   >
                     {link.label}
                   </Link>
@@ -103,19 +103,19 @@ export function Footer() {
         <Separator className="my-8 opacity-40" />
 
         <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-          <p className="text-xs text-[hsl(var(--muted-foreground))]">
+          <p className="text-xs text-muted-foreground">
             © {new Date().getFullYear()} VastraHub. All rights reserved.
           </p>
           <div className="flex gap-6">
             <Link
               href="/privacy"
-              className="text-xs text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))]"
+              className="text-xs text-muted-foreground hover:text-foreground"
             >
               Privacy Policy
             </Link>
             <Link
               href="/terms"
-              className="text-xs text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))]"
+              className="text-xs text-muted-foreground hover:text-foreground"
             >
               Terms of Service
             </Link>

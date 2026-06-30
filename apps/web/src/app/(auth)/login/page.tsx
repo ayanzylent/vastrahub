@@ -55,7 +55,7 @@ function LoginForm() {
   }
 
   return (
-    <Card className="w-full glass-card">
+    <Card className="w-full bg-card/60 backdrop-blur-md border">
       <CardHeader className="text-center">
         <CardTitle className="font-heading text-2xl">
           Welcome Back
@@ -67,7 +67,7 @@ function LoginForm() {
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
           {error && (
-            <div className="rounded-lg bg-red-500/10 border border-red-500/20 p-3 text-sm text-red-400">
+            <div className="rounded-lg bg-destructive/10 border border-destructive/20 p-3 text-sm text-destructive">
               {error}
             </div>
           )}
@@ -88,7 +88,7 @@ function LoginForm() {
               <Label htmlFor="password">Password</Label>
               <Link
                 href="/forgot-password"
-                className="text-xs text-brand-400 hover:underline"
+                className="text-xs text-primary hover:underline"
               >
                 Forgot password?
               </Link>
@@ -103,7 +103,7 @@ function LoginForm() {
             />
           </div>
 
-          <Button variant="brand" className="w-full" size="lg" type="submit" disabled={loading}>
+          <Button variant="default" className="w-full" size="lg" type="submit" disabled={loading}>
             {loading ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -116,7 +116,7 @@ function LoginForm() {
 
           <div className="relative my-4">
             <Separator />
-            <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-[hsl(var(--card))] px-3 text-xs text-[hsl(var(--muted-foreground))]">
+            <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-card px-3 text-xs text-muted-foreground">
               or
             </span>
           </div>
@@ -128,9 +128,9 @@ function LoginForm() {
             Continue with WhatsApp
           </Button>
 
-          <p className="text-center text-sm text-[hsl(var(--muted-foreground))]">
+          <p className="text-center text-sm text-muted-foreground">
             Don&apos;t have an account?{" "}
-            <Link href="/signup" className="text-brand-400 hover:underline font-medium">
+            <Link href="/signup" className="text-primary hover:underline font-medium">
               Sign up
             </Link>
           </p>
@@ -142,7 +142,7 @@ function LoginForm() {
 
 function LoginFallback() {
   return (
-    <Card className="w-full glass-card">
+    <Card className="w-full bg-card/60 backdrop-blur-md border">
       <CardHeader className="text-center">
         <Skeleton className="h-8 w-40 mx-auto" />
         <Skeleton className="h-4 w-56 mx-auto mt-2" />

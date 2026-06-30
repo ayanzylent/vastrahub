@@ -22,8 +22,8 @@ export function Logo({ size = "md", className, asLink = true }: LogoProps) {
         className
       )}
     >
-      <span className="gradient-text">Vastra</span>
-      <span className="text-accent-400">Hub</span>
+      <span className="bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">Vastra</span>
+      <span className="text-primary">Hub</span>
     </span>
   );
 

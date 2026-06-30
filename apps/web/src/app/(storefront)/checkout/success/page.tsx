@@ -97,7 +97,7 @@ function SuccessContent() {
   if (loading) {
     return (
       <div className="mx-auto max-w-3xl px-4 py-20 text-center space-y-4">
-        <Loader2 className="h-10 w-10 animate-spin text-brand-500 mx-auto" />
+        <Loader2 className="h-10 w-10 animate-spin text-primary mx-auto" />
         <h2 className="text-xl font-heading font-medium">Loading order details...</h2>
       </div>
     );
@@ -107,21 +107,21 @@ function SuccessContent() {
   const header = {
     paid: {
       icon: <CheckCircle2 className="h-10 w-10" />,
-      iconWrap: "bg-emerald-500/10 border-emerald-500/30 text-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.2)]",
+      iconWrap: "bg-emerald-500/10 border-emerald-500/30 text-emerald-600 dark:text-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.2)]",
       title: "Order Placed Successfully!",
       subtitle:
         "Thank you for shopping with VastraHub. Your order is confirmed and is currently being processed.",
     },
     processing: {
       icon: <Clock className="h-10 w-10" />,
-      iconWrap: "bg-amber-500/10 border-amber-500/30 text-amber-400 shadow-[0_0_20px_rgba(245,158,11,0.2)]",
+      iconWrap: "bg-amber-500/10 border-amber-500/30 text-amber-600 dark:text-amber-400 shadow-[0_0_20px_rgba(245,158,11,0.2)]",
       title: "Payment Processing",
       subtitle:
         "Your payment is being confirmed by the bank. This page will update automatically — you don't need to pay again.",
     },
     failed: {
       icon: <XCircle className="h-10 w-10" />,
-      iconWrap: "bg-red-500/10 border-red-500/30 text-red-400 shadow-[0_0_20px_rgba(239,68,68,0.2)]",
+      iconWrap: "bg-red-500/10 border-red-500/30 text-red-600 dark:text-red-400 shadow-[0_0_20px_rgba(239,68,68,0.2)]",
       title: "Payment Failed",
       subtitle:
         "We couldn't confirm your payment. No amount was captured. You can retry checkout or choose another payment method.",
@@ -138,24 +138,24 @@ function SuccessContent() {
         <h1 className="font-heading text-3xl md:text-4xl font-bold tracking-tight">
           {header.title}
         </h1>
-        <p className="text-[hsl(var(--muted-foreground))] text-sm md:text-base max-w-md mx-auto leading-relaxed">
+        <p className="text-muted-foreground text-sm md:text-base max-w-md mx-auto leading-relaxed">
           {header.subtitle}
         </p>
       </div>
 
       {/* Details Card */}
-      <Card className="glass-card shadow-lg border-border/40 overflow-hidden mb-8">
-        <CardHeader className="bg-surface-secondary/20 border-b border-border/40 py-5">
+      <Card className="bg-card/60 backdrop-blur-md border shadow-lg border-border/40 overflow-hidden mb-8">
+        <CardHeader className="bg-muted/40 border-b border-border/40 py-5">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-sm">
             <div>
-              <p className="text-xs text-[hsl(var(--muted-foreground))] font-semibold uppercase tracking-wider">Order Number</p>
-              <p className="font-mono font-bold text-base text-brand-400 mt-0.5">{orderNumber ?? "N/A"}</p>
+              <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Order Number</p>
+              <p className="font-mono font-bold text-base text-primary mt-0.5">{orderNumber ?? "N/A"}</p>
             </div>
             {order?.createdAt && (
               <div className="sm:text-right">
-                <p className="text-xs text-[hsl(var(--muted-foreground))] font-semibold uppercase tracking-wider">Date & Time</p>
+                <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Date & Time</p>
                 <div className="flex items-center sm:justify-end gap-1.5 text-xs font-medium mt-1">
-                  <Calendar className="h-3.5 w-3.5 text-[hsl(var(--muted-foreground))]" />
+                  <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
                   <span>{new Date(order.createdAt).toLocaleString()}</span>
                 </div>
               </div>
@@ -168,12 +168,12 @@ function SuccessContent() {
           {order?.items && order.items.length > 0 && (
             <div className="space-y-4">
               <h3 className="text-sm font-bold font-heading tracking-wide flex items-center gap-2">
-                <ShoppingBag className="h-4 w-4 text-brand-400" /> Items Ordered
+                <ShoppingBag className="h-4 w-4 text-primary" /> Items Ordered
               </h3>
-              <div className="divide-y divide-border/40 border border-border/40 rounded-xl overflow-hidden bg-surface-secondary/20">
+              <div className="divide-y divide-border/40 border border-border/40 rounded-xl overflow-hidden bg-muted/40">
                 {order.items.map((item: IOrderItem) => (
                   <div key={item.skuId} className="flex gap-4 p-4 text-sm">
-                    <div className="relative h-16 w-12 shrink-0 rounded-lg overflow-hidden bg-surface-secondary">
+                    <div className="relative h-16 w-12 shrink-0 rounded-lg overflow-hidden bg-muted">
                       {item.imageUrl ? (
                         <Image
                           src={item.imageUrl}
@@ -183,17 +183,17 @@ function SuccessContent() {
                           sizes="48px"
                         />
                       ) : (
-                        <div className="flex h-full w-full items-center justify-center text-brand-400/20 font-bold text-xl">
+                        <div className="flex h-full w-full items-center justify-center text-primary/20 font-bold text-xl">
                           {item.productName[0]}
                         </div>
                       )}
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="font-medium truncate text-xs sm:text-sm">{item.productName}</p>
-                      <p className="text-xs text-[hsl(var(--muted-foreground))] mt-0.5">
+                      <p className="text-xs text-muted-foreground mt-0.5">
                         {item.variantLabel || "Default"}
                       </p>
-                      <p className="text-xs text-[hsl(var(--muted-foreground))] mt-0.5">
+                      <p className="text-xs text-muted-foreground mt-0.5">
                         Qty: {item.quantity}
                       </p>
                     </div>
@@ -216,18 +216,18 @@ function SuccessContent() {
             {order?.shippingAddress && (
               <div className="space-y-3">
                 <h3 className="font-bold font-heading tracking-wide flex items-center gap-2">
-                  <Truck className="h-4 w-4 text-brand-400" /> Delivery Address
+                  <Truck className="h-4 w-4 text-primary" /> Delivery Address
                 </h3>
-                <div className="bg-surface-secondary/20 p-4 rounded-xl border border-border/30">
+                <div className="bg-muted/40 p-4 rounded-xl border border-border/30">
                   <p className="font-semibold">{order.shippingAddress.fullName}</p>
-                  <p className="text-xs text-[hsl(var(--muted-foreground))] mt-1 leading-relaxed">
+                  <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
                     {order.shippingAddress.addressLine1}
                     {order.shippingAddress.addressLine2 ? `, ${order.shippingAddress.addressLine2}` : ""}
                   </p>
-                  <p className="text-xs text-[hsl(var(--muted-foreground))]">
+                  <p className="text-xs text-muted-foreground">
                     {order.shippingAddress.city}, {order.shippingAddress.state} - {order.shippingAddress.pincode}
                   </p>
-                  <p className="text-xs font-semibold text-[hsl(var(--muted-foreground))] mt-2">
+                  <p className="text-xs font-semibold text-muted-foreground mt-2">
                     Phone: {order.shippingAddress.phone}
                   </p>
                 </div>
@@ -237,33 +237,33 @@ function SuccessContent() {
             {/* Price breakdown */}
             <div className="space-y-3">
               <h3 className="font-bold font-heading tracking-wide flex items-center gap-2">
-                <Sparkles className="h-4 w-4 text-brand-400" /> Billing Summary
+                <Sparkles className="h-4 w-4 text-primary" /> Billing Summary
               </h3>
-              <div className="bg-surface-secondary/20 p-4 rounded-xl border border-border/30 space-y-2.5">
+              <div className="bg-muted/40 p-4 rounded-xl border border-border/30 space-y-2.5">
                 {order && (
                   <>
                     <div className="flex justify-between text-xs">
-                      <span className="text-[hsl(var(--muted-foreground))]">Subtotal</span>
+                      <span className="text-muted-foreground">Subtotal</span>
                       <span>{formatPrice(order.pricing.subtotalPaise)}</span>
                     </div>
                     {order.pricing.discountPaise > 0 && (
-                      <div className="flex justify-between text-xs text-emerald-400 font-medium">
+                      <div className="flex justify-between text-xs text-emerald-600 dark:text-emerald-400 font-medium">
                         <span>Discount ({order.couponSnapshot?.code})</span>
                         <span>-{formatPrice(order.pricing.discountPaise)}</span>
                       </div>
                     )}
                     <div className="flex justify-between text-xs">
-                      <span className="text-[hsl(var(--muted-foreground))]">Shipping</span>
-                      <span className="text-emerald-400">Free</span>
+                      <span className="text-muted-foreground">Shipping</span>
+                      <span className="text-emerald-600 dark:text-emerald-400">Free</span>
                     </div>
                     <div className="flex justify-between text-xs">
-                      <span className="text-[hsl(var(--muted-foreground))]">Estimated GST</span>
+                      <span className="text-muted-foreground">Estimated GST</span>
                       <span>₹0.00</span>
                     </div>
                     <Separator className="bg-border/30" />
                     <div className="flex justify-between font-bold text-sm pt-1">
                       <span>{paymentState === "paid" ? "Total Paid" : "Total Amount"}</span>
-                      <span className="text-brand-400">{formatPrice(order.pricing.totalPaise)}</span>
+                      <span className="text-primary">{formatPrice(order.pricing.totalPaise)}</span>
                     </div>
                   </>
                 )}
@@ -277,7 +277,7 @@ function SuccessContent() {
       <div className="flex flex-col sm:flex-row gap-4 justify-center">
         {paymentState === "failed" ? (
           <>
-            <Button variant="brand" size="lg" className="shadow-md shadow-brand-500/10" asChild>
+            <Button variant="default" size="lg" className="shadow-md shadow-primary/10" asChild>
               <Link href="/cart">
                 Retry Checkout
                 <ArrowRight className="ml-2 h-4 w-4" />
@@ -288,7 +288,7 @@ function SuccessContent() {
             </Button>
           </>
         ) : (
-          <Button variant="brand" size="lg" className="shadow-md shadow-brand-500/10" asChild>
+          <Button variant="default" size="lg" className="shadow-md shadow-primary/10" asChild>
             <Link href="/">
               Continue Shopping
               <ArrowRight className="ml-2 h-4 w-4" />
@@ -304,7 +304,7 @@ export default function OrderSuccessPage() {
   return (
     <Suspense fallback={
       <div className="mx-auto max-w-3xl px-4 py-20 text-center space-y-4">
-        <Loader2 className="h-10 w-10 animate-spin text-brand-500 mx-auto" />
+        <Loader2 className="h-10 w-10 animate-spin text-primary mx-auto" />
         <h2 className="text-xl font-heading font-medium">Loading order details...</h2>
       </div>
     }>
