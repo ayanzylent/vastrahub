@@ -1,3 +1,4 @@
+import { cookies } from "next/headers";
 import { AdminLayoutClient } from "@/components/layout/admin-layout-client";
 
 /**
@@ -6,10 +7,16 @@ import { AdminLayoutClient } from "@/components/layout/admin-layout-client";
  */
 export const dynamic = "force-dynamic";
 
-export default function AdminLayout({
+export default async function AdminLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  return <AdminLayoutClient>{children}</AdminLayoutClient>;
+  // Restore the sidebar open/collapsed state from the cookie set by SidebarProvider.
+  const cookieStore = await cookies();
+  const defaultOpen = cookieStore.get("sidebar_state")?.value !== "false";
+
+  return (
+    <AdminLayoutClient defaultOpen={defaultOpen}>{children}</AdminLayoutClient>
+  );
 }

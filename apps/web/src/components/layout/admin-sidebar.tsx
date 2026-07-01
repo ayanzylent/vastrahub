@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   LayoutDashboard,
   Package,
@@ -10,120 +10,271 @@ import {
   Ticket,
   Star,
   Settings,
-  ChevronLeft,
   FolderTree,
-  ChevronRight,
   Shield,
+  Store,
+  LogOut,
+  ChevronsUpDown,
+  type LucideIcon,
 } from "lucide-react";
-import { useState } from "react";
-import { Logo } from "@/components/shared/logo";
-import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Separator } from "@/components/ui/separator";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { useSession } from "@/lib/auth-client";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarGroup,
+  SidebarGroupLabel,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarRail,
+  useSidebar,
+} from "@/components/ui/sidebar";
+import { useSession, signOut } from "@/lib/auth-client";
+import { toast } from "sonner";
 
-const sidebarLinks = [
-  { label: "Dashboard", href: "/admin/dashboard", icon: LayoutDashboard },
-  { label: "Categories", href: "/admin/categories", icon: FolderTree },
-  { label: "Products", href: "/admin/products", icon: Package },
-  { label: "Orders", href: "/admin/orders", icon: ShoppingCart },
-  { label: "Customers", href: "/admin/customers", icon: Users },
-  { label: "Users", href: "/admin/users", icon: Shield, superadminOnly: true },
-  { label: "Coupons", href: "/admin/coupons", icon: Ticket },
-  { label: "Reviews", href: "/admin/reviews", icon: Star },
-  { label: "Settings", href: "/admin/settings", icon: Settings },
+type NavItem = {
+  label: string;
+  href: string;
+  icon: LucideIcon;
+  superadminOnly?: boolean;
+};
+
+type NavGroup = {
+  label: string;
+  items: NavItem[];
+};
+
+const navGroups: NavGroup[] = [
+  {
+    label: "Overview",
+    items: [
+      { label: "Dashboard", href: "/admin/dashboard", icon: LayoutDashboard },
+    ],
+  },
+  {
+    label: "Catalog",
+    items: [
+      { label: "Categories", href: "/admin/categories", icon: FolderTree },
+      { label: "Products", href: "/admin/products", icon: Package },
+    ],
+  },
+  {
+    label: "Sales",
+    items: [
+      { label: "Orders", href: "/admin/orders", icon: ShoppingCart },
+      { label: "Customers", href: "/admin/customers", icon: Users },
+      { label: "Coupons", href: "/admin/coupons", icon: Ticket },
+      { label: "Reviews", href: "/admin/reviews", icon: Star },
+    ],
+  },
+  {
+    label: "System",
+    items: [
+      { label: "Users", href: "/admin/users", icon: Shield, superadminOnly: true },
+      { label: "Settings", href: "/admin/settings", icon: Settings },
+    ],
+  },
 ];
 
 export function AdminSidebar() {
   const pathname = usePathname();
-  const [collapsed, setCollapsed] = useState(false);
+  const router = useRouter();
+  const { isMobile, setOpenMobile } = useSidebar();
   const { data: sessionData } = useSession();
   const user = sessionData?.user;
+  const isSuperadmin = user?.role === "superadmin";
 
-  const filteredLinks = sidebarLinks.filter(
-    (link) => !link.superadminOnly || user?.role === 'superadmin'
-  );
+  const initials = user?.name
+    ? user.name
+        .split(" ")
+        .map((n) => n[0])
+        .join("")
+        .toUpperCase()
+        .slice(0, 2)
+    : "AD";
+
+  async function handleSignOut() {
+    await signOut();
+    toast.success("Signed out");
+    router.push("/login");
+  }
 
   return (
-    <aside
-      className={cn(
-        "relative flex h-screen flex-col border-r border-border/40 bg-card transition-all duration-300",
-        collapsed ? "w-[68px]" : "w-[240px]"
-      )}
-    >
-      {/* Logo */}
-      <div className={cn("flex h-16 items-center px-4", collapsed && "justify-center")}>
-        {collapsed ? (
-          <span className="text-xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">V</span>
-        ) : (
-          <Logo size="md" />
-        )}
-      </div>
-
-      <Separator className="opacity-40" />
-
-      {/* Nav Links */}
-      <ScrollArea className="flex-1 py-4">
-        <nav className="flex flex-col gap-1 px-2">
-          {filteredLinks.map((link) => {
-            const isActive = pathname === link.href || pathname?.startsWith(link.href + "/");
-            return (
-              <Link
-                key={link.href}
-                href={link.href}
-                className={cn(
-                  "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200",
-                  collapsed && "justify-center px-2",
-                  isActive
-                    ? "bg-primary/10 text-primary shadow-sm"
-                    : "text-muted-foreground hover:bg-accent hover:text-foreground"
-                )}
-                title={collapsed ? link.label : undefined}
-              >
-                <link.icon className="h-4 w-4 shrink-0" />
-                {!collapsed && <span>{link.label}</span>}
+    <Sidebar collapsible="icon">
+      <SidebarHeader>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton size="lg" asChild>
+              <Link href="/admin/dashboard">
+                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
+                  <span className="font-heading text-sm font-bold">V</span>
+                </div>
+                <div className="grid flex-1 text-left leading-tight">
+                  <span className="truncate font-heading font-semibold">
+                    VastraHub
+                  </span>
+                  <span className="truncate text-xs text-muted-foreground">
+                    Admin Console
+                  </span>
+                </div>
               </Link>
-            );
-          })}
-        </nav>
-      </ScrollArea>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarHeader>
 
-      {/* Role Badge */}
-      {!collapsed && user?.role && (
-        <div className="px-3 pb-2">
-          <Badge
-            className={cn(
-              "w-full justify-center border-transparent",
-              user.role === 'superadmin'
-                ? 'bg-primary/10 text-primary'
-                : 'bg-muted text-muted-foreground'
-            )}
-          >
-            {user.role === 'superadmin' ? 'Super Admin' : 'Admin'}
-          </Badge>
-        </div>
-      )}
+      <SidebarContent>
+        {navGroups.map((group) => {
+          const items = group.items.filter(
+            (item) => !item.superadminOnly || isSuperadmin
+          );
+          if (items.length === 0) return null;
 
-      {/* Collapse Toggle */}
-      <div className="border-t border-border/40 p-2">
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => setCollapsed(!collapsed)}
-          className="w-full justify-center"
-        >
-          {collapsed ? (
-            <ChevronRight className="h-4 w-4" />
-          ) : (
-            <>
-              <ChevronLeft className="h-4 w-4" />
-              <span className="ml-1 text-xs">Collapse</span>
-            </>
-          )}
-        </Button>
-      </div>
-    </aside>
+          return (
+            <SidebarGroup key={group.label}>
+              <SidebarGroupLabel>{group.label}</SidebarGroupLabel>
+              <SidebarMenu>
+                {items.map((item) => {
+                  const isActive =
+                    pathname === item.href ||
+                    pathname?.startsWith(item.href + "/");
+                  return (
+                    <SidebarMenuItem key={item.href}>
+                      <SidebarMenuButton
+                        asChild
+                        isActive={isActive}
+                        tooltip={item.label}
+                      >
+                        <Link
+                          href={item.href}
+                          onClick={() => {
+                            if (isMobile) setOpenMobile(false);
+                          }}
+                        >
+                          <item.icon />
+                          <span>{item.label}</span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  );
+                })}
+              </SidebarMenu>
+            </SidebarGroup>
+          );
+        })}
+      </SidebarContent>
+
+      <SidebarFooter>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <SidebarMenuButton
+                  size="lg"
+                  className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+                >
+                  <Avatar className="size-8 rounded-lg">
+                    <AvatarImage
+                      src={user?.image || ""}
+                      alt={user?.name || "Admin"}
+                    />
+                    <AvatarFallback className="rounded-lg bg-sidebar-primary/15 text-sidebar-primary text-xs">
+                      {initials}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="grid flex-1 text-left text-sm leading-tight">
+                    <span className="truncate font-medium">
+                      {user?.name || "Admin"}
+                    </span>
+                    <span className="truncate text-xs text-muted-foreground">
+                      {user?.email || "admin@vastrahub.com"}
+                    </span>
+                  </div>
+                  <ChevronsUpDown className="ml-auto size-4" />
+                </SidebarMenuButton>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                className="w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg"
+                side={isMobile ? "bottom" : "right"}
+                align="end"
+                sideOffset={4}
+              >
+                <DropdownMenuLabel className="p-0 font-normal">
+                  <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
+                    <Avatar className="size-8 rounded-lg">
+                      <AvatarImage
+                        src={user?.image || ""}
+                        alt={user?.name || "Admin"}
+                      />
+                      <AvatarFallback className="rounded-lg bg-sidebar-primary/15 text-sidebar-primary text-xs">
+                        {initials}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="grid flex-1 text-left text-sm leading-tight">
+                      <span className="truncate font-medium">
+                        {user?.name || "Admin"}
+                      </span>
+                      <span className="truncate text-xs text-muted-foreground">
+                        {user?.email || "admin@vastrahub.com"}
+                      </span>
+                    </div>
+                  </div>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                {user?.role && (
+                  <>
+                    <div className="px-2 py-1.5">
+                      <Badge
+                        className={
+                          isSuperadmin
+                            ? "border-transparent bg-primary/10 text-primary"
+                            : "border-transparent bg-muted text-muted-foreground"
+                        }
+                      >
+                        {isSuperadmin ? "Super Admin" : "Admin"}
+                      </Badge>
+                    </div>
+                    <DropdownMenuSeparator />
+                  </>
+                )}
+                <DropdownMenuItem asChild>
+                  <Link href="/">
+                    <Store className="mr-2 size-4" />
+                    Storefront
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/admin/settings">
+                    <Settings className="mr-2 size-4" />
+                    Settings
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  className="text-destructive"
+                  onClick={handleSignOut}
+                >
+                  <LogOut className="mr-2 size-4" />
+                  Log out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarFooter>
+
+      <SidebarRail />
+    </Sidebar>
   );
 }

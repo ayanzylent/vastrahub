@@ -5,12 +5,19 @@ import { useRouter, usePathname } from 'next/navigation';
 import { useSession } from '@/lib/auth-client';
 import { AdminSidebar } from '@/components/layout/admin-sidebar';
 import { AdminTopbar } from '@/components/layout/admin-topbar';
+import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ShieldAlert } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 
-export function AdminLayoutClient({ children }: { children: React.ReactNode }) {
+export function AdminLayoutClient({
+  children,
+  defaultOpen = true,
+}: {
+  children: React.ReactNode;
+  defaultOpen?: boolean;
+}) {
   const { data: sessionData, isPending } = useSession();
   const user = sessionData?.user;
   const router = useRouter();
@@ -40,8 +47,8 @@ export function AdminLayoutClient({ children }: { children: React.ReactNode }) {
     return (
       <div className="flex h-screen items-center justify-center">
         <div className="text-center space-y-4 max-w-md px-6">
-          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-red-500/10">
-            <ShieldAlert className="h-8 w-8 text-red-400" />
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-destructive/10">
+            <ShieldAlert className="h-8 w-8 text-destructive" />
           </div>
           <h1 className="font-heading text-2xl font-bold">Access Denied</h1>
           <p className="text-muted-foreground">
@@ -57,12 +64,12 @@ export function AdminLayoutClient({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <div className="flex h-screen overflow-hidden">
+    <SidebarProvider defaultOpen={defaultOpen}>
       <AdminSidebar />
-      <div className="flex flex-1 flex-col overflow-hidden">
+      <SidebarInset className="min-w-0">
         <AdminTopbar />
-        <main className="flex-1 overflow-y-auto p-6">{children}</main>
-      </div>
-    </div>
+        <div className="flex flex-1 flex-col gap-4 p-4 md:p-6">{children}</div>
+      </SidebarInset>
+    </SidebarProvider>
   );
 }
