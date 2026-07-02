@@ -39,12 +39,8 @@ interface CouponValidationResult {
 
 interface CheckoutOrderResult {
   orderId: string;
-  orderNumber: string;
   paymentId: string;
-  iciciOrderId?: string;
-  iciciMerchantId?: string;
   iciciRedirectURI?: string;
-  gatewayOrderId?: string;
   totalPaise: number;
   paymentMethod: "icici" | "cod";
 }
@@ -345,7 +341,7 @@ function CheckoutContent() {
       }
 
       const orderData = orderRes.data;
-      const { orderId, orderNumber } = orderData;
+      const { orderId } = orderData;
 
       // Handle payment gateways
       if (paymentMethod === "cod") {
@@ -353,7 +349,7 @@ function CheckoutContent() {
         if (mode !== "buynow") {
           await clearCart();
         }
-        router.push(`/checkout/success?orderNumber=${orderNumber}&orderId=${orderId}`);
+        router.push(`/checkout/success?orderId=${orderId}`);
       } else if (paymentMethod === "icici") {
         // Redirect to the ICICI hosted payment page. The bank POSTs the result
         // back to our server callback, which redirects to /checkout/success.

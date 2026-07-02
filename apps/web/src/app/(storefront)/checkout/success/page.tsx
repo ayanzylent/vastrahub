@@ -26,7 +26,6 @@ const MAX_POLLS = 8;
 
 function SuccessContent() {
   const searchParams = useSearchParams();
-  const orderNumber = searchParams.get("orderNumber");
   const orderId = searchParams.get("orderId");
   // `status` is set by the ICICI callback redirect. COD/Razorpay omit it → treat as paid.
   const statusParam = searchParams.get("status");
@@ -148,8 +147,8 @@ function SuccessContent() {
         <CardHeader className="bg-muted/40 border-b border-border/40 py-5">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-sm">
             <div>
-              <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Order Number</p>
-              <p className="font-mono font-bold text-base text-primary mt-0.5">{orderNumber ?? "N/A"}</p>
+              <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Order ID</p>
+              <p className="font-mono font-bold text-base text-primary mt-0.5">{orderId ?? "N/A"}</p>
             </div>
             {order?.createdAt && (
               <div className="sm:text-right">

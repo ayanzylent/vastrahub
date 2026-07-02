@@ -98,15 +98,12 @@ export async function iciciCallback(request: FastifyRequest, reply: FastifyReply
       result.outcome === 'paid' ? 'paid' : result.outcome === 'failed' ? 'failed' : 'processing';
 
     const params = new URLSearchParams({ status });
-    if (result.orderNumber) params.set('orderNumber', result.orderNumber);
     if (result.orderId) params.set('orderId', String(result.orderId));
 
     return reply.redirect(`${redirectBase}/checkout/success?${params.toString()}`, 303);
   } catch (err) {
     request.log.error({ err }, 'ICICI callback handling failed');
-    const merchantTxnNo = String(fields.merchantTxnNo ?? '');
     const params = new URLSearchParams({ status: 'failed' });
-    if (merchantTxnNo) params.set('orderNumber', merchantTxnNo);
     return reply.redirect(`${redirectBase}/checkout/success?${params.toString()}`, 303);
   }
 }

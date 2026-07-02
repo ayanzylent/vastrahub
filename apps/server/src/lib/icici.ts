@@ -268,9 +268,10 @@ export function formatIciciTxnDate(date: Date): string {
  */
 export async function initiateIciciSale(
   amountPaise: number,
-  merchantTxnNo: string,
+  orderNumber: string,
 ): Promise<IciciInitiateResult> {
   const config = getIciciConfig();
+  const merchantTxnNo = `icici_${orderNumber}`;
 
   const payload: Record<string, unknown> = {
     merchantId: config.merchantId,

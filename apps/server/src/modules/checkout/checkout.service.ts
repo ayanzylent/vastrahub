@@ -253,7 +253,7 @@ export async function createOrder(userId: string, input: CreateOrderInput) {
   */
   if (input.paymentMethod === 'icici') {
     // Redirect (hosted-page) flow: ask ICICI to initiate the sale and hand us
-    // the URL to send the buyer to. The order number doubles as merchantTxnNo.
+    // the URL to send the buyer to.
     const iciciSale = await initiateIciciSale(totalPaise, orderNumber);
     iciciOrderId = iciciSale.merchantTxnNo;
     iciciRedirectURI = iciciSale.redirectURI;
@@ -264,6 +264,9 @@ export async function createOrder(userId: string, input: CreateOrderInput) {
       receivedAt: new Date(),
     });
   } else if (input.paymentMethod === 'cod') {
+    // Assign a unique gatewayOrderId so the compound unique index
+    // (gatewayOrderId + gatewayName) doesn't collide on null for every COD order.
+    payment.gatewayOrderId = `cod_${orderNumber}`;
     order.status = 'confirmed';
     order.statusHistory.push({
       status: 'confirmed',
@@ -310,10 +313,7 @@ export async function createOrder(userId: string, input: CreateOrderInput) {
     paymentId: payment._id,
     razorpayOrderId,
     razorpayKeyId: config.RAZORPAY_KEY_ID,
-    iciciOrderId,
-    iciciMerchantId: config.ICICI_MERCHANT_ID,
     iciciRedirectURI,
-    gatewayOrderId: razorpayOrderId || iciciOrderId,
     totalPaise,
     paymentMethod: input.paymentMethod,
   };
@@ -534,6 +534,9 @@ export async function createBuyNowOrder(userId: string, input: BuyNowInput) {
       receivedAt: new Date(),
     });
   } else if (input.paymentMethod === 'cod') {
+    // Assign a unique gatewayOrderId so the compound unique index
+    // (gatewayOrderId + gatewayName) doesn't collide on null for every COD order.
+    payment.gatewayOrderId = `cod_${orderNumber}`;
     order.status = 'confirmed';
     order.statusHistory.push({
       status: 'confirmed',
@@ -572,10 +575,7 @@ export async function createBuyNowOrder(userId: string, input: BuyNowInput) {
     paymentId: payment._id,
     razorpayOrderId,
     razorpayKeyId: config.RAZORPAY_KEY_ID,
-    iciciOrderId,
-    iciciMerchantId: config.ICICI_MERCHANT_ID,
     iciciRedirectURI,
-    gatewayOrderId: razorpayOrderId || iciciOrderId,
     totalPaise,
     paymentMethod: input.paymentMethod,
   };
