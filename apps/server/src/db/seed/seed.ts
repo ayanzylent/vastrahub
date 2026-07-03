@@ -49,7 +49,7 @@ async function seed(): Promise<void> {
   try {
     // ===== SUPERADMIN USER =====
     console.log('\n👤 Seeding superadmin user...');
-    const usersCollection = mongoose.connection.collection('users');
+    const usersCollection = mongoose.connection.collection('user');
 
     const superadminEmail = 'superadmin@vastrahub.com';
     const existingSuperadmin = await usersCollection.findOne({ email: superadminEmail });
