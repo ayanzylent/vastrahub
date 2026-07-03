@@ -14,7 +14,7 @@ export async function list(
   const limit = Math.min(100, Math.max(1, parseInt(query.limit ?? '20', 10) || 20));
   const search = query.search?.trim() || undefined;
 
-  const result = await service.listUsers(page, limit, search);
+  const result = await service.listAdmins(page, limit, search);
 
   return reply.send({
     success: true,
@@ -44,13 +44,38 @@ export async function getById(
   });
 }
 
-export async function updateRole(
+export async function searchCustomers(
+  request: FastifyRequest,
+  reply: FastifyReply,
+) {
+  const query = request.query as { search: string };
+  const users = await service.searchCustomers(query.search.trim());
+  return reply.send({
+    success: true,
+    data: users,
+    statusCode: 200,
+  });
+}
+
+export async function promoteToAdmin(
+  request: FastifyRequest,
+  reply: FastifyReply,
+) {
+  const body = request.body as { email: string };
+  const user = await service.promoteToAdmin(body.email);
+  return reply.send({
+    success: true,
+    data: user,
+    statusCode: 200,
+  });
+}
+
+export async function revokeAdmin(
   request: FastifyRequest,
   reply: FastifyReply,
 ) {
   const params = request.params as { id: string };
-  const body = request.body as { role: string };
-  const user = await service.updateUserRole(params.id, body.role);
+  const user = await service.revokeAdmin(params.id);
   return reply.send({
     success: true,
     data: user,

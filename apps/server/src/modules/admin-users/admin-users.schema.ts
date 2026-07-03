@@ -12,7 +12,12 @@ export type AdminUserIdParamsType = Static<typeof AdminUserIdParams>;
 export const AdminUserListQuery = PaginationQuery;
 export type AdminUserListQueryType = Static<typeof AdminUserListQuery>;
 
-export const UpdateRoleBody = Type.Object({
-  role: Type.String({ minLength: 1 }),
+export const PromoteToAdminBody = Type.Object({
+  email: Type.String({ format: 'email', minLength: 1 }),
 });
-export type UpdateRoleBodyType = Static<typeof UpdateRoleBody>;
+export type PromoteToAdminBodyType = Static<typeof PromoteToAdminBody>;
+
+export const SearchCustomersQuery = Type.Object({
+  search: Type.String({ minLength: 1, description: 'Search term (email or name)' }),
+});
+export type SearchCustomersQueryType = Static<typeof SearchCustomersQuery>;
