@@ -4,8 +4,9 @@
  * Customer: create, update, soft-delete own reviews.
  * Admin: list all, approve, flag, soft-delete any review.
  */
-
 import mongoose from 'mongoose';
+
+const { ObjectId } = mongoose.Types;
 import { Review, Order, Product } from '../../db/models/index.js';
 import type { IReviewDocument, IReviewMediaItem, IOrderDocument } from '../../db/models/index.js';
 import { NotFoundError, ValidationError, ConflictError } from '../../lib/errors.js';
@@ -32,12 +33,13 @@ export interface UpdateReviewInput {
 
 /**
  * Look up a user name from the Better-Auth users collection.
- * Better-Auth stores users with a string `id` field.
+ * Better-auth stores users with native `_id` (ObjectId); there is no separate `id` field.
  */
 async function getUserName(userId: string): Promise<string> {
-  const usersCol = mongoose.connection.collection('users');
+  if (!ObjectId.isValid(userId)) return 'Unknown User';
+  const usersCol = mongoose.connection.collection('user');
   const user = await usersCol.findOne(
-    { id: userId },
+    { _id: new ObjectId(userId) },
     { projection: { name: 1 } },
   );
   return (user?.name as string) ?? 'Unknown User';
@@ -48,14 +50,15 @@ async function getUserName(userId: string): Promise<string> {
  */
 async function getUserNameMap(userIds: string[]): Promise<Map<string, string>> {
   const uniqueIds = [...new Set(userIds)];
-  const usersCol = mongoose.connection.collection('users');
+  const validObjectIds = uniqueIds.filter((id) => ObjectId.isValid(id)).map((id) => new ObjectId(id));
+  const usersCol = mongoose.connection.collection('user');
   const users = await usersCol
-    .find({ id: { $in: uniqueIds } }, { projection: { id: 1, name: 1 } })
+    .find({ _id: { $in: validObjectIds } }, { projection: { name: 1 } })
     .toArray();
 
   const map = new Map<string, string>();
   for (const u of users) {
-    map.set(u.id as string, (u.name as string) ?? 'Unknown User');
+    map.set(u._id.toString(), (u.name as string) ?? 'Unknown User');
   }
   return map;
 }
