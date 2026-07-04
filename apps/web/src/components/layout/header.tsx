@@ -27,6 +27,7 @@ import { toast } from "sonner";
 const navLinks = [
   { label: "Home", href: "/" },
   { label: "Categories", href: "/categories/all" },
+  { label: "Collections", href: "/collections" },
   { label: "New Arrivals", href: "/categories/new-arrivals" },
 ];
 

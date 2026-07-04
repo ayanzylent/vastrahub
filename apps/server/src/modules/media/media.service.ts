@@ -19,7 +19,7 @@ export interface InitiateUploadInput {
   fileName: string;
   contentType: string;
   fileSize: number;
-  context: 'product' | 'review' | 'category';
+  context: 'product' | 'review' | 'category' | 'collection';
 }
 
 export interface UploadUrlResult {
@@ -41,6 +41,7 @@ function getMediaCategory(context: string, type: string): MediaCategory {
     'review_image': 'REVIEW_IMAGE',
     'review_video': 'REVIEW_VIDEO',
     'category_image': 'CATEGORY_IMAGE',
+    'collection_image': 'COLLECTION_IMAGE',
   };
 
   const key = `${context}_${type}`;

@@ -11,6 +11,7 @@ import {
   Star,
   Settings,
   FolderTree,
+  LayoutGrid,
   Shield,
   Store,
   LogOut,
@@ -66,6 +67,7 @@ const navGroups: NavGroup[] = [
     label: "Catalog",
     items: [
       { label: "Categories", href: "/admin/categories", icon: FolderTree },
+      { label: "Collections", href: "/admin/collections", icon: LayoutGrid },
       { label: "Products", href: "/admin/products", icon: Package },
     ],
   },

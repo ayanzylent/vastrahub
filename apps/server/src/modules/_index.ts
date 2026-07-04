@@ -6,6 +6,7 @@
 import type { FastifyInstance } from 'fastify';
 import healthRoutes from './health/health.route.js';
 import categoryRoutes from './category/category.route.js';
+import collectionRoutes from './collection/collection.route.js';
 import productRoutes from './product/product.route.js';
 import skuRoutes from './sku/sku.route.js';
 import cartRoutes from './cart/cart.route.js';
@@ -27,6 +28,7 @@ export async function registerRoutes(fastify: FastifyInstance): Promise<void> {
 
   // API modules
   await fastify.register(categoryRoutes);
+  await fastify.register(collectionRoutes);
   await fastify.register(productRoutes);
   await fastify.register(skuRoutes);
   await fastify.register(cartRoutes);

@@ -10,6 +10,11 @@ export const InitiateUploadBody = Type.Object({
   fileName: Type.String({ minLength: 1 }),
   contentType: Type.String({ minLength: 1 }),
   fileSize: Type.Integer({ minimum: 1, description: 'File size in bytes' }),
-  context: Type.Union([Type.Literal('product'), Type.Literal('review'), Type.Literal('category')]),
+  context: Type.Union([
+    Type.Literal('product'),
+    Type.Literal('review'),
+    Type.Literal('category'),
+    Type.Literal('collection'),
+  ]),
 });
 export type InitiateUploadBodyType = Static<typeof InitiateUploadBody>;

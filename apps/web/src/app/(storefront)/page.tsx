@@ -10,7 +10,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { ProductCard, type ProductCardProduct } from "@/components/shared/product-card";
 import { api } from "@/lib/api";
 import { getMediaUrl } from "@/lib/media";
-import type { ICategory } from "@vastrahub/shared-types";
+import type { ICategory, ICollection } from "@vastrahub/shared-types";
 
 interface FeaturedProduct extends ProductCardProduct {
   skus?: Array<{ pricePaise: number; mrpPaise: number }>;
@@ -18,8 +18,10 @@ interface FeaturedProduct extends ProductCardProduct {
 
 export default function HomePage() {
   const [categories, setCategories] = useState<ICategory[]>([]);
+  const [collections, setCollections] = useState<ICollection[]>([]);
   const [featuredProducts, setFeaturedProducts] = useState<FeaturedProduct[]>([]);
   const [loadingCats, setLoadingCats] = useState(true);
+  const [loadingCollections, setLoadingCollections] = useState(true);
   const [loadingProducts, setLoadingProducts] = useState(true);
 
   useEffect(() => {
@@ -33,6 +35,19 @@ export default function HomePage() {
         // fallback to empty
       } finally {
         setLoadingCats(false);
+      }
+    }
+
+    async function fetchCollections() {
+      try {
+        const res = await api.get<ICollection[]>("/api/v1/storefront/collections?featured=true");
+        if (res.success && res.data) {
+          setCollections(res.data.slice(0, 6));
+        }
+      } catch {
+        // fallback to empty
+      } finally {
+        setLoadingCollections(false);
       }
     }
 
@@ -50,6 +65,7 @@ export default function HomePage() {
     }
 
     fetchCategories();
+    fetchCollections();
     fetchFeatured();
   }, []);
 
@@ -176,6 +192,76 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* ─── Shop by Collection ─── */}
+      {(loadingCollections || collections.length > 0) && (
+        <section className="py-16 md:py-24 bg-card/50">
+          <div className="mx-auto max-w-7xl px-4 md:px-6">
+            <div className="flex items-center justify-between mb-10">
+              <div>
+                <h2 className="font-heading text-2xl md:text-3xl font-bold">
+                  Shop by Collection
+                </h2>
+                <p className="mt-2 text-muted-foreground">
+                  Curated edits, handpicked for the season
+                </p>
+              </div>
+              <Button variant="ghost" asChild>
+                <Link href="/collections">
+                  View All <ArrowRight className="ml-1 h-4 w-4" />
+                </Link>
+              </Button>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+              {loadingCollections
+                ? Array.from({ length: 3 }).map((_, i) => (
+                    <Card key={i} className="overflow-hidden">
+                      <CardContent className="p-0">
+                        <Skeleton className="aspect-[16/9] w-full" />
+                        <div className="p-4 space-y-2">
+                          <Skeleton className="h-5 w-1/2" />
+                          <Skeleton className="h-3 w-3/4" />
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))
+                : collections.map((col) => {
+                    const image = col.bannerImage || col.image;
+                    return (
+                      <Link key={col._id} href={`/collections/${col.slug}`}>
+                        <Card className="group overflow-hidden hover:border-primary/30 transition-all duration-300">
+                          <CardContent className="p-0">
+                            <div className="aspect-[16/9] bg-gradient-to-br from-primary/10 to-muted flex items-center justify-center overflow-hidden">
+                              {image ? (
+                                <img
+                                  src={getMediaUrl(image)}
+                                  alt={col.name}
+                                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                                />
+                              ) : (
+                                <span className="text-3xl font-heading font-bold text-primary/30 group-hover:text-primary/50 transition-colors">
+                                  {col.name[0]}
+                                </span>
+                              )}
+                            </div>
+                            <div className="p-4">
+                              <h3 className="font-heading text-lg font-semibold group-hover:text-primary transition-colors">
+                                {col.name}
+                              </h3>
+                              <p className="mt-1 text-sm text-muted-foreground line-clamp-1">
+                                {col.description || `${col.productCount} products`}
+                              </p>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      </Link>
+                    );
+                  })}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* ─── Featured Products ─── */}
       <section className="py-16 md:py-24 bg-card/50">

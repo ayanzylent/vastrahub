@@ -13,6 +13,16 @@ export type { ISku } from './sku.types.js';
 // Category types
 export type { ICategory, ICategoryAncestor } from './category.types.js';
 
+// Collection types
+export type {
+  ICollection,
+  ICollectionRule,
+  CollectionType,
+  CollectionMatchMode,
+  CollectionRuleField,
+  CollectionRuleOperator,
+} from './collection.types.js';
+
 // User types
 export { UserRole } from './user.types.js';
 export type { IUser, IAddress } from './user.types.js';

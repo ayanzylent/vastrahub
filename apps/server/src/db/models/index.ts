@@ -6,6 +6,16 @@
 export { Category } from './category.model.js';
 export type { ICategoryDocument, ICategoryAncestor } from './category.model.js';
 
+export { Collection } from './collection.model.js';
+export type {
+  ICollectionDocument,
+  ICollectionRule,
+  CollectionType,
+  CollectionMatchMode,
+  CollectionRuleField,
+  CollectionRuleOperator,
+} from './collection.model.js';
+
 export { Product } from './product.model.js';
 export type {
   IProductDocument,

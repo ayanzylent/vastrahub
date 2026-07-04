@@ -21,6 +21,10 @@ export const MEDIA_CONSTRAINTS = {
     maxSizeBytes: 5 * 1024 * 1024,
     allowedMimeTypes: ['image/jpeg', 'image/png', 'image/webp'],
   },
+  COLLECTION_IMAGE: {
+    maxSizeBytes: 5 * 1024 * 1024,
+    allowedMimeTypes: ['image/jpeg', 'image/png', 'image/webp'],
+  },
 } as const;
 
 export type MediaCategory = keyof typeof MEDIA_CONSTRAINTS;
