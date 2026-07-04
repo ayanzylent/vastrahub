@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Home, ShoppingBag, Tag, Heart, LogIn } from "lucide-react";
+import { Home, ShoppingBag, Tag, Heart, LogIn, User } from "lucide-react";
 import { Logo } from "@/components/shared/logo";
 import {
   Sheet,
@@ -20,7 +20,8 @@ const mobileLinks = [
   { label: "Home", href: "/", icon: Home },
   { label: "Categories", href: "/categories/all", icon: Tag },
   { label: "New Arrivals", href: "/categories/new-arrivals", icon: ShoppingBag },
-  { label: "Wishlist", href: "/wishlist", icon: Heart },
+  { label: "Wishlist", href: "/account/wishlist", icon: Heart },
+  { label: "My Account", href: "/account/profile", icon: User },
   { label: "Sign In", href: "/login", icon: LogIn },
 ];
 

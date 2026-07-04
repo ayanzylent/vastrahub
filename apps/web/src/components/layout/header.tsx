@@ -117,7 +117,7 @@ export function Header() {
 
             {/* Wishlist */}
             <Button variant="ghost" size="icon" asChild>
-              <Link href="/wishlist">
+              <Link href="/account/wishlist">
                 <Heart className="h-5 w-5" />
                 <span className="sr-only">Wishlist</span>
               </Link>
@@ -161,7 +161,19 @@ export function Header() {
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem asChild>
-                    <Link href="/wishlist" className="cursor-pointer">
+                    <Link href="/account/profile" className="cursor-pointer">
+                      <User className="mr-2 h-4 w-4" />
+                      My Account
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/account/orders" className="cursor-pointer">
+                      <ShoppingBag className="mr-2 h-4 w-4" />
+                      My Orders
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/account/wishlist" className="cursor-pointer">
                       <Heart className="mr-2 h-4 w-4" />
                       Wishlist
                     </Link>

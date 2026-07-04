@@ -4,6 +4,8 @@
  */
 
 import mongoose from 'mongoose';
+
+const { ObjectId } = mongoose.Types;
 import { Address } from '../../db/models/index.js';
 import type { IAddressDocument } from '../../db/models/index.js';
 import { NotFoundError, ValidationError, ConflictError } from '../../lib/errors.js';
@@ -34,13 +36,17 @@ export interface AddAddressInput {
  * Get user profile from Better-Auth users collection.
  */
 export async function getProfile(userId: string) {
-  const user = await mongoose.connection.collection('user').findOne({ id: userId });
+  if (!ObjectId.isValid(userId)) {
+    throw new NotFoundError('User not found');
+  }
+
+  const user = await mongoose.connection.collection('user').findOne({ _id: new ObjectId(userId) });
   if (!user) {
     throw new NotFoundError('User not found');
   }
 
   return {
-    id: user.id,
+    id: user._id.toString(),
     name: user.name,
     email: user.email,
     role: user.role ?? 'customer',
@@ -65,8 +71,12 @@ export async function updateProfile(userId: string, data: UpdateProfileInput) {
 
   updateFields.updatedAt = new Date();
 
+  if (!ObjectId.isValid(userId)) {
+    throw new NotFoundError('User not found');
+  }
+
   const result = await mongoose.connection.collection('user').findOneAndUpdate(
-    { id: userId },
+    { _id: new ObjectId(userId) },
     { $set: updateFields },
     { returnDocument: 'after' },
   );
@@ -76,7 +86,7 @@ export async function updateProfile(userId: string, data: UpdateProfileInput) {
   }
 
   return {
-    id: result.id,
+    id: result._id.toString(),
     name: result.name,
     email: result.email,
     role: result.role ?? 'customer',

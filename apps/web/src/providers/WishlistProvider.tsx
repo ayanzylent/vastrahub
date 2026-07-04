@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useState, useCallback, useEffect } from "react";
 import { api } from "@/lib/api";
+import { useSession } from "@/lib/auth-client";
 import { toast } from "sonner";
 
 interface WishlistContextValue {
@@ -9,6 +10,7 @@ interface WishlistContextValue {
   loading: boolean;
   fetchWishlist: () => Promise<void>;
   toggleWishlist: (productId: string) => Promise<void>;
+  removeFromWishlist: (productId: string) => Promise<boolean>;
   isInWishlist: (productId: string) => boolean;
 }
 
@@ -27,22 +29,13 @@ interface WishlistResponse {
 export function WishlistProvider({ children }: { children: React.ReactNode }) {
   const [wishlistIds, setWishlistIds] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(false);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  // Check auth status without hooks
-  useEffect(() => {
-    async function checkAuth() {
-      try {
-        const res = await api.get<{ user?: { id: string } }>("/api/auth/get-session");
-        if (res.success && res.data?.user) {
-          setIsAuthenticated(true);
-        }
-      } catch {
-        setIsAuthenticated(false);
-      }
-    }
-    checkAuth();
-  }, []);
+  // Source auth state from the shared Better-Auth session hook (same mechanism the
+  // header uses). The raw /api/auth/get-session response is the session object itself
+  // ({ user, session }), NOT the app's { success, data } envelope — so parsing it as
+  // an ApiResponse always failed and left the user perpetually "logged out" here.
+  const { data: sessionData } = useSession();
+  const isAuthenticated = !!sessionData?.user;
 
   const fetchWishlist = useCallback(async () => {
     if (!isAuthenticated) return;
@@ -99,13 +92,33 @@ export function WishlistProvider({ children }: { children: React.ReactNode }) {
     }
   }, [isAuthenticated, wishlistIds]);
 
+  /**
+   * Remove a product from the wishlist unconditionally (does not depend on the
+   * locally-cached membership set being loaded). Keeps global wishlist state in
+   * sync so hearts elsewhere reflect the removal immediately.
+   */
+  const removeFromWishlist = useCallback(async (productId: string): Promise<boolean> => {
+    const res = await api.delete(`/api/v1/user/wishlist/${productId}`);
+    if (res.success) {
+      setWishlistIds((prev) => {
+        const next = new Set(prev);
+        next.delete(productId);
+        return next;
+      });
+      return true;
+    }
+    return false;
+  }, []);
+
   const isInWishlist = useCallback(
     (productId: string) => wishlistIds.has(productId),
     [wishlistIds]
   );
 
   return (
-    <WishlistContext.Provider value={{ wishlistIds, loading, fetchWishlist, toggleWishlist, isInWishlist }}>
+    <WishlistContext.Provider
+      value={{ wishlistIds, loading, fetchWishlist, toggleWishlist, removeFromWishlist, isInWishlist }}
+    >
       {children}
     </WishlistContext.Provider>
   );

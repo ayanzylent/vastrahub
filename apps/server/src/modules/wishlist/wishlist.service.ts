@@ -49,7 +49,7 @@ export async function getWishlist(userId: string) {
   const products = await Product.find({
     _id: { $in: productIds },
   })
-    .select('name slug basePricePaise baseMrpPaise variantMedia isActive')
+    .select('name slug basePricePaise baseMrpPaise variantMedia averageRating reviewCount isActive')
     .lean();
 
   const productMap = new Map(
@@ -69,6 +69,9 @@ export async function getWishlist(userId: string) {
           slug: product.slug,
           basePricePaise: product.basePricePaise,
           baseMrpPaise: product.baseMrpPaise,
+          variantMedia: product.variantMedia,
+          averageRating: product.averageRating,
+          reviewCount: product.reviewCount,
           coverImage: getCoverImageUrl(product as unknown as Record<string, unknown>),
           isActive: product.isActive,
         },
