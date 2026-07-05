@@ -38,6 +38,7 @@ export default function AdminCategoriesPage() {
   const [formDescription, setFormDescription] = useState("");
   const [formParentId, setFormParentId] = useState("");
   const [formIsActive, setFormIsActive] = useState(true);
+  const [formIsFeatured, setFormIsFeatured] = useState(false);
   const [formImage, setFormImage] = useState("");
   const [uploading, setUploading] = useState(false);
 
@@ -67,6 +68,7 @@ export default function AdminCategoriesPage() {
     setFormDescription("");
     setFormParentId("");
     setFormIsActive(true);
+    setFormIsFeatured(false);
     setFormImage("");
     setDialogOpen(true);
   }
@@ -77,6 +79,7 @@ export default function AdminCategoriesPage() {
     setFormDescription(cat.description || "");
     setFormParentId(cat.parentId || "");
     setFormIsActive(cat.isActive);
+    setFormIsFeatured(cat.isFeatured ?? false);
     setFormImage(cat.image || "");
     setDialogOpen(true);
   }
@@ -131,6 +134,7 @@ export default function AdminCategoriesPage() {
         description: formDescription || undefined,
         parentId: formParentId || null,
         isActive: formIsActive,
+        isFeatured: formIsFeatured,
         image: formImage || undefined,
       };
 
@@ -287,12 +291,19 @@ export default function AdminCategoriesPage() {
                       </td>
                       <td className="px-4 py-3 text-sm">{cat.productCount}</td>
                       <td className="px-4 py-3">
-                        <StatusBadge
-                          tone={cat.isActive ? "success" : "neutral"}
-                          className="text-[10px]"
-                        >
-                          {cat.isActive ? "Active" : "Inactive"}
-                        </StatusBadge>
+                        <div className="flex flex-wrap items-center gap-1">
+                          <StatusBadge
+                            tone={cat.isActive ? "success" : "neutral"}
+                            className="text-[10px]"
+                          >
+                            {cat.isActive ? "Active" : "Inactive"}
+                          </StatusBadge>
+                          {cat.isFeatured && (
+                            <StatusBadge tone="info" className="text-[10px]">
+                              Featured
+                            </StatusBadge>
+                          )}
+                        </div>
                       </td>
                       <td className="px-4 py-3 text-right">
                         <div className="flex gap-1 justify-end">
@@ -421,6 +432,15 @@ export default function AdminCategoriesPage() {
                 className="rounded"
               />
               <span className="text-sm">Active</span>
+            </label>
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={formIsFeatured}
+                onChange={(e) => setFormIsFeatured(e.target.checked)}
+                className="rounded"
+              />
+              <span className="text-sm">Feature on homepage</span>
             </label>
           </div>
           <DialogFooter>

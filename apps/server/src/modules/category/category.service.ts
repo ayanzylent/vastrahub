@@ -17,6 +17,7 @@ export interface CreateCategoryInput {
   description?: string | null;
   image?: string | null;
   isActive?: boolean;
+  isFeatured?: boolean;
   sortOrder?: number;
   metadata?: {
     metaTitle?: string | null;
@@ -125,6 +126,7 @@ export async function createCategory(data: CreateCategoryInput) {
     description: data.description ?? undefined,
     image: data.image ?? undefined,
     isActive: data.isActive ?? true,
+    isFeatured: data.isFeatured ?? false,
     sortOrder: data.sortOrder ?? 0,
     metadata: data.metadata ?? {},
   });
@@ -244,6 +246,7 @@ export async function updateCategory(id: string, data: UpdateCategoryInput) {
   if (data.description !== undefined) category.description = data.description ?? undefined;
   if (data.image !== undefined) category.image = data.image ?? undefined;
   if (data.isActive !== undefined) category.isActive = data.isActive;
+  if (data.isFeatured !== undefined) category.isFeatured = data.isFeatured;
   if (data.sortOrder !== undefined) category.sortOrder = data.sortOrder;
   if (data.metadata !== undefined) {
     category.metadata = {

@@ -14,6 +14,7 @@ export const CreateCategoryBody = Type.Object({
   description: Type.Optional(Type.Union([Type.String({ maxLength: 500 }), Type.Null()])),
   image: Type.Optional(Type.Union([Type.String(), Type.Null()])),
   isActive: Type.Optional(Type.Boolean()),
+  isFeatured: Type.Optional(Type.Boolean()),
   sortOrder: Type.Optional(Type.Integer({ minimum: 0 })),
   metadata: Type.Optional(Type.Object({
     metaTitle: Type.Optional(Type.Union([Type.String({ maxLength: 120 }), Type.Null()])),

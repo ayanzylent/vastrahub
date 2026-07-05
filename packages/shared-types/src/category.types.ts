@@ -21,6 +21,8 @@ export interface ICategory extends TimestampFields {
   ancestors: ICategoryAncestor[];
   image?: string;
   isActive: boolean;
+  /** Feature on the storefront homepage (category showcase). */
+  isFeatured: boolean;
   sortOrder: number;
   metaTitle?: string;
   metaDescription?: string;

@@ -26,6 +26,7 @@ export interface ICategoryDocument extends Document {
   description?: string;
   image?: string;
   isActive: boolean;
+  isFeatured: boolean;
   sortOrder: number;
   productCount: number;
   metadata: {
@@ -90,6 +91,10 @@ const categorySchema = new Schema<ICategoryDocument>(
       type: Boolean,
       default: true,
     },
+    isFeatured: {
+      type: Boolean,
+      default: false,
+    },
     sortOrder: {
       type: Number,
       default: 0,
@@ -115,6 +120,7 @@ const categorySchema = new Schema<ICategoryDocument>(
 categorySchema.index({ parentId: 1, sortOrder: 1 });
 categorySchema.index({ 'ancestors._id': 1 });
 categorySchema.index({ isActive: 1 });
+categorySchema.index({ isActive: 1, isFeatured: 1, sortOrder: 1 });
 
 
 
