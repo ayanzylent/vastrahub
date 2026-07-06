@@ -3,7 +3,7 @@
  */
 
 import mongoose from 'mongoose';
-import { Order, Payment, Sku, Address, Coupon } from '../../db/models/index.js';
+import { Order, Payment, Sku, Address } from '../../db/models/index.js';
 import type { IOrderDocument, IPaymentDocument, IShippingAddress } from '../../db/models/index.js';
 import { NotFoundError, ValidationError } from '../../lib/errors.js';
 import { getRazorpay } from '../../lib/razorpay.js';
@@ -11,7 +11,7 @@ import { initiateIciciSale } from '../../lib/icici.js';
 import { getConfig } from '../../config/env.js';
 import { getCart, clearCart } from '../cart/cart.service.js';
 import { generateOrderNumber, validateOrderPricing } from '../order/order.service.js';
-import { validateAndPreviewCoupon } from '../coupon/coupon.service.js';
+// import { validateAndPreviewCoupon } from '../coupon/coupon.service.js';
 
 /**
  * Validate cart for checkout.
@@ -104,38 +104,13 @@ export async function createOrder(userId: string, input: CreateOrderInput) {
     throw new NotFoundError('Address not found');
   }
 
-  // 3. Apply coupon
-  let discountPaise = 0;
-  let couponSnapshot;
-  let couponDoc;
-
-  if (input.couponCode) {
-    const productIds = validation.items.map(item => String(item.productId));
-    const couponResult = await validateAndPreviewCoupon(
-      input.couponCode,
-      validation.subtotalPaise,
-      userId,
-      productIds
-    );
-
-    if (!couponResult.valid) {
-      throw new ValidationError(couponResult.message || 'Invalid coupon');
-    }
-
-    discountPaise = couponResult.discountAmountPaise || 0;
-    couponDoc = await Coupon.findById(couponResult.couponId);
-    if (couponDoc) {
-      couponSnapshot = {
-        code: couponDoc.code,
-        discountType: couponDoc.discountType,
-        fixedAmountPaise: couponDoc.fixedAmountPaise,
-        discountAmountPaise: discountPaise,
-      } as any;
-      if (couponDoc.percentageValue !== undefined && couponDoc.percentageValue !== null) {
-        couponSnapshot.percentageValue = couponDoc.percentageValue;
-      }
-    }
-  }
+  // ── Coupon disabled: module not fully implemented ─────────────────
+  // Bugs to fix when re-enabling:
+  //   • Use atomic $inc for coupon usage (race condition with read-modify-write)
+  //   • Reverse coupon usage when payment fails (stock is restored but usage isn't)
+  //   • Handle totalPaise=0 case (100% discount fails Payment model min:1 validation)
+  // Original code: validated coupon, calculated discount, built couponSnapshot.
+  const discountPaise = 0;
 
   // 4. Calculate pricing
   const subtotalPaise = validation.subtotalPaise;
@@ -206,7 +181,7 @@ export async function createOrder(userId: string, input: CreateOrderInput) {
       taxPaise,
       totalPaise,
     },
-    couponSnapshot,
+    // couponSnapshot, // Coupon disabled — re-enable with coupon module
     shippingAddress,
     billingAddress: shippingAddress,
     status: 'pending',
@@ -297,11 +272,8 @@ export async function createOrder(userId: string, input: CreateOrderInput) {
   // Save docs
   await Promise.all([order.save(), payment.save()]);
 
-  // 14. Increment coupon usage
-  if (couponDoc) {
-    couponDoc.currentUses = (couponDoc.currentUses || 0) + 1;
-    await couponDoc.save();
-  }
+  // 14. Increment coupon usage — DISABLED (coupon module not complete)
+  // BUG: Use atomic $inc, and reverse on payment failure.
 
   // 15. Clear cart
   await clearCart({ userId });
@@ -380,37 +352,9 @@ export async function createBuyNowOrder(userId: string, input: BuyNowInput) {
   // 4. Calculate pricing
   const subtotalPaise = sku.pricePaise * input.quantity;
 
-  // 5. Apply coupon
-  let discountPaise = 0;
-  let couponSnapshot;
-  let couponDoc;
-
-  if (input.couponCode) {
-    const couponResult = await validateAndPreviewCoupon(
-      input.couponCode,
-      subtotalPaise,
-      userId,
-      [String(sku.productId)],
-    );
-
-    if (!couponResult.valid) {
-      throw new ValidationError(couponResult.message || 'Invalid coupon');
-    }
-
-    discountPaise = couponResult.discountAmountPaise || 0;
-    couponDoc = await Coupon.findById(couponResult.couponId);
-    if (couponDoc) {
-      couponSnapshot = {
-        code: couponDoc.code,
-        discountType: couponDoc.discountType,
-        fixedAmountPaise: couponDoc.fixedAmountPaise,
-        discountAmountPaise: discountPaise,
-      } as any;
-      if (couponDoc.percentageValue !== undefined && couponDoc.percentageValue !== null) {
-        couponSnapshot.percentageValue = couponDoc.percentageValue;
-      }
-    }
-  }
+  // ── Coupon disabled: module not fully implemented ─────────────────
+  // See createOrder() for known bugs to fix when re-enabling.
+  const discountPaise = 0;
 
   const shippingPaise = 0;
   const taxPaise = 0;
@@ -479,7 +423,7 @@ export async function createBuyNowOrder(userId: string, input: BuyNowInput) {
       taxPaise,
       totalPaise,
     },
-    couponSnapshot,
+    // couponSnapshot, // Coupon disabled — re-enable with coupon module
     shippingAddress,
     billingAddress: shippingAddress,
     status: 'pending',
@@ -563,11 +507,8 @@ export async function createBuyNowOrder(userId: string, input: BuyNowInput) {
   // Save docs
   await Promise.all([order.save(), payment.save()]);
 
-  // 12. Increment coupon usage
-  if (couponDoc) {
-    couponDoc.currentUses = (couponDoc.currentUses || 0) + 1;
-    await couponDoc.save();
-  }
+  // 12. Increment coupon usage — DISABLED (coupon module not complete)
+  // BUG: Use atomic $inc, and reverse on payment failure.
 
   return {
     orderId: order._id,
