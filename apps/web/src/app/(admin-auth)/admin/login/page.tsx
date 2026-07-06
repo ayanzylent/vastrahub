@@ -12,6 +12,7 @@ import { toast } from "sonner";
 import { Loader2, ShieldCheck, Lock, ArrowLeft } from "lucide-react";
 import { api } from "@/lib/api";
 import Link from "next/link";
+import { BRAND_CONFIG } from "@vastrahub/shared-constants";
 
 function AdminLoginForm() {
   const searchParams = useSearchParams();
@@ -100,7 +101,7 @@ function AdminLoginForm() {
               Admin Panel
             </h1>
             <p className="text-sm text-muted-foreground mt-1">
-              VastraHub Management Console
+              {BRAND_CONFIG.NAME} Management Console
             </p>
           </div>
         </div>
@@ -131,7 +132,7 @@ function AdminLoginForm() {
                 <Input
                   id="admin-email"
                   type="email"
-                  placeholder="admin@vastrahub.com"
+                  placeholder={BRAND_CONFIG.DEFAULT_ADMIN_EMAIL}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   disabled={loading}

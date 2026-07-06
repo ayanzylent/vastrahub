@@ -21,6 +21,7 @@ import { Badge } from "@/components/ui/badge";
 import { api } from "@/lib/api";
 import { toast } from "sonner";
 import type { ICategory, IVariantOption } from "@vastrahub/shared-types";
+import { BRAND_CONFIG } from "@vastrahub/shared-constants";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -513,7 +514,7 @@ export default function NewProductPage() {
                     id="brand"
                     value={brand}
                     onChange={(e) => setBrand(e.target.value)}
-                    placeholder="e.g. VastraHub"
+                    placeholder={"e.g. " + BRAND_CONFIG.NAME}
                   />
                 </div>
               </div>

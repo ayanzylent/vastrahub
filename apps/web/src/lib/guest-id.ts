@@ -1,6 +1,8 @@
 "use client";
 
-const GUEST_ID_KEY = "vastrahub_guest_id";
+import { BRAND_CONFIG } from "@vastrahub/shared-constants";
+
+const GUEST_ID_KEY = BRAND_CONFIG.GUEST_ID_KEY;
 
 function generateUUID(): string {
   return crypto.randomUUID();

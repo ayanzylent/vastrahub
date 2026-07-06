@@ -43,6 +43,7 @@ import {
 } from "@/components/ui/sidebar";
 import { useSession, signOut } from "@/lib/auth-client";
 import { toast } from "sonner";
+import { BRAND_CONFIG } from "@vastrahub/shared-constants";
 
 type NavItem = {
   label: string;
@@ -120,11 +121,11 @@ export function AdminSidebar() {
             <SidebarMenuButton size="lg" asChild>
               <Link href="/admin/dashboard">
                 <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
-                  <span className="font-heading text-sm font-bold">V</span>
+                  <span className="font-heading text-sm font-bold">{BRAND_CONFIG.NAME.charAt(0)}</span>
                 </div>
                 <div className="grid flex-1 text-left leading-tight">
                   <span className="truncate font-heading font-semibold">
-                    VastraHub
+                    {BRAND_CONFIG.NAME}
                   </span>
                   <span className="truncate text-xs text-muted-foreground">
                     Admin Console
@@ -200,7 +201,7 @@ export function AdminSidebar() {
                       {user?.name || "Admin"}
                     </span>
                     <span className="truncate text-xs text-muted-foreground">
-                      {user?.email || "admin@vastrahub.com"}
+                      {user?.email || BRAND_CONFIG.DEFAULT_ADMIN_EMAIL}
                     </span>
                   </div>
                   <ChevronsUpDown className="ml-auto size-4" />
@@ -228,7 +229,7 @@ export function AdminSidebar() {
                         {user?.name || "Admin"}
                       </span>
                       <span className="truncate text-xs text-muted-foreground">
-                        {user?.email || "admin@vastrahub.com"}
+                        {user?.email || BRAND_CONFIG.DEFAULT_ADMIN_EMAIL}
                       </span>
                     </div>
                   </div>

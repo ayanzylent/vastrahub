@@ -3,12 +3,12 @@ import { ThemeProvider } from "next-themes";
 import { inter, outfit } from "@/lib/fonts";
 import { Toaster } from "@/components/ui/sonner";
 import { AppProviders } from "@/providers/AppProviders";
+import { BRAND_CONFIG } from "@vastrahub/shared-constants";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "VastraHub | Premium Indian Fashion",
-  description:
-    "Discover premium Indian fashion at VastraHub. Shop handpicked sarees, lehengas, kurtas, and more from India's finest weavers and designers.",
+  title: BRAND_CONFIG.META_TITLE,
+  description: BRAND_CONFIG.META_DESCRIPTION,
   keywords: [
     "Indian fashion",
     "sarees",

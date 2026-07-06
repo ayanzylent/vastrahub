@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { signUp } from "@/lib/auth-client";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
+import { BRAND_CONFIG } from "@vastrahub/shared-constants";
 
 export default function SignupPage() {
   const router = useRouter();
@@ -41,7 +42,7 @@ export default function SignupPage() {
         setLoading(false);
         return;
       }
-      toast.success("Account created! Welcome to VastraHub.");
+      toast.success("Account created! Welcome to " + BRAND_CONFIG.NAME + ".");
       router.push("/");
       router.refresh();
     } catch {
@@ -55,7 +56,7 @@ export default function SignupPage() {
       <CardHeader className="text-center">
         <CardTitle className="font-heading text-2xl">Create Account</CardTitle>
         <CardDescription>
-          Join VastraHub for premium Indian fashion
+          Join {BRAND_CONFIG.NAME} for premium Indian fashion
         </CardDescription>
       </CardHeader>
       <CardContent>

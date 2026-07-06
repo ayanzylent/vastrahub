@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Logo } from "@/components/shared/logo";
 import { Separator } from "@/components/ui/separator";
+import { BRAND_CONFIG } from "@vastrahub/shared-constants";
 
 const footerLinks = {
   shop: [
@@ -105,7 +106,7 @@ export function Footer() {
 
         <div className="flex flex-col md:flex-row items-center justify-between gap-4">
           <p className="text-xs text-muted-foreground">
-            © {new Date().getFullYear()} VastraHub. All rights reserved.
+            © {new Date().getFullYear()} {BRAND_CONFIG.NAME}. All rights reserved.
           </p>
           <div className="flex gap-6">
             <Link

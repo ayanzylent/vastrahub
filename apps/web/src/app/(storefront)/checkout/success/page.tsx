@@ -11,6 +11,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { CheckCircle2, ShoppingBag, Truck, Calendar, Sparkles, Loader2, ArrowRight, XCircle, Clock } from "lucide-react";
 import type { IOrder, IOrderItem } from "@vastrahub/shared-types";
+import { BRAND_CONFIG } from "@vastrahub/shared-constants";
 
 /** Resolved payment state shown to the buyer. */
 type PaymentState = "paid" | "failed" | "processing";
@@ -109,7 +110,7 @@ function SuccessContent() {
       iconWrap: "bg-emerald-500/10 border-emerald-500/30 text-emerald-600 dark:text-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.2)]",
       title: "Order Placed Successfully!",
       subtitle:
-        "Thank you for shopping with VastraHub. Your order is confirmed and is currently being processed.",
+        "Thank you for shopping with " + BRAND_CONFIG.NAME + ". Your order is confirmed and is currently being processed.",
     },
     processing: {
       icon: <Clock className="h-10 w-10" />,

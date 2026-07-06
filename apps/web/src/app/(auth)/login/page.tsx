@@ -14,6 +14,7 @@ import { useCart } from "@/providers/CartProvider";
 
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
+import { BRAND_CONFIG } from "@vastrahub/shared-constants";
 
 function LoginForm() {
   const router = useRouter();
@@ -61,7 +62,7 @@ function LoginForm() {
           Welcome Back
         </CardTitle>
         <CardDescription>
-          Sign in to your VastraHub account
+          Sign in to your {BRAND_CONFIG.NAME} account
         </CardDescription>
       </CardHeader>
       <CardContent>

@@ -4,6 +4,7 @@ import React, { createContext, useContext, useState, useCallback, useEffect } fr
 import { api } from "@/lib/api";
 import type { ICart, ICartItem } from "@vastrahub/shared-types";
 import { toast } from "sonner";
+import { BRAND_CONFIG } from "@vastrahub/shared-constants";
 
 interface CartContextValue {
   cart: ICart | null;
@@ -95,12 +96,12 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   const mergeCart = useCallback(async () => {
     try {
-      const guestId = typeof window !== "undefined" ? localStorage.getItem("vastrahub_guest_id") : null;
+      const guestId = typeof window !== "undefined" ? localStorage.getItem(BRAND_CONFIG.GUEST_ID_KEY) : null;
       if (!guestId) return;
       const res = await api.post<ICart>("/api/v1/cart/merge", { guestId });
       if (res.success && res.data) {
         setCart(res.data);
-        localStorage.removeItem("vastrahub_guest_id");
+        localStorage.removeItem(BRAND_CONFIG.GUEST_ID_KEY);
       }
     } catch {
       // silent

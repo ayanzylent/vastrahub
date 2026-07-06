@@ -1,4 +1,5 @@
 import type { ApiResponse, PaginatedResponse } from "@vastrahub/shared-types";
+import { BRAND_CONFIG } from "@vastrahub/shared-constants";
 
 /**
  * API base URL — uses same-origin when proxying is enabled (NEXT_PUBLIC_API_PROXY="true"),
@@ -25,7 +26,7 @@ interface RequestOptions {
  */
 function getGuestIdFromStorage(): string {
   if (typeof window === "undefined") return "";
-  const GUEST_ID_KEY = "vastrahub_guest_id";
+  const GUEST_ID_KEY = BRAND_CONFIG.GUEST_ID_KEY;
   let guestId = localStorage.getItem(GUEST_ID_KEY);
   if (!guestId) {
     guestId = crypto.randomUUID();
