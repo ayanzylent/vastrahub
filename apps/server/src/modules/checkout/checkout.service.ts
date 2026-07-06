@@ -2,6 +2,7 @@
  * Checkout service — business logic for checkout flow.
  */
 
+import crypto from 'node:crypto';
 import mongoose from 'mongoose';
 import { Order, Payment, Sku, Address } from '../../db/models/index.js';
 import type { IOrderDocument, IPaymentDocument, IShippingAddress } from '../../db/models/index.js';
@@ -65,6 +66,36 @@ export async function validateCart(userId: string) {
     priceChanges,
     outOfStockItems,
   };
+}
+
+// ── Idempotency helpers ────────────────────────────────────────────
+
+/**
+ * Build a deterministic idempotency key from cart contents.
+ * Same user + same cart items = same key → prevents duplicate orders.
+ */
+function cartIdempotencyKey(userId: string, items: Array<{ skuId: unknown; quantity: number }>): string {
+  const fingerprint = items
+    .map(i => `${String(i.skuId)}:${i.quantity}`)
+    .sort()
+    .join('|');
+  const hash = crypto.createHash('sha256').update(`cart:${userId}:${fingerprint}`).digest('hex').slice(0, 32);
+  return `chk_${hash}`;
+}
+
+/**
+ * Build an idempotency key for Buy Now with a 30-second time window.
+ * Prevents double-click duplicates but allows intentional repeat purchases.
+ */
+function buyNowIdempotencyKey(userId: string, skuId: string, quantity: number): string {
+  const window = Math.floor(Date.now() / 30_000);
+  const hash = crypto.createHash('sha256').update(`bn:${userId}:${skuId}:${quantity}:${window}`).digest('hex').slice(0, 32);
+  return `bn_${hash}`;
+}
+
+/** Check whether a caught error is a MongoDB duplicate-key error (code 11000). */
+function isDuplicateKeyError(err: unknown): boolean {
+  return typeof err === 'object' && err !== null && (err as any).code === 11000;
 }
 
 interface CreateOrderInput {
@@ -177,6 +208,7 @@ export async function createOrder(userId: string, input: CreateOrderInput) {
   });
   
   // 8 & 9. Create Order and Payment
+  const idempotencyKey = cartIdempotencyKey(userId, validation.items);
   const order = new Order({
     orderNumber,
     userId: new mongoose.Types.ObjectId(userId),
@@ -193,6 +225,7 @@ export async function createOrder(userId: string, input: CreateOrderInput) {
     billingAddress: shippingAddress,
     status: 'pending',
     customerNotes: input.customerNotes,
+    idempotencyKey,
     statusHistory: [{
       status: 'pending',
       changedAt: new Date(),
@@ -285,6 +318,29 @@ export async function createOrder(userId: string, input: CreateOrderInput) {
     await session.commitTransaction();
   } catch (err) {
     await session.abortTransaction();
+
+    // If a concurrent request already created an order for the same cart,
+    // return the existing order instead of throwing.
+    if (isDuplicateKeyError(err)) {
+      const existing = await Order.findOne({ idempotencyKey }).lean() as unknown as IOrderDocument | null;
+      if (existing) {
+        const existingPayment = existing.paymentId
+          ? await Payment.findById(existing.paymentId).lean() as unknown as IPaymentDocument | null
+          : null;
+        return {
+          orderId: existing._id,
+          orderNumber: existing.orderNumber,
+          paymentId: existing.paymentId,
+          razorpayOrderId: undefined,
+          razorpayKeyId: config.RAZORPAY_KEY_ID,
+          iciciRedirectURI: existingPayment?.gatewayName === 'icici'
+            ? undefined  // original redirect is one-time; caller should poll status
+            : undefined,
+          totalPaise: existing.pricing.totalPaise,
+          paymentMethod: (existingPayment?.gatewayName ?? input.paymentMethod) as CreateOrderInput['paymentMethod'],
+        };
+      }
+    }
     throw err;
   } finally {
     await session.endSession();
@@ -430,6 +486,7 @@ export async function createBuyNowOrder(userId: string, input: BuyNowInput) {
   };
 
   // 9. Create Order and Payment
+  const idempotencyKey = buyNowIdempotencyKey(userId, input.skuId, input.quantity);
   const order = new Order({
     orderNumber,
     userId: new mongoose.Types.ObjectId(userId),
@@ -446,6 +503,7 @@ export async function createBuyNowOrder(userId: string, input: BuyNowInput) {
     billingAddress: shippingAddress,
     status: 'pending',
     customerNotes: input.customerNotes,
+    idempotencyKey,
     statusHistory: [{
       status: 'pending',
       changedAt: new Date(),
@@ -532,6 +590,25 @@ export async function createBuyNowOrder(userId: string, input: BuyNowInput) {
     await session.commitTransaction();
   } catch (err) {
     await session.abortTransaction();
+
+    if (isDuplicateKeyError(err)) {
+      const existing = await Order.findOne({ idempotencyKey }).lean() as unknown as IOrderDocument | null;
+      if (existing) {
+        const existingPayment = existing.paymentId
+          ? await Payment.findById(existing.paymentId).lean() as unknown as IPaymentDocument | null
+          : null;
+        return {
+          orderId: existing._id,
+          orderNumber: existing.orderNumber,
+          paymentId: existing.paymentId,
+          razorpayOrderId: undefined,
+          razorpayKeyId: config.RAZORPAY_KEY_ID,
+          iciciRedirectURI: undefined,
+          totalPaise: existing.pricing.totalPaise,
+          paymentMethod: (existingPayment?.gatewayName ?? input.paymentMethod) as BuyNowInput['paymentMethod'],
+        };
+      }
+    }
     throw err;
   } finally {
     await session.endSession();
