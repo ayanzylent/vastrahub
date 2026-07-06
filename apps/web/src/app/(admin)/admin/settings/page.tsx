@@ -23,6 +23,7 @@ import { HomepageBuilder } from "@/components/admin/settings/homepage-builder";
 import { AnnouncementBarEditor } from "@/components/admin/settings/announcement-bar-editor";
 import { revalidateHome } from "./actions";
 import { useSession } from "@/lib/auth-client";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 interface SiteSettingsPayload {
@@ -59,6 +60,14 @@ export default function AdminSettingsPage() {
   const [blocks, setBlocks] = useState<IHomepageBlock[]>([]);
   const [announcement, setAnnouncement] = useState<IAnnouncementBar>(DEFAULT_ANNOUNCEMENT_BAR);
 
+  const router = useRouter();
+
+  useEffect(() => {
+    if (sessionData && userRole === "admin") {
+      router.replace("/admin/dashboard");
+    }
+  }, [sessionData, userRole, router]);
+
   useEffect(() => {
     let cancelled = false;
     (async () => {
@@ -88,7 +97,7 @@ export default function AdminSettingsPage() {
           </div>
           <h1 className="font-heading text-2xl font-bold">Access Denied</h1>
           <p className="text-muted-foreground">
-            Only Super Admins can access site settings.
+            Special permissions are required to access this page.
           </p>
           <Button variant="default" asChild>
             <Link href="/admin/dashboard">Back to Dashboard</Link>

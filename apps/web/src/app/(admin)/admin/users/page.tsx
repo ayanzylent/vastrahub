@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import { useSession } from '@/lib/auth-client';
 import { api } from '@/lib/api';
 import { Input } from '@/components/ui/input';
@@ -82,6 +83,13 @@ function getRoleBadge(role: string) {
 export default function AdminUsersPage() {
   const { data: sessionData } = useSession();
   const user = sessionData?.user;
+  const router = useRouter();
+
+  useEffect(() => {
+    if (sessionData && user?.role === 'admin') {
+      router.replace('/admin/dashboard');
+    }
+  }, [sessionData, user?.role, router]);
 
   // Admin list state
   const [admins, setAdmins] = useState<AdminUser[]>([]);
@@ -233,9 +241,9 @@ export default function AdminUsersPage() {
           <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-red-500/10">
             <ShieldAlert className="h-8 w-8 text-red-400" />
           </div>
-          <h1 className="font-heading text-2xl font-bold">Superadmin Access Required</h1>
+          <h1 className="font-heading text-2xl font-bold">Special Permissions Required</h1>
           <p className="text-muted-foreground">
-            Only Super Admins can manage admin roles and permissions.
+            You do not have the required permissions to access this page.
           </p>
         </div>
       </div>
