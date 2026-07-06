@@ -41,6 +41,7 @@ export async function validateCart(userId: string) {
     const availableStock = sku.stockQuantity - sku.reservedQuantity;
     if (availableStock < item.quantity) {
       outOfStockItems.push({ skuId: String(item.skuId), available: availableStock, requested: item.quantity });
+      continue;
     }
 
     if (item.pricePaise !== sku.pricePaise) {
