@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Loader2, Save, RotateCcw } from "lucide-react";
+import { Loader2, Save, RotateCcw, ShieldAlert } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -22,6 +22,8 @@ import { HeroEditor } from "@/components/admin/settings/hero-editor";
 import { HomepageBuilder } from "@/components/admin/settings/homepage-builder";
 import { AnnouncementBarEditor } from "@/components/admin/settings/announcement-bar-editor";
 import { revalidateHome } from "./actions";
+import { useSession } from "@/lib/auth-client";
+import Link from "next/link";
 
 interface SiteSettingsPayload {
   hero: IHeroConfig;
@@ -45,6 +47,9 @@ function validate(hero: IHeroConfig, blocks: IHomepageBlock[]): string | null {
 }
 
 export default function AdminSettingsPage() {
+  const { data: sessionData } = useSession();
+  const userRole = sessionData?.user?.role;
+
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [resetOpen, setResetOpen] = useState(false);
@@ -72,6 +77,26 @@ export default function AdminSettingsPage() {
       cancelled = true;
     };
   }, []);
+
+  // Superadmin-only guard
+  if (sessionData && userRole !== "superadmin") {
+    return (
+      <div className="flex h-[60vh] items-center justify-center">
+        <div className="text-center space-y-4 max-w-md px-6">
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-destructive/10">
+            <ShieldAlert className="h-8 w-8 text-destructive" />
+          </div>
+          <h1 className="font-heading text-2xl font-bold">Access Denied</h1>
+          <p className="text-muted-foreground">
+            Only Super Admins can access site settings.
+          </p>
+          <Button variant="default" asChild>
+            <Link href="/admin/dashboard">Back to Dashboard</Link>
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   async function handleSave() {
     const err = validate(hero, blocks);

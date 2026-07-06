@@ -85,7 +85,7 @@ const navGroups: NavGroup[] = [
     label: "System",
     items: [
       { label: "Users", href: "/admin/users", icon: Shield, superadminOnly: true },
-      { label: "Settings", href: "/admin/settings", icon: Settings },
+      { label: "Settings", href: "/admin/settings", icon: Settings, superadminOnly: true },
     ],
   },
 ];
@@ -257,12 +257,14 @@ export function AdminSidebar() {
                     Storefront
                   </Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link href="/admin/settings">
-                    <Settings className="mr-2 size-4" />
-                    Settings
-                  </Link>
-                </DropdownMenuItem>
+                {isSuperadmin && (
+                  <DropdownMenuItem asChild>
+                    <Link href="/admin/settings">
+                      <Settings className="mr-2 size-4" />
+                      Settings
+                    </Link>
+                  </DropdownMenuItem>
+                )}
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
                   className="text-destructive"

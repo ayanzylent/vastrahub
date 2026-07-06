@@ -21,7 +21,7 @@ export async function revalidateHome(): Promise<{ ok: boolean }> {
     if (!res.ok) return { ok: false };
     const json = (await res.json()) as { data?: { role?: string } };
     const role = json.data?.role;
-    if (role !== "admin" && role !== "superadmin") return { ok: false };
+    if (role !== "superadmin") return { ok: false };
   } catch {
     return { ok: false };
   }

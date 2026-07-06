@@ -13,7 +13,7 @@ import { UpdateSiteSettingsBody } from './site-settings.schema.js';
 export default fp(async function siteSettingsRoutes(fastify: FastifyInstance) {
   // ---------- Admin routes ----------
   fastify.get('/api/v1/admin/site-settings', {
-    preHandler: [authenticate, requireRole('admin')],
+    preHandler: [authenticate, requireRole('superadmin')],
     schema: {
       tags: ['Admin - Settings'],
       summary: 'Get site settings (creates defaults on first access)',
@@ -21,7 +21,7 @@ export default fp(async function siteSettingsRoutes(fastify: FastifyInstance) {
   }, handler.getAdmin);
 
   fastify.put('/api/v1/admin/site-settings', {
-    preHandler: [authenticate, requireRole('admin')],
+    preHandler: [authenticate, requireRole('superadmin')],
     schema: {
       body: UpdateSiteSettingsBody,
       tags: ['Admin - Settings'],
@@ -30,7 +30,7 @@ export default fp(async function siteSettingsRoutes(fastify: FastifyInstance) {
   }, handler.update);
 
   fastify.post('/api/v1/admin/site-settings/reset', {
-    preHandler: [authenticate, requireRole('admin')],
+    preHandler: [authenticate, requireRole('superadmin')],
     schema: {
       tags: ['Admin - Settings'],
       summary: 'Reset site settings to defaults',
