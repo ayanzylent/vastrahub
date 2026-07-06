@@ -167,7 +167,14 @@ export async function createOrder(userId: string, input: CreateOrderInput) {
     country: 'India',
   };
 
-  // Start a mongoose session for atomicity if possible, but we'll do it sequentially for now
+  // Validate pricing before opening a transaction (pure in-memory check).
+  validateOrderPricing({
+    subtotalPaise,
+    discountPaise,
+    shippingPaise,
+    taxPaise,
+    totalPaise,
+  });
   
   // 8 & 9. Create Order and Payment
   const order = new Order({
@@ -252,25 +259,36 @@ export async function createOrder(userId: string, input: CreateOrderInput) {
     payment.status = 'authorized';
   }
 
-  // 13. Decrement stock
-  for (const item of validation.items) {
-    const updatedSku = await Sku.findOneAndUpdate(
-      { _id: item.skuId, stockQuantity: { $gte: item.quantity } },
-      { $inc: { stockQuantity: -item.quantity } },
-      { new: true }
-    );
-    
-    if (!updatedSku) {
-      // Rollback is manual here without transactions
-      throw new ValidationError(`Insufficient stock for SKU ${item.currentSku.sku} during checkout`);
+  // 13. Atomic: decrement stock + save order/payment inside a transaction.
+  //     If any step fails (e.g. insufficient stock on SKU #3, save validation
+  //     error), the entire transaction rolls back — no stock leaks.
+  //     NOTE: Requires MongoDB replica set.
+  const session = await mongoose.startSession();
+  try {
+    session.startTransaction();
+
+    for (const item of validation.items) {
+      const updatedSku = await Sku.findOneAndUpdate(
+        { _id: item.skuId, stockQuantity: { $gte: item.quantity } },
+        { $inc: { stockQuantity: -item.quantity } },
+        { new: true, session },
+      );
+      if (!updatedSku) {
+        throw new ValidationError(
+          `Insufficient stock for SKU ${item.currentSku.sku} during checkout`,
+        );
+      }
     }
+
+    await Promise.all([order.save({ session }), payment.save({ session })]);
+
+    await session.commitTransaction();
+  } catch (err) {
+    await session.abortTransaction();
+    throw err;
+  } finally {
+    await session.endSession();
   }
-
-  // Validate pricing before saving
-  validateOrderPricing(order.pricing);
-
-  // Save docs
-  await Promise.all([order.save(), payment.save()]);
 
   // 14. Increment coupon usage — DISABLED (coupon module not complete)
   // BUG: Use atomic $inc, and reverse on payment failure.
@@ -491,21 +509,33 @@ export async function createBuyNowOrder(userId: string, input: BuyNowInput) {
     payment.status = 'authorized';
   }
 
-  // 11. Decrement stock
-  const updatedSku = await Sku.findOneAndUpdate(
-    { _id: sku._id, stockQuantity: { $gte: input.quantity } },
-    { $inc: { stockQuantity: -input.quantity } },
-    { new: true },
-  );
-  if (!updatedSku) {
-    throw new ValidationError(`Insufficient stock for SKU ${sku.sku} during checkout`);
-  }
-
-  // Validate pricing
+  // Validate pricing before opening a transaction (pure in-memory check).
   validateOrderPricing(order.pricing);
 
-  // Save docs
-  await Promise.all([order.save(), payment.save()]);
+  // 11. Atomic: decrement stock + save order/payment inside a transaction.
+  //     NOTE: Requires MongoDB replica set.
+  const session = await mongoose.startSession();
+  try {
+    session.startTransaction();
+
+    const updatedSku = await Sku.findOneAndUpdate(
+      { _id: sku._id, stockQuantity: { $gte: input.quantity } },
+      { $inc: { stockQuantity: -input.quantity } },
+      { new: true, session },
+    );
+    if (!updatedSku) {
+      throw new ValidationError(`Insufficient stock for SKU ${sku.sku} during checkout`);
+    }
+
+    await Promise.all([order.save({ session }), payment.save({ session })]);
+
+    await session.commitTransaction();
+  } catch (err) {
+    await session.abortTransaction();
+    throw err;
+  } finally {
+    await session.endSession();
+  }
 
   // 12. Increment coupon usage — DISABLED (coupon module not complete)
   // BUG: Use atomic $inc, and reverse on payment failure.
