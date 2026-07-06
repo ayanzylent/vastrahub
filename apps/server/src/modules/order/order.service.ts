@@ -4,6 +4,7 @@
  * Admin: list-all, view, status-update, shipping-update, refund.
  */
 
+import crypto from 'node:crypto';
 import mongoose from 'mongoose';
 import { Order, Payment, Sku } from '../../db/models/index.js';
 import type { IOrderDocument, IPaymentDocument } from '../../db/models/index.js';
@@ -12,16 +13,28 @@ import { isValidOrderTransition, type OrderStatusType, APP_CONFIG } from '@vastr
 
 // ---------- Helpers ----------
 
+/** Alphanumeric charset for order number generation (A-Z, 0-9 — no special chars). */
+const ORDER_NUM_CHARSET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+
 /**
- * Generate a unique order number: VH + YYYYMMDD + 4 random digits.
+ * Total length of the generated order number.
+ * Kept at 10 so it fits inside ICICI's 20-char merchantTxnNo limit
+ * even after the ICICI prefix is prepended.
+ */
+const ORDER_NUM_LENGTH = 10;
+
+/**
+ * Generate a unique order number: 10 crypto-random alphanumeric characters.
+ * No prefix, no special characters — purely A-Z + 0-9.
+ * Collision space: 36^10 ≈ 3.6 trillion combinations.
  */
 export function generateOrderNumber(): string {
-  const now = new Date();
-  const y = now.getFullYear();
-  const m = String(now.getMonth() + 1).padStart(2, '0');
-  const d = String(now.getDate()).padStart(2, '0');
-  const rand = String(Math.floor(1000 + Math.random() * 9000));
-  return `${APP_CONFIG.ORDER_NUMBER_PREFIX}${y}${m}${d}${rand}`;
+  const bytes = crypto.randomBytes(ORDER_NUM_LENGTH);
+  let result = '';
+  for (let i = 0; i < ORDER_NUM_LENGTH; i++) {
+    result += ORDER_NUM_CHARSET[bytes[i]! % ORDER_NUM_CHARSET.length];
+  }
+  return result;
 }
 
 /**

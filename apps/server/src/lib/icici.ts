@@ -271,7 +271,7 @@ export async function initiateIciciSale(
   orderNumber: string,
 ): Promise<IciciInitiateResult> {
   const config = getIciciConfig();
-  const merchantTxnNo = `icici_${orderNumber}`;
+  const merchantTxnNo = `ICICI${orderNumber}`;
 
   const payload: Record<string, unknown> = {
     merchantId: config.merchantId,
