@@ -60,3 +60,6 @@ export type { IAuditLogDocument, IAuditChange } from './audit-log.model.js';
 
 export { Address } from './address.model.js';
 export type { IAddressDocument } from './address.model.js';
+
+export { SiteSettings } from './site-settings.model.js';
+export type { ISiteSettingsDocument } from './site-settings.model.js';

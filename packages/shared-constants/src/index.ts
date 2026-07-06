@@ -6,3 +6,4 @@ export * from './gst-slabs.js';
 export * from './media-constraints.js';
 export * from './currency.js';
 export * from './config.js';
+export * from './site-settings-defaults.js';

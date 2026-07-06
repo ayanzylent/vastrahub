@@ -1,0 +1,205 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { Loader2, Save, RotateCcw } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { api } from "@/lib/api";
+import { toast } from "sonner";
+import { toEmbedSrc } from "@/lib/video-embed";
+import type { IHeroConfig, IHomepageBlock, IAnnouncementBar } from "@vastrahub/shared-types";
+import { DEFAULT_HERO, DEFAULT_ANNOUNCEMENT_BAR } from "@vastrahub/shared-constants";
+import { HeroEditor } from "@/components/admin/settings/hero-editor";
+import { HomepageBuilder } from "@/components/admin/settings/homepage-builder";
+import { AnnouncementBarEditor } from "@/components/admin/settings/announcement-bar-editor";
+import { revalidateHome } from "./actions";
+
+interface SiteSettingsPayload {
+  hero: IHeroConfig;
+  homepageBlocks: IHomepageBlock[];
+  announcementBar: IAnnouncementBar;
+}
+
+/** Client-side guard mirroring the server's requirements. */
+function validate(hero: IHeroConfig, blocks: IHomepageBlock[]): string | null {
+  if (!hero.heading.trim()) return "The hero needs a heading.";
+  for (const b of blocks) {
+    if (b.type === "videoEmbed") {
+      for (const v of b.config.videos) {
+        if (v.url.trim() && !toEmbedSrc(v.provider, v.url).ok) {
+          return "One or more video URLs are invalid — fix or remove them.";
+        }
+      }
+    }
+  }
+  return null;
+}
+
+export default function AdminSettingsPage() {
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [resetOpen, setResetOpen] = useState(false);
+  const [resetting, setResetting] = useState(false);
+
+  const [hero, setHero] = useState<IHeroConfig>(DEFAULT_HERO);
+  const [blocks, setBlocks] = useState<IHomepageBlock[]>([]);
+  const [announcement, setAnnouncement] = useState<IAnnouncementBar>(DEFAULT_ANNOUNCEMENT_BAR);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const res = await api.get<SiteSettingsPayload>("/api/v1/admin/site-settings");
+      if (cancelled) return;
+      if (res.success && res.data) {
+        setHero(res.data.hero ?? DEFAULT_HERO);
+        setBlocks(res.data.homepageBlocks ?? []);
+        setAnnouncement(res.data.announcementBar ?? DEFAULT_ANNOUNCEMENT_BAR);
+      } else {
+        toast.error(res.error || "Failed to load settings");
+      }
+      setLoading(false);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  async function handleSave() {
+    const err = validate(hero, blocks);
+    if (err) {
+      toast.error(err);
+      return;
+    }
+    setSaving(true);
+    try {
+      const res = await api.put<SiteSettingsPayload>("/api/v1/admin/site-settings", {
+        hero,
+        homepageBlocks: blocks,
+        announcementBar: announcement,
+      });
+      if (res.success) {
+        toast.success("Settings saved");
+        // Bust the ISR cache so hero edits show on the storefront immediately.
+        revalidateHome().catch(() => {});
+      } else {
+        toast.error(res.error || "Failed to save settings");
+      }
+    } catch {
+      toast.error("Failed to save settings");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function handleReset() {
+    setResetting(true);
+    try {
+      const res = await api.post<SiteSettingsPayload>("/api/v1/admin/site-settings/reset");
+      if (res.success && res.data) {
+        setHero(res.data.hero ?? DEFAULT_HERO);
+        setBlocks(res.data.homepageBlocks ?? []);
+        setAnnouncement(res.data.announcementBar ?? DEFAULT_ANNOUNCEMENT_BAR);
+        toast.success("Reset to defaults");
+        revalidateHome().catch(() => {});
+        setResetOpen(false);
+      } else {
+        toast.error(res.error || "Failed to reset");
+      }
+    } catch {
+      toast.error("Failed to reset");
+    } finally {
+      setResetting(false);
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <Skeleton className="h-9 w-56" />
+        <Skeleton className="h-10 w-full max-w-md" />
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <Skeleton className="h-80 w-full" />
+          <Skeleton className="h-80 w-full lg:col-span-2" />
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6 pb-10">
+      {/* Header */}
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <h1 className="font-heading text-2xl md:text-3xl font-bold">Settings</h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Configure the storefront homepage and announcement bar.
+          </p>
+        </div>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={() => setResetOpen(true)}>
+            <RotateCcw className="mr-2 h-4 w-4" /> Reset
+          </Button>
+          <Button onClick={handleSave} disabled={saving}>
+            {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
+            Save changes
+          </Button>
+        </div>
+      </div>
+
+      <Tabs defaultValue="hero" className="space-y-6">
+        <TabsList>
+          <TabsTrigger value="hero">Hero</TabsTrigger>
+          <TabsTrigger value="homepage">Homepage</TabsTrigger>
+          <TabsTrigger value="announcement">Announcement bar</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="hero">
+          <div className="max-w-2xl">
+            <HeroEditor value={hero} onChange={setHero} />
+          </div>
+        </TabsContent>
+
+        <TabsContent value="homepage">
+          <HomepageBuilder blocks={blocks} onChange={setBlocks} />
+        </TabsContent>
+
+        <TabsContent value="announcement">
+          <div className="max-w-2xl">
+            <AnnouncementBarEditor value={announcement} onChange={setAnnouncement} />
+          </div>
+        </TabsContent>
+      </Tabs>
+
+      {/* Reset confirmation */}
+      <Dialog open={resetOpen} onOpenChange={setResetOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Reset settings to defaults?</DialogTitle>
+            <DialogDescription>
+              This immediately replaces the saved hero, homepage layout and announcement bar with
+              the built-in defaults. Your curated selections will be lost. This cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setResetOpen(false)}>
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={handleReset} disabled={resetting}>
+              {resetting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              Reset
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}

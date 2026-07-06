@@ -25,6 +25,12 @@ export const MEDIA_CONSTRAINTS = {
     maxSizeBytes: 5 * 1024 * 1024,
     allowedMimeTypes: ['image/jpeg', 'image/png', 'image/webp'],
   },
+  // Homepage hero / promo banners (per-viewport art). Larger allowance for
+  // wide, high-resolution desktop banners.
+  HOMEPAGE_IMAGE: {
+    maxSizeBytes: 8 * 1024 * 1024, // 8MB
+    allowedMimeTypes: ['image/jpeg', 'image/png', 'image/webp', 'image/avif'],
+  },
 } as const;
 
 export type MediaCategory = keyof typeof MEDIA_CONSTRAINTS;

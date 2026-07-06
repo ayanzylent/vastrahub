@@ -54,3 +54,30 @@ export type { IAuditLog } from './audit-log.types.js';
 
 // Auth types
 export type { LoginRequest, SignupRequest, AuthResponse } from './auth.types.js';
+
+// Site settings / homepage block builder types
+export type {
+  ICta,
+  BlockAlignment,
+  ResponsiveImage,
+  IHeroConfig,
+  ICategoryShowcaseConfig,
+  ICollectionShowcaseConfig,
+  IFeaturedProductsConfig,
+  VideoProvider,
+  IVideoEmbedItem,
+  IVideoEmbedConfig,
+  IBannerConfig,
+  ICategoryShowcaseBlock,
+  ICollectionShowcaseBlock,
+  IFeaturedProductsBlock,
+  IVideoEmbedBlock,
+  IBannerBlock,
+  IHomepageBlock,
+  BlockType,
+  AnnouncementTone,
+  IAnnouncementBar,
+  ISiteSettings,
+  IHydratedHomepageBlock,
+  IHydratedSiteSettings,
+} from './site-settings.types.js';

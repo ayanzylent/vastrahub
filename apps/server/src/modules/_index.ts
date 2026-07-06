@@ -21,6 +21,7 @@ import orderRoutes from './order/order.route.js';
 import reviewRoutes from './review/review.route.js';
 import checkoutRoutes from './checkout/checkout.route.js';
 import paymentRoutes from './payment/payment.route.js';
+import siteSettingsRoutes from './site-settings/site-settings.route.js';
 
 export async function registerRoutes(fastify: FastifyInstance): Promise<void> {
   // Health check
@@ -43,4 +44,5 @@ export async function registerRoutes(fastify: FastifyInstance): Promise<void> {
   await fastify.register(reviewRoutes);
   await fastify.register(checkoutRoutes);
   await fastify.register(paymentRoutes);
+  await fastify.register(siteSettingsRoutes);
 }

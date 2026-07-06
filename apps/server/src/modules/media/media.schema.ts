@@ -15,6 +15,7 @@ export const InitiateUploadBody = Type.Object({
     Type.Literal('review'),
     Type.Literal('category'),
     Type.Literal('collection'),
+    Type.Literal('homepage'),
   ]),
 });
 export type InitiateUploadBodyType = Static<typeof InitiateUploadBody>;
