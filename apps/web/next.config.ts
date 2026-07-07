@@ -39,7 +39,7 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: 'https',
-        hostname: 'assets.myntassets.com',
+        hostname: '**.supabase.co',
       },
       {
         protocol: 'https',

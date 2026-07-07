@@ -12,6 +12,8 @@ import {
   X,
   Image as ImageIcon,
   ChevronRight,
+  Upload,
+  Trash2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -20,6 +22,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { api } from "@/lib/api";
 import { toast } from "sonner";
+import { getMediaUrl } from "@/lib/media";
 import type { ICategory, IVariantOption } from "@vastrahub/shared-types";
 import { BRAND_CONFIG } from "@vastrahub/shared-constants";
 
@@ -125,6 +128,7 @@ export default function NewProductPage() {
   const [visualAttributeName, setVisualAttributeName] = useState("");
   const [showVisualSelector, setShowVisualSelector] = useState(true);
   const [variantMedia, setVariantMedia] = useState<VariantMediaDraft[]>([]);
+  const [uploadingGroupIdx, setUploadingGroupIdx] = useState<number | null>(null);
 
   // Load categories
   useEffect(() => {
@@ -240,26 +244,67 @@ export default function NewProductPage() {
     );
   }
 
-  function addMediaItem(groupIdx: number) {
-    setVariantMedia((prev) =>
-      prev.map((g, i) =>
-        i === groupIdx
-          ? {
-            ...g,
-            media: [
-              ...g.media,
-              {
-                type: "image",
-                url: "",
-                alt: "",
-                sortOrder: g.media.length,
-                mimeType: "image/jpeg",
-              },
-            ],
+  async function handleMediaUpload(groupIdx: number, files: FileList) {
+    setUploadingGroupIdx(groupIdx);
+    try {
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const isVideo = file.type.startsWith("video/");
+        const type = isVideo ? "video" : "image";
+
+        const urlRes = await api.post<{ uploadUrl: string; key: string }>(
+          "/api/v1/media/upload-url",
+          {
+            type,
+            fileName: file.name,
+            contentType: file.type,
+            fileSize: file.size,
+            context: "product",
           }
-          : g
-      )
-    );
+        );
+
+        const uploadData = urlRes.data;
+        if (!urlRes.success || !uploadData) {
+          toast.error(`Failed to get upload URL for ${file.name}`);
+          continue;
+        }
+
+        const uploadRes = await fetch(uploadData.uploadUrl, {
+          method: "PUT",
+          body: file,
+          headers: { "Content-Type": file.type },
+        });
+
+        if (!uploadRes.ok) {
+          toast.error(`Upload failed for ${file.name}`);
+          continue;
+        }
+
+        setVariantMedia((prev) =>
+          prev.map((g, idx) => {
+            if (idx !== groupIdx) return g;
+            return {
+              ...g,
+              media: [
+                ...g.media,
+                {
+                  type,
+                  url: uploadData.key,
+                  alt: file.name.split(".").slice(0, -1).join("."),
+                  sortOrder: g.media.length,
+                  mimeType: file.type,
+                },
+              ],
+            };
+          })
+        );
+        toast.success(`${file.name} uploaded successfully!`);
+      }
+    } catch {
+      toast.error("Upload failed");
+    } finally {
+      setUploadingGroupIdx(null);
+    }
   }
 
   function updateMediaItem(
@@ -843,62 +888,83 @@ export default function NewProductPage() {
                     </div>
 
                     {/* Media items */}
-                    <div className="space-y-2">
-                      {group.media.map((m, mi) => (
-                        <div
-                          key={mi}
-                          className="flex gap-2 items-center group/media"
-                        >
-                          <select
-                            value={m.type}
-                            onChange={(e) =>
-                              updateMediaItem(
-                                gi,
-                                mi,
-                                "type",
-                                e.target.value
-                              )
-                            }
-                            className="h-8 rounded-md border border-input bg-transparent px-2 text-xs w-20"
-                          >
-                            <option value="image">Image</option>
-                            <option value="video">Video</option>
-                          </select>
-                          <Input
-                            className="h-8 text-xs flex-1"
-                            value={m.url}
-                            onChange={(e) =>
-                              updateMediaItem(gi, mi, "url", e.target.value)
-                            }
-                            placeholder="https://..."
-                          />
-                          <Input
-                            className="h-8 text-xs w-32"
-                            value={m.alt}
-                            onChange={(e) =>
-                              updateMediaItem(gi, mi, "alt", e.target.value)
-                            }
-                            placeholder="Alt text"
-                          />
-                          <button
-                            type="button"
-                            onClick={() => removeMediaItem(gi, mi)}
-                            className="opacity-0 group-hover/media:opacity-100 transition-opacity text-destructive hover:text-destructive/80"
-                          >
-                            <X className="h-4 w-4" />
-                          </button>
+                    <div className="space-y-3">
+                      {group.media.length > 0 && (
+                        <div className="grid grid-cols-1 gap-2">
+                          {group.media.map((m, mi) => (
+                            <div key={mi} className="flex gap-3 items-center rounded-md border border-border p-2 bg-card relative group/media">
+                              {m.url ? (
+                                <div className="h-12 w-12 rounded-md overflow-hidden bg-muted flex-shrink-0 border border-border flex items-center justify-center">
+                                  {m.type === "video" ? (
+                                    <video src={getMediaUrl(m.url)} className="h-full w-full object-cover" />
+                                  ) : (
+                                    <img src={getMediaUrl(m.url)} alt={m.alt} className="h-full w-full object-cover" />
+                                  )}
+                                </div>
+                              ) : (
+                                <div className="h-12 w-12 rounded-md bg-muted flex items-center justify-center flex-shrink-0">
+                                  <ImageIcon className="h-5 w-5 text-muted-foreground" />
+                                </div>
+                              )}
+                              <div className="flex-1 min-w-0 space-y-1">
+                                <div className="flex items-center gap-2">
+                                  <span className="text-xs font-mono truncate max-w-[200px]" title={m.url}>
+                                    {m.url.split("/").pop()}
+                                  </span>
+                                  <Badge variant="secondary" className="text-[9px] uppercase px-1 py-0.5">
+                                    {m.type}
+                                  </Badge>
+                                </div>
+                                <Input
+                                  className="h-7 text-xs w-full max-w-sm"
+                                  value={m.alt}
+                                  onChange={(e) => updateMediaItem(gi, mi, "alt", e.target.value)}
+                                  placeholder="Alt text"
+                                />
+                              </div>
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8 text-destructive hover:bg-destructive/10 shrink-0"
+                                onClick={() => removeMediaItem(gi, mi)}
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          ))}
                         </div>
-                      ))}
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        className="h-7 text-xs text-muted-foreground hover:text-foreground"
-                        onClick={() => addMediaItem(gi)}
-                      >
-                        <ImageIcon className="mr-1.5 h-3 w-3" />
-                        Add Image / Video URL
-                      </Button>
+                      )}
+
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="file"
+                          multiple
+                          accept="image/*,video/*"
+                          className="hidden"
+                          id={`media-upload-${gi}`}
+                          onChange={(e) => {
+                            if (e.target.files) {
+                              handleMediaUpload(gi, e.target.files);
+                            }
+                            e.target.value = "";
+                          }}
+                        />
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          className="h-8 text-xs gap-1.5"
+                          disabled={uploadingGroupIdx === gi}
+                          onClick={() => document.getElementById(`media-upload-${gi}`)?.click()}
+                        >
+                          {uploadingGroupIdx === gi ? (
+                            <><Loader2 className="h-3.5 w-3.5 animate-spin" /> Uploading...</>
+                          ) : (
+                            <><Upload className="h-3.5 w-3.5" /> Upload Image / Video</>
+                          )}
+                        </Button>
+                      </div>
                     </div>
                   </div>
                 ))}
