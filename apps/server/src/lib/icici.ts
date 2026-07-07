@@ -3,9 +3,9 @@
  *
  * Implements the redirect (hosted-page) checkout flow plus the Command API
  * transaction-status query, per the ICICI PG API spec:
- *
+ * 
  *   - Initiate Sale .......... POST {BASE}/pg/api/v2/initiateSale   (JSON, secureHash v2)
- *   - Transaction Status ..... POST {BASE}/tsp/pg/api/command       (form, secureHash v1)
+ *   - Transaction Status ..... POST {BASE}/pg/api/command       (form, secureHash v1)
  *   - Payment callback ....... ICICI POSTs to our returnURL         (form, secureHash v1)
  *
  * secureHash:
@@ -22,7 +22,7 @@ import { AppError, ValidationError } from './errors.js';
 
 // ─── Constants ───────────────────────────────────────────────────────
 const INITIATE_SALE_PATH = '/pg/api/v2/initiateSale';
-const COMMAND_PATH = '/tsp/pg/api/command';
+const COMMAND_PATH = '/pg/api/command';
 const CURRENCY_INR = '356';
 const REQUEST_TIMEOUT_MS = 20_000;
 
