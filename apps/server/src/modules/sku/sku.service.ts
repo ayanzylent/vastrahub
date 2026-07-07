@@ -35,6 +35,80 @@ export interface UpdateSkuInput extends Partial<CreateSkuInput> {
 // ---------- Service functions ----------
 
 /**
+ * Recalculate and update a product's aggregate fields (price range, stock, SKU count)
+ * from its active, non-deleted SKUs.
+ *
+ * This is the same logic as the SKU model's post-save hook, extracted so it can be
+ * called explicitly after bulk operations (e.g., cascade soft-delete) where the
+ * Mongoose hook doesn't fire.
+ */
+export async function recalculateProductAggregates(productId: mongoose.Types.ObjectId | string) {
+  const pid = typeof productId === 'string' ? new mongoose.Types.ObjectId(productId) : productId;
+
+  const aggregation = await Sku.aggregate([
+    {
+      $match: {
+        productId: pid,
+        isActive: true,
+        deletedAt: null,
+      },
+    },
+    {
+      $facet: {
+        stats: [
+          {
+            $group: {
+              _id: null,
+              minPrice: { $min: '$pricePaise' },
+              maxPrice: { $max: '$pricePaise' },
+              minMrp: { $min: '$mrpPaise' },
+              maxMrp: { $max: '$mrpPaise' },
+              totalStock: { $sum: '$stockQuantity' },
+              count: { $sum: 1 },
+            },
+          },
+        ],
+        defaultSku: [
+          { $match: { isDefault: true } },
+          { $sort: { pricePaise: 1 } },
+          { $limit: 1 },
+          { $project: { pricePaise: 1, mrpPaise: 1 } },
+        ],
+      },
+    },
+  ]);
+
+  const stats = aggregation[0]?.stats[0] || {
+    minPrice: 0,
+    maxPrice: 0,
+    minMrp: 0,
+    maxMrp: 0,
+    totalStock: 0,
+    count: 0,
+  };
+  const defaultSku = aggregation[0]?.defaultSku[0];
+
+  const basePrice = defaultSku ? defaultSku.pricePaise : stats.minPrice;
+  const baseMrp = defaultSku ? defaultSku.mrpPaise : stats.minMrp;
+
+  await Product.updateOne(
+    { _id: pid },
+    {
+      $set: {
+        basePricePaise: basePrice,
+        baseMrpPaise: baseMrp,
+        minPricePaise: stats.minPrice,
+        maxPricePaise: stats.maxPrice,
+        minMrpPaise: stats.minMrp,
+        maxMrpPaise: stats.maxMrp,
+        totalStock: stats.totalStock,
+        skuCount: stats.count,
+      },
+    },
+  );
+}
+
+/**
  * Create a SKU for a product.
  */
 export async function createSku(productId: string, data: CreateSkuInput) {

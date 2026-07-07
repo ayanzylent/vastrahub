@@ -9,6 +9,7 @@ import type { IProductDocument, IVariantMedia } from '../../db/models/index.js';
 import { NotFoundError, ValidationError, ConflictError } from '../../lib/errors.js';
 import { generateUniqueSlug } from '../../lib/slug.js';
 import { GST_SLABS, APP_CONFIG } from '@vastrahub/shared-constants';
+import { recalculateProductAggregates } from '../sku/sku.service.js';
 
 // ---------- Interfaces ----------
 
@@ -392,7 +393,9 @@ export async function updateProduct(id: string, data: UpdateProductInput, userId
 }
 
 /**
- * Soft-delete a product.
+ * Soft-delete a product and cascade soft-delete all its SKUs.
+ * Also recalculates the product's aggregate fields so they reflect
+ * zero active SKUs (important if the product is later restored).
  */
 export async function deleteProduct(id: string) {
   if (!mongoose.Types.ObjectId.isValid(id)) {
@@ -404,10 +407,25 @@ export async function deleteProduct(id: string) {
     throw new NotFoundError('Product not found');
   }
 
+  const now = new Date();
+
+  // Cascade: soft-delete all non-deleted SKUs for this product.
+  // Uses updateMany for efficiency — the post-save hook won't fire,
+  // so we explicitly recalculate aggregates below.
+  await Sku.updateMany(
+    { productId: product._id, deletedAt: null },
+    { $set: { deletedAt: now } },
+  );
+
+  // Recalculate product aggregates (will set everything to 0 since all SKUs are now deleted).
+  // This ensures correct state if the product is ever restored.
+  await recalculateProductAggregates(product._id);
+
+  // Soft-delete the product itself
   if (typeof (product as IProductDocument & { softDelete: () => Promise<void> }).softDelete === 'function') {
     await (product as IProductDocument & { softDelete: () => Promise<void> }).softDelete();
   } else {
-    product.deletedAt = new Date();
+    product.deletedAt = now;
     await product.save();
   }
 
