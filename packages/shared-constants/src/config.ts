@@ -17,6 +17,8 @@ export const APP_CONFIG = {
   MAX_PRODUCTS_PER_COLLECTION: 500,
   MAX_COLLECTION_RULES: 10,
   MAX_FEATURED_COLLECTIONS: 12,
+  /** Days to retain soft-deleted products/SKUs before hard-deleting them. */
+  SOFT_DELETE_RETENTION_DAYS: 30,
 } as const;
 
 export const BRAND_CONFIG = {

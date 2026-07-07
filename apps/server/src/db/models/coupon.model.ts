@@ -4,7 +4,6 @@
  */
 
 import mongoose, { Schema, type Document, type Model, type Types } from 'mongoose';
-import { softDeletePlugin, type SoftDeleteDocument } from '../plugins/soft-delete.plugin.js';
 
 // ---------- Interfaces ----------
 
@@ -19,7 +18,7 @@ export interface ICouponRules {
   excludedProducts?: Types.ObjectId[];
 }
 
-export interface ICouponDocument extends Document, SoftDeleteDocument {
+export interface ICouponDocument extends Document {
   code: string;
   description?: string;
   discountType: 'percentage' | 'fixed_amount';
@@ -29,7 +28,6 @@ export interface ICouponDocument extends Document, SoftDeleteDocument {
   rules: ICouponRules;
   currentUses: number;
   isActive: boolean;
-  deletedAt: Date | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -124,10 +122,6 @@ const couponSchema = new Schema<ICouponDocument>(
 // ---------- Indexes ----------
 
 couponSchema.index({ isActive: 1, 'rules.validFrom': 1, 'rules.validUntil': 1 });
-
-// ---------- Plugins ----------
-
-couponSchema.plugin(softDeletePlugin);
 
 // ---------- Export ----------
 

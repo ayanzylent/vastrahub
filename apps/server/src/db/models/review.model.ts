@@ -5,7 +5,6 @@
  */
 
 import mongoose, { Schema, type Document, type Model, type Types } from 'mongoose';
-import { softDeletePlugin, type SoftDeleteDocument } from '../plugins/soft-delete.plugin.js';
 
 // ---------- Interfaces ----------
 
@@ -19,7 +18,7 @@ export interface IReviewMediaItem {
   mimeType: string;
 }
 
-export interface IReviewDocument extends Document, SoftDeleteDocument {
+export interface IReviewDocument extends Document {
   productId: Types.ObjectId;
   userId: Types.ObjectId;
   orderId?: Types.ObjectId;
@@ -30,7 +29,6 @@ export interface IReviewDocument extends Document, SoftDeleteDocument {
   isVerifiedPurchase: boolean;
   isApproved: boolean;
   isFlagged: boolean;
-  deletedAt: Date | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -123,10 +121,6 @@ reviewSchema.index({ productId: 1, createdAt: -1 });
 reviewSchema.index({ productId: 1, userId: 1 }, { unique: true });
 reviewSchema.index({ isApproved: 1, isVerifiedPurchase: 1 });
 
-// ---------- Plugins ----------
-
-reviewSchema.plugin(softDeletePlugin);
-
 // ---------- Post-save hook: Update Product's averageRating + reviewCount ----------
 
 reviewSchema.post('save', async function (doc: IReviewDocument) {
@@ -139,7 +133,6 @@ reviewSchema.post('save', async function (doc: IReviewDocument) {
         $match: {
           productId: doc.productId,
           isApproved: true,
-          deletedAt: null,
         },
       },
       {

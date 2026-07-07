@@ -1,8 +1,8 @@
 /**
  * Review service — business logic for review operations.
  * Storefront: list approved reviews, rating stats.
- * Customer: create, update, soft-delete own reviews.
- * Admin: list all, approve, flag, soft-delete any review.
+ * Customer: create, update, delete own reviews.
+ * Admin: list all, approve, flag, delete any review.
  */
 import mongoose from 'mongoose';
 
@@ -295,7 +295,41 @@ export async function updateReview(
 }
 
 /**
- * Soft-delete own review.
+ * Recalculate a product's averageRating and reviewCount.
+ * Must be called after hard-deleting a review (post-save hook only fires on save).
+ */
+async function recalculateProductReviewStats(productId: mongoose.Types.ObjectId) {
+  const aggregation = await Review.aggregate([
+    {
+      $match: {
+        productId,
+        isApproved: true,
+      },
+    },
+    {
+      $group: {
+        _id: null,
+        avgRating: { $avg: '$rating' },
+        count: { $sum: 1 },
+      },
+    },
+  ]);
+
+  const stats = aggregation[0] || { avgRating: 0, count: 0 };
+
+  await Product.updateOne(
+    { _id: productId },
+    {
+      $set: {
+        averageRating: Math.round(stats.avgRating * 10) / 10,
+        reviewCount: stats.count,
+      },
+    },
+  );
+}
+
+/**
+ * Hard-delete own review.
  */
 export async function deleteReview(userId: string, reviewId: string) {
   if (!mongoose.Types.ObjectId.isValid(reviewId)) {
@@ -305,13 +339,18 @@ export async function deleteReview(userId: string, reviewId: string) {
   const review = await Review.findOne({
     _id: new mongoose.Types.ObjectId(reviewId),
     userId: new mongoose.Types.ObjectId(userId),
-  }) as (IReviewDocument & { softDelete(): Promise<void> }) | null;
+  });
 
   if (!review) {
     throw new NotFoundError('Review not found');
   }
 
-  await review.softDelete();
+  const productId = review.productId;
+  await Review.deleteOne({ _id: review._id });
+
+  // Recalculate product stats since post-save hook doesn't fire on deleteOne
+  await recalculateProductReviewStats(productId);
+
   return { deleted: true };
 }
 
@@ -443,18 +482,23 @@ export async function flagReview(reviewId: string) {
 }
 
 /**
- * Admin soft-delete a review (no ownership check).
+ * Admin hard-delete a review (no ownership check).
  */
 export async function adminDeleteReview(reviewId: string) {
   if (!mongoose.Types.ObjectId.isValid(reviewId)) {
     throw new ValidationError('Invalid review ID');
   }
 
-  const review = await Review.findById(reviewId) as (IReviewDocument & { softDelete(): Promise<void> }) | null;
+  const review = await Review.findById(reviewId);
   if (!review) {
     throw new NotFoundError('Review not found');
   }
 
-  await review.softDelete();
+  const productId = review.productId;
+  await Review.deleteOne({ _id: review._id });
+
+  // Recalculate product stats since post-save hook doesn't fire on deleteOne
+  await recalculateProductReviewStats(productId);
+
   return { deleted: true };
 }

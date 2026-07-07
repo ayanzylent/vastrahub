@@ -247,7 +247,7 @@ export async function updateCoupon(id: string, data: UpdateCouponInput) {
 }
 
 /**
- * Soft-delete a coupon.
+ * Hard-delete a coupon.
  */
 export async function deleteCoupon(id: string) {
   if (!mongoose.Types.ObjectId.isValid(id)) {
@@ -259,12 +259,7 @@ export async function deleteCoupon(id: string) {
     throw new NotFoundError('Coupon not found');
   }
 
-  if (typeof (coupon as ICouponDocument & { softDelete: () => Promise<void> }).softDelete === 'function') {
-    await (coupon as ICouponDocument & { softDelete: () => Promise<void> }).softDelete();
-  } else {
-    coupon.deletedAt = new Date();
-    await coupon.save();
-  }
+  await Coupon.deleteOne({ _id: coupon._id });
 
   return { deleted: true };
 }
