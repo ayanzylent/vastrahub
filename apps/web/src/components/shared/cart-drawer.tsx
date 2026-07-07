@@ -253,7 +253,7 @@ function CartDrawerItem({ item, onUpdate, onRemove }: CartDrawerItemProps) {
           <Button
             variant="ghost"
             size="icon"
-            className="h-6 w-6 text-destructive opacity-0 group-hover:opacity-100 transition-opacity"
+            className="h-6 w-6 text-destructive"
             onClick={() => onRemove(item.skuId)}
           >
             <Trash2 className="h-3 w-3" />
