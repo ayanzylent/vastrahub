@@ -248,13 +248,31 @@ export function formatIciciAmount(amountPaise: number): string {
   return (amountPaise / 100).toFixed(2);
 }
 
-/** Format a Date as ICICI's `txnDate`: YYYYMMDDHHMISS. */
+/**
+ * Format a Date as ICICI's `txnDate`: YYYYMMDDHHMISS.
+ *
+ * NOTE: We must format the date explicitly in Indian Standard Time (Asia/Kolkata)
+ * because ICICI Bank operates in IST. If we format using system timezone (which
+ * defaults to UTC on hosted environments like Render), ICICI will reject the
+ * transaction with error code P1006 (Invalid Transaction Date) due to the
+ * 5.5-hour time mismatch.
+ */
 export function formatIciciTxnDate(date: Date): string {
-  const p = (n: number) => String(n).padStart(2, '0');
-  return (
-    `${date.getFullYear()}${p(date.getMonth() + 1)}${p(date.getDate())}` +
-    `${p(date.getHours())}${p(date.getMinutes())}${p(date.getSeconds())}`
-  );
+  const formatter = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'Asia/Kolkata',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hourCycle: 'h23',
+  });
+
+  const parts = formatter.formatToParts(date);
+  const partMap = Object.fromEntries(parts.map((p) => [p.type, p.value]));
+
+  return `${partMap.year}${partMap.month}${partMap.day}${partMap.hour}${partMap.minute}${partMap.second}`;
 }
 
 // ─── API: Initiate Sale (Flow A — redirect) ──────────────────────────
