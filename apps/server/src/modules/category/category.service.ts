@@ -105,6 +105,46 @@ async function buildCategoryAncestors(parentId: mongoose.Types.ObjectId | string
   };
 }
 
+/**
+ * Recalculates the recursive active product count for a single category,
+ * including all active products in its subcategories.
+ */
+export async function recalculateCategoryProductCount(categoryId: mongoose.Types.ObjectId | string): Promise<number> {
+  const catId = typeof categoryId === 'string' ? new mongoose.Types.ObjectId(categoryId) : categoryId;
+
+  // Find all active subcategories under this category
+  const descendants = await Category.find({ 'ancestors._id': catId, isActive: true }).select('_id').lean();
+  const categoryIds = [catId, ...descendants.map(d => d._id)];
+
+  const ProductModel = mongoose.model('Product');
+  const count = await ProductModel.countDocuments({
+    categoryId: { $in: categoryIds },
+    isActive: true,
+    deletedAt: null,
+  });
+
+  await Category.updateOne({ _id: catId }, { $set: { productCount: count } });
+  return count;
+}
+
+/**
+ * Recalculates and updates product counts for a category and all its parent/ancestor categories.
+ */
+export async function updateCategoryProductCounts(
+  categoryId: mongoose.Types.ObjectId | string | null | undefined,
+): Promise<void> {
+  if (!categoryId) return;
+  const catId = typeof categoryId === 'string' ? new mongoose.Types.ObjectId(categoryId) : categoryId;
+
+  const category = await Category.findById(catId).lean();
+  if (!category) return;
+
+  const categoryIds = [catId, ...category.ancestors.map((a) => a._id)];
+  for (const id of categoryIds) {
+    await recalculateCategoryProductCount(id);
+  }
+}
+
 // ---------- Service functions ----------
 
 /**
@@ -200,6 +240,9 @@ export async function updateCategory(id: string, data: UpdateCategoryInput) {
     throw new NotFoundError('Category not found');
   }
 
+  const oldParentId = category.parentId;
+  const oldActive = category.isActive;
+
   // If parentId is changing, validate depth
   if (data.parentId !== undefined && String(data.parentId) !== String(category.parentId)) {
     if (data.parentId) {
@@ -260,6 +303,23 @@ export async function updateCategory(id: string, data: UpdateCategoryInput) {
   // If parentId changed, update children's ancestors
   if (data.parentId !== undefined) {
     await updateChildrenAncestors(category);
+  }
+
+  // Trigger product count recalculations on parent chain modifications
+  const parentChanged = String(category.parentId) !== String(oldParentId);
+  const activeChanged = category.isActive !== oldActive;
+
+  if (parentChanged) {
+    if (oldParentId) {
+      await updateCategoryProductCounts(oldParentId);
+    }
+    if (category.parentId) {
+      await updateCategoryProductCounts(category.parentId);
+    }
+  } else if (activeChanged) {
+    if (category.parentId) {
+      await updateCategoryProductCounts(category.parentId);
+    }
   }
 
   return category.toObject();

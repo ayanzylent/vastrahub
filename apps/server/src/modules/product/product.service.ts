@@ -10,6 +10,7 @@ import { NotFoundError, ValidationError, ConflictError } from '../../lib/errors.
 import { generateUniqueSlug } from '../../lib/slug.js';
 import { GST_SLABS, APP_CONFIG } from '@vastrahub/shared-constants';
 import { recalculateProductAggregates } from '../sku/sku.service.js';
+import { updateCategoryProductCounts } from '../category/category.service.js';
 
 // ---------- Interfaces ----------
 
@@ -168,6 +169,7 @@ export async function createProduct(data: CreateProductInput) {
   });
 
   await product.save();
+  await updateCategoryProductCounts(product.categoryId);
   return product.toObject();
 }
 
@@ -267,6 +269,9 @@ export async function updateProduct(id: string, data: UpdateProductInput, userId
   if (!product) {
     throw new NotFoundError('Product not found');
   }
+
+  const oldCategoryId = product.categoryId;
+  const oldActive = product.isActive;
 
   // OCC check
   if (data.__v !== undefined && product.__v !== data.__v) {
@@ -389,6 +394,18 @@ export async function updateProduct(id: string, data: UpdateProductInput, userId
   }
 
   await product.save();
+
+  // Trigger category product count updates if category or active status changed
+  const categoryChanged = String(product.categoryId) !== String(oldCategoryId);
+  const activeChanged = product.isActive !== oldActive;
+
+  if (categoryChanged) {
+    await updateCategoryProductCounts(oldCategoryId);
+    await updateCategoryProductCounts(product.categoryId);
+  } else if (activeChanged) {
+    await updateCategoryProductCounts(product.categoryId);
+  }
+
   return product.toObject();
 }
 
@@ -428,6 +445,9 @@ export async function deleteProduct(id: string) {
     product.deletedAt = now;
     await product.save();
   }
+
+  // Update category product count after soft-deletion
+  await updateCategoryProductCounts(product.categoryId);
 
   return { deleted: true };
 }
