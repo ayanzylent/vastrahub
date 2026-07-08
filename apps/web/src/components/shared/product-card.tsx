@@ -133,13 +133,13 @@ export function ProductCard({ product, sku, lowestPricePaise, lowestMrpPaise, cl
               {product.brandName}
             </p>
           )}
-          <div className="flex items-center justify-between pt-0.5">
-            <div className="flex items-baseline gap-1.5">
-              <span className="text-sm font-bold text-primary">
+          <div className="flex items-center justify-between pt-0.5 gap-1.5">
+            <div className="flex flex-col sm:flex-row sm:items-baseline gap-0.5 sm:gap-1.5 min-w-0">
+              <span className="text-sm font-bold text-primary truncate">
                 {formatPrice(sellingPrice)}
               </span>
               {discount > 0 && (
-                <span className="text-xs text-muted-foreground line-through">
+                <span className="text-[10px] sm:text-xs text-muted-foreground line-through truncate">
                   {formatPrice(mrpPrice)}
                 </span>
               )}
