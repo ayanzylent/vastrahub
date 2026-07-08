@@ -91,6 +91,37 @@ export default function ProductDetailPage() {
 
   const mediaItems = useMemo(() => currentVariantGroup?.media || [], [currentVariantGroup]);
 
+  const [touchStartX, setTouchStartX] = useState(0);
+  const [touchEndX, setTouchEndX] = useState(0);
+
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    setTouchStartX(e.targetTouches[0].clientX);
+  }, []);
+
+  const handleTouchMove = useCallback((e: React.TouchEvent) => {
+    setTouchEndX(e.targetTouches[0].clientX);
+  }, []);
+
+  const handleTouchEnd = useCallback(() => {
+    if (!touchStartX || !touchEndX) return;
+    const distance = touchStartX - touchEndX;
+    const isLeftSwipe = distance > 50;
+    const isRightSwipe = distance < -50;
+
+    if (isLeftSwipe || isRightSwipe) {
+      const currentIndex = mediaItems.findIndex((item) => item.url === selectedMedia?.url);
+      if (currentIndex !== -1) {
+        if (isLeftSwipe && currentIndex < mediaItems.length - 1) {
+          setSelectedMedia(mediaItems[currentIndex + 1]);
+        } else if (isRightSwipe && currentIndex > 0) {
+          setSelectedMedia(mediaItems[currentIndex - 1]);
+        }
+      }
+    }
+    setTouchStartX(0);
+    setTouchEndX(0);
+  }, [touchStartX, touchEndX, mediaItems, selectedMedia]);
+
   // Set initial media
   useEffect(() => {
     if (mediaItems.length > 0 && !selectedMedia) {
@@ -247,7 +278,12 @@ export default function ProductDetailPage() {
         {/* ─── Image Gallery ─── */}
         <div className="space-y-4">
           {/* Main Image */}
-          <div className="relative aspect-[3/4] w-full rounded-xl overflow-hidden bg-card">
+          <div
+            className="relative aspect-[3/4] w-full rounded-xl overflow-hidden bg-card touch-pan-y select-none"
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
+          >
             {selectedMedia ? (
               selectedMedia.type === "video" ? (
                 <video
@@ -270,6 +306,13 @@ export default function ProductDetailPage() {
                 <span className="text-6xl font-heading font-bold text-primary/20">
                   {product.name[0]}
                 </span>
+              </div>
+            )}
+
+            {/* Mobile swipe index indicator */}
+            {mediaItems.length > 1 && selectedMedia && (
+              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-1.5 bg-black/60 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-semibold text-white tracking-wider pointer-events-none lg:hidden">
+                {mediaItems.findIndex((item) => item.url === selectedMedia.url) + 1} / {mediaItems.length}
               </div>
             )}
           </div>
