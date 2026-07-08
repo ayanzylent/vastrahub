@@ -415,7 +415,7 @@ function CheckoutContent() {
           
           {/* Section 1: Delivery Address */}
           <Card className="bg-card/60 backdrop-blur-md border overflow-hidden">
-            <CardHeader className="flex flex-row items-center justify-between border-b border-border/40 pb-4">
+            <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border/40 p-4 sm:p-6 pb-4 sm:pb-4">
               <div className="flex items-center gap-3">
                 <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
                   <MapPin className="h-4 w-4" />
@@ -426,17 +426,17 @@ function CheckoutContent() {
                 <Button
                   variant="outline"
                   size="sm"
-                  className="gap-1.5"
+                  className="gap-1.5 w-full sm:w-auto"
                   onClick={() => setShowAddressForm(true)}
                 >
                   <Plus className="h-3.5 w-3.5" /> New Address
                 </Button>
               )}
             </CardHeader>
-            <CardContent className="pt-6">
+            <CardContent className="p-4 sm:p-6 pt-4 sm:pt-6">
               {showAddressForm ? (
                 <form onSubmit={handleAddAddress} className="space-y-4">
-                  <div className="grid md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="label">Address Label (Home / Work)*</Label>
                       <Input
@@ -459,7 +459,7 @@ function CheckoutContent() {
                     </div>
                   </div>
 
-                  <div className="grid md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="phone">Contact Phone Number*</Label>
                       <Input
@@ -504,7 +504,7 @@ function CheckoutContent() {
                     />
                   </div>
 
-                  <div className="grid md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="city">City*</Label>
                       <Input
@@ -545,7 +545,7 @@ function CheckoutContent() {
                     </Label>
                   </div>
 
-                  <div className="flex gap-3 pt-4 border-t border-border/40">
+                  <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t border-border/40">
                     <Button type="submit" variant="default" disabled={addingAddress}>
                       {addingAddress && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                       Save & Deliver Here
@@ -569,7 +569,7 @@ function CheckoutContent() {
                       </Button>
                     </div>
                   ) : (
-                    <div className="grid md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       {addresses.map((address) => (
                         <div
                           key={address._id}
@@ -611,8 +611,8 @@ function CheckoutContent() {
           </Card>
 
           {/* Section 2: Payment Gateway Selection */}
-          <Card className="bg-card/60 backdrop-blur-md border">
-            <CardHeader className="border-b border-border/40 pb-4">
+          <Card className="bg-card/60 backdrop-blur-md border overflow-hidden">
+            <CardHeader className="border-b border-border/40 p-4 sm:p-6 pb-4 sm:pb-4">
               <div className="flex items-center gap-3">
                 <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
                   <CreditCard className="h-4 w-4" />
@@ -620,8 +620,8 @@ function CheckoutContent() {
                 <CardTitle className="text-lg">Select Payment Method</CardTitle>
               </div>
             </CardHeader>
-            <CardContent className="pt-6 space-y-4">
-              <div className="grid md:grid-cols-2 gap-4">
+            <CardContent className="p-4 sm:p-6 pt-4 sm:pt-6 space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
 
                 {/* ICICI Bank gateway */}
                 <div
@@ -690,11 +690,11 @@ function CheckoutContent() {
         <div className="lg:col-span-4 space-y-6">
           
           {/* Order Summary & Cart items */}
-          <Card className="bg-card/60 backdrop-blur-md border sticky top-24">
-            <CardHeader className="border-b border-border/40 pb-4">
+          <Card className="bg-card/60 backdrop-blur-md border sticky top-24 overflow-hidden">
+            <CardHeader className="border-b border-border/40 p-4 sm:p-6 pb-4 sm:pb-4">
               <CardTitle className="text-lg">Order Summary</CardTitle>
             </CardHeader>
-            <CardContent className="pt-6 space-y-6">
+            <CardContent className="p-4 sm:p-6 pt-4 sm:pt-6 space-y-6">
               
               {/* Checkout Items List */}
               <div className="space-y-4 max-h-[220px] overflow-y-auto pr-1">
