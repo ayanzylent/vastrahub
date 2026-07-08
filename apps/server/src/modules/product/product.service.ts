@@ -8,7 +8,7 @@ import { Product, Sku, Category } from '../../db/models/index.js';
 import type { IProductDocument, IVariantMedia } from '../../db/models/index.js';
 import { NotFoundError, ValidationError, ConflictError } from '../../lib/errors.js';
 import { generateUniqueSlug } from '../../lib/slug.js';
-import { GST_SLABS, APP_CONFIG } from '@vastrahub/shared-constants';
+import { GST_SLABS, APP_CONFIG } from '../../constants/index.js';
 import { recalculateProductAggregates } from '../sku/sku.service.js';
 import { updateCategoryProductCounts } from '../category/category.service.js';
 

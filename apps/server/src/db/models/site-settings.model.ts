@@ -15,7 +15,7 @@ import type {
   IHomepageBlock,
   IAnnouncementBar,
   BlockType,
-} from '@vastrahub/shared-types';
+} from '../../types/index.js';
 
 // ---------- Interfaces ----------
 

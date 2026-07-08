@@ -11,7 +11,7 @@
 import mongoose, { Schema, type Document, type Model, type Types } from 'mongoose';
 import { softDeletePlugin, type SoftDeleteDocument } from '../plugins/soft-delete.plugin.js';
 
-import { GST_SLABS } from '@vastrahub/shared-constants';
+import { GST_SLABS } from '../../constants/index.js';
 
 // ---------- Interfaces ----------
 

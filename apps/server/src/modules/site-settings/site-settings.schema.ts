@@ -9,7 +9,7 @@
 
 import { Type, type Static } from '@sinclair/typebox';
 import { ObjectId } from '../../schemas/common.schema.js';
-import { SITE_SETTINGS_LIMITS } from '@vastrahub/shared-constants';
+import { SITE_SETTINGS_LIMITS } from '../../constants/index.js';
 
 // ---------- Reusable fragments ----------
 

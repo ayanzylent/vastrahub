@@ -4,7 +4,7 @@
 
 import type { FastifyRequest, FastifyReply } from 'fastify';
 import * as service from './category.service.js';
-import { APP_CONFIG } from '@vastrahub/shared-constants';
+import { APP_CONFIG } from '../../constants/index.js';
 
 // ---------- Admin handlers ----------
 

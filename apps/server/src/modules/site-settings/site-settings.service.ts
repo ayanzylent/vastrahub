@@ -14,13 +14,13 @@ import {
   DEFAULT_HERO,
   DEFAULT_HOMEPAGE_BLOCKS,
   DEFAULT_ANNOUNCEMENT_BAR,
-} from '@vastrahub/shared-constants';
+} from '../../constants/index.js';
 import type {
   IHeroConfig,
   IHomepageBlock,
   IAnnouncementBar,
   IHydratedHomepageBlock,
-} from '@vastrahub/shared-types';
+} from '../../types/index.js';
 
 // ---------- Constants ----------
 

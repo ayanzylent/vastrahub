@@ -8,7 +8,7 @@ import { Wishlist, Product } from '../../db/models/index.js';
 import type { IWishlistDocument, IWishlistItem } from '../../db/models/index.js';
 import type { IProductDocument, IVariantMedia, IMediaItem } from '../../db/models/index.js';
 import { NotFoundError, ValidationError, ConflictError } from '../../lib/errors.js';
-import { APP_CONFIG } from '@vastrahub/shared-constants';
+import { APP_CONFIG } from '../../constants/index.js';
 
 // ---------- Helpers ----------
 

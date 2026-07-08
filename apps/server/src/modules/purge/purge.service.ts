@@ -7,7 +7,7 @@
 
 import mongoose from 'mongoose';
 import { Product, Sku, Review, Wishlist, Collection } from '../../db/models/index.js';
-import { APP_CONFIG } from '@vastrahub/shared-constants';
+import { APP_CONFIG } from '../../constants/index.js';
 
 // ---------- Interfaces ----------
 

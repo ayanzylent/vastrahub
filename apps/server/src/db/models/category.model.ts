@@ -6,7 +6,7 @@
 
 import mongoose, { Schema, type Document, type Model, type Types } from 'mongoose';
 
-import { APP_CONFIG } from '@vastrahub/shared-constants';
+import { APP_CONFIG } from '../../constants/index.js';
 
 
 // ---------- Interfaces ----------

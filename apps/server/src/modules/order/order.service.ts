@@ -9,7 +9,7 @@ import mongoose from 'mongoose';
 import { Order, Payment, Sku } from '../../db/models/index.js';
 import type { IOrderDocument, IPaymentDocument } from '../../db/models/index.js';
 import { NotFoundError, ValidationError } from '../../lib/errors.js';
-import { isValidOrderTransition, type OrderStatusType, APP_CONFIG } from '@vastrahub/shared-constants';
+import { isValidOrderTransition, type OrderStatusType, APP_CONFIG } from '../../constants/index.js';
 
 // ---------- Helpers ----------
 

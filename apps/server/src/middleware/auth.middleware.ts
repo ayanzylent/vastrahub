@@ -7,7 +7,7 @@ import type { FastifyRequest, FastifyReply } from 'fastify';
 import { getAuth } from '../plugins/auth.plugin.js';
 import { UnauthorizedError, ForbiddenError } from '../lib/errors.js';
 import { getConfig } from '../config/env.js';
-import { hasMinimumRole, type UserRoleType } from '@vastrahub/shared-constants';
+import { hasMinimumRole, type UserRoleType } from '../constants/index.js';
 
 // Augment Fastify request with user info
 declare module 'fastify' {

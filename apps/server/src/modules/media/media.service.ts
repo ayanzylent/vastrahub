@@ -10,7 +10,7 @@ import {
   validateMediaUpload,
 } from '../../lib/media.js';
 import { ValidationError } from '../../lib/errors.js';
-import type { MediaCategory } from '@vastrahub/shared-constants';
+import type { MediaCategory } from '../../constants/index.js';
 
 // ---------- Interfaces ----------
 

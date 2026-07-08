@@ -24,8 +24,6 @@
     "@fastify/swagger-ui": "^5.2.6",
     "@fastify/type-provider-typebox": "^6.1.0",
     "@sinclair/typebox": "^0.34.49",
-    "@vastrahub/shared-constants": "workspace:*",
-    "@vastrahub/shared-types": "workspace:*",
     "better-auth": "^1",
     "fastify": "^5",
     "fastify-plugin": "^5",

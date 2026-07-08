@@ -13,7 +13,7 @@ import mongoose from 'mongoose';
 import { Collection, Product } from '../../db/models/index.js';
 import type { ICollectionDocument, ICollectionRule } from '../../db/models/index.js';
 import { NotFoundError, ValidationError } from '../../lib/errors.js';
-import { APP_CONFIG } from '@vastrahub/shared-constants';
+import { APP_CONFIG } from '../../constants/index.js';
 import slugify from 'slugify';
 
 // ---------- Interfaces ----------

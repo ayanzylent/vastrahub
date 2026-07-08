@@ -6,7 +6,7 @@ import mongoose from 'mongoose';
 import { Category } from '../../db/models/index.js';
 import type { ICategoryDocument, ICategoryAncestor } from '../../db/models/index.js';
 import { NotFoundError, ValidationError, ConflictError } from '../../lib/errors.js';
-import { APP_CONFIG } from '@vastrahub/shared-constants';
+import { APP_CONFIG } from '../../constants/index.js';
 import slugify from 'slugify';
 
 // ---------- Interfaces ----------

@@ -9,7 +9,7 @@ const { ObjectId } = mongoose.Types;
 import { Address } from '../../db/models/index.js';
 import type { IAddressDocument } from '../../db/models/index.js';
 import { NotFoundError, ValidationError, ConflictError } from '../../lib/errors.js';
-import { isValidIndianState, APP_CONFIG } from '@vastrahub/shared-constants';
+import { isValidIndianState, APP_CONFIG } from '../../constants/index.js';
 
 // ---------- Interfaces ----------
 

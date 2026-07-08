@@ -8,7 +8,7 @@ import { Cart, Sku, Product } from '../../db/models/index.js';
 import type { ICartDocument, ICartItem } from '../../db/models/index.js';
 import type { IProductDocument, IVariantMedia, IMediaItem } from '../../db/models/index.js';
 import { NotFoundError, ValidationError } from '../../lib/errors.js';
-import { APP_CONFIG } from '@vastrahub/shared-constants';
+import { APP_CONFIG } from '../../constants/index.js';
 
 // ---------- Interfaces ----------
 
