@@ -87,17 +87,17 @@ export default function CartPage() {
         <div className="lg:col-span-2 space-y-4">
           {cart.items.map((item: ICartItem) => (
             <Card key={item._id}>
-              <CardContent className="p-4">
-                <div className="flex gap-4">
+              <CardContent className="p-3 sm:p-4">
+                <div className="flex gap-3 sm:gap-4">
                   {/* Item Image */}
-                  <div className="relative h-28 w-22 shrink-0 rounded-lg overflow-hidden bg-muted">
+                  <div className="relative h-24 w-18 sm:h-28 sm:w-22 shrink-0 rounded-lg overflow-hidden bg-muted">
                     {item.imageUrl ? (
                       <Image
                         src={getMediaUrl(item.imageUrl)}
                         alt={item.productName ?? ""}
                         fill
                         className="object-cover"
-                        sizes="88px"
+                        sizes="(max-width: 640px) 72px, 88px"
                       />
                     ) : (
                       <div className="flex h-full w-full items-center justify-center text-primary/30 text-2xl font-bold">
@@ -112,7 +112,7 @@ export default function CartPage() {
                     <p className="text-xs text-muted-foreground mt-0.5">
                       {item.variantLabel}
                     </p>
-                    <div className="flex items-baseline gap-2 mt-2">
+                    <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5 mt-1.5">
                       <span className="text-sm font-bold text-primary">
                         {formatPrice(item.pricePaise ?? 0)}
                       </span>
@@ -124,8 +124,8 @@ export default function CartPage() {
                     </div>
 
                     {/* Quantity + Remove */}
-                    <div className="flex items-center justify-between mt-3">
-                      <div className="flex items-center gap-2">
+                    <div className="flex items-center justify-between mt-3 gap-2">
+                      <div className="flex items-center gap-1.5 sm:gap-2">
                         <Button
                           variant="outline"
                           size="icon"
@@ -146,19 +146,30 @@ export default function CartPage() {
                           <Plus className="h-3 w-3" />
                         </Button>
                       </div>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-7 w-7 text-destructive hover:text-destructive/80"
-                        onClick={() => removeItem(item.skuId)}
-                      >
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </Button>
+
+                      <div className="flex items-center gap-2 sm:gap-3">
+                        {/* Line Total (Mobile) */}
+                        <div className="sm:hidden text-right">
+                          <span className="text-[10px] text-muted-foreground block leading-none">Total</span>
+                          <span className="text-xs font-bold block mt-0.5">
+                            {formatPrice((item.pricePaise ?? 0) * item.quantity)}
+                          </span>
+                        </div>
+
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-7 w-7 text-destructive hover:text-destructive/80"
+                          onClick={() => removeItem(item.skuId)}
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </Button>
+                      </div>
                     </div>
                   </div>
 
-                  {/* Line Total */}
-                  <div className="text-right shrink-0">
+                  {/* Line Total (Desktop) */}
+                  <div className="hidden sm:block text-right shrink-0">
                     <span className="text-sm font-bold">
                       {formatPrice((item.pricePaise ?? 0) * item.quantity)}
                     </span>
