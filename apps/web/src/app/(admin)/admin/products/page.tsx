@@ -19,6 +19,7 @@ import { DeleteConfirmationDialog } from "@/components/shared/delete-confirmatio
 import { Pagination } from "@/components/shared/pagination";
 import { api } from "@/lib/api";
 import { formatPrice } from "@/lib/utils";
+import { getMediaUrl } from "@/lib/media";
 import { toast } from "sonner";
 import type { IProduct, PaginatedResponse } from "@/types";
 
@@ -87,11 +88,12 @@ export default function AdminProductsPage() {
   }
 
   function getCoverImage(product: AdminProduct): string | null {
-    if (product.coverImageUrl) return product.coverImageUrl;
+    if (product.coverImageUrl) return getMediaUrl(product.coverImageUrl);
     const coverGroup = product.variantMedia?.find((vm) => vm.isCoverGroup);
     const group = coverGroup || product.variantMedia?.[0];
     if (!group?.media?.length) return null;
-    return group.media.find((m) => m.type === "image")?.url || null;
+    const url = group.media.find((m) => m.type === "image")?.url || null;
+    return url ? getMediaUrl(url) : null;
   }
 
   return (
