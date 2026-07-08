@@ -6,6 +6,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { api } from "@/lib/api";
 import { formatPrice } from "@/lib/utils";
+import { getMediaUrl } from "@/lib/media";
 import { toast } from "sonner";
 import { OrderStatus, type IOrder } from "@/types";
 import {
@@ -185,7 +186,7 @@ export default function OrderDetailPage() {
               <div className="relative h-20 w-16 shrink-0 overflow-hidden rounded-lg bg-muted">
                 {item.imageUrl ? (
                   <Image
-                    src={item.imageUrl}
+                    src={getMediaUrl(item.imageUrl)}
                     alt={item.productName}
                     fill
                     className="object-cover"

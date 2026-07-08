@@ -16,6 +16,7 @@ import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { useCart } from "@/providers/CartProvider";
 import { formatPrice } from "@/lib/utils";
+import { getMediaUrl } from "@/lib/media";
 import type { ICartItem } from "@/types";
 
 export function CartDrawer() {
@@ -46,10 +47,10 @@ export function CartDrawer() {
     <Sheet open={isDrawerOpen} onOpenChange={(open) => !open && closeDrawer()}>
       <SheetContent
         side="right"
-        className="flex w-full flex-col p-0 sm:max-w-md"
+        className="flex w-full data-[side=right]:w-[90%] flex-col p-0 sm:max-w-md"
       >
         {/* Header */}
-        <SheetHeader className="border-b border-border/40 px-6 py-4">
+        <SheetHeader className="border-b border-border/40 px-4 sm:px-6 py-4">
           <SheetTitle className="flex items-center gap-2 text-lg font-bold">
             <ShoppingBag className="h-5 w-5 text-primary" />
             Shopping Cart
@@ -94,7 +95,7 @@ export function CartDrawer() {
           <>
             {/* Scrollable items list */}
             <ScrollArea className="flex-1">
-              <div className="divide-y divide-border/30 px-6">
+              <div className="divide-y divide-border/30 px-4 sm:px-6">
                 {items.map((item: ICartItem) => (
                   <CartDrawerItem
                     key={item._id}
@@ -107,7 +108,7 @@ export function CartDrawer() {
             </ScrollArea>
 
             {/* Footer with subtotal + CTAs */}
-            <div className="border-t border-border/40 bg-card/80 px-6 py-5 space-y-4">
+            <div className="border-t border-border/40 bg-card/80 px-4 sm:px-6 py-5 space-y-4">
               {/* Savings callout */}
               {totalSavings > 0 && (
                 <div className="flex items-center justify-center gap-2 rounded-lg bg-emerald-500/10 px-3 py-2 text-sm font-medium text-emerald-600 dark:text-emerald-400">
@@ -179,12 +180,12 @@ function CartDrawerItem({ item, onUpdate, onRemove }: CartDrawerItemProps) {
       : 0;
 
   return (
-    <div className="flex gap-3 py-4 group">
+    <div className="flex gap-2 sm:gap-3 py-4 group">
       {/* Image */}
       <div className="relative h-[88px] w-[68px] shrink-0 overflow-hidden rounded-lg bg-muted">
         {item.imageUrl ? (
           <Image
-            src={item.imageUrl}
+            src={getMediaUrl(item.imageUrl)}
             alt={item.productName ?? ""}
             fill
             className="object-cover"
@@ -209,7 +210,7 @@ function CartDrawerItem({ item, onUpdate, onRemove }: CartDrawerItemProps) {
         )}
 
         {/* Price row */}
-        <div className="flex items-baseline gap-1.5 mt-1">
+        <div className="flex flex-wrap items-baseline gap-x-1.5 gap-y-0.5 mt-1">
           <span className="text-sm font-semibold text-primary">
             {formatPrice(price)}
           </span>

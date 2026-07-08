@@ -51,29 +51,32 @@ export function useSession(): {
   isPending: boolean;
   error: Error | null;
 } {
-  const [data, setData] = useState<SessionData | null>(null);
-  const [isPending, setIsPending] = useState(true);
-  const [error, setError] = useState<Error | null>(null);
-
-  const fetchSession = useCallback(async () => {
-    try {
-      const res = await authClient.getSession();
-      if (res.data?.user) {
-        setData(res.data as unknown as SessionData);
-      } else {
-        setData(null);
-      }
-    } catch (err) {
-      setError(err instanceof Error ? err : new Error("Failed to fetch session"));
-      setData(null);
-    } finally {
-      setIsPending(false);
-    }
-  }, []);
+  const [session, setSession] = useState<{
+    data: SessionData | null;
+    isPending: boolean;
+    error: Error | null;
+  }>({
+    data: null,
+    isPending: true,
+    error: null,
+  });
 
   useEffect(() => {
-    fetchSession();
-  }, [fetchSession]);
+    // Subscribe to the session atom (client-side only) to reactively
+    // update session state whenever sign-in, sign-out, or user edits occur.
+    const unsubscribe = authClient.$store.atoms.session.subscribe((val) => {
+      setSession({
+        data: val.data as unknown as SessionData,
+        isPending: val.isPending,
+        error: val.error,
+      });
+    });
 
-  return { data, isPending, error };
+    return () => {
+      unsubscribe();
+    };
+  }, []);
+
+  return session;
 }
+

@@ -9,6 +9,7 @@ import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useCart } from "@/providers/CartProvider";
 import { formatPrice } from "@/lib/utils";
+import { getMediaUrl } from "@/lib/media";
 import type { ICartItem } from "@/types";
 
 export default function CartPage() {
@@ -92,7 +93,7 @@ export default function CartPage() {
                   <div className="relative h-28 w-22 shrink-0 rounded-lg overflow-hidden bg-muted">
                     {item.imageUrl ? (
                       <Image
-                        src={item.imageUrl}
+                        src={getMediaUrl(item.imageUrl)}
                         alt={item.productName ?? ""}
                         fill
                         className="object-cover"

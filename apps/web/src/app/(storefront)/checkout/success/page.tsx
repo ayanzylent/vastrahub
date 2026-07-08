@@ -6,6 +6,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { api } from "@/lib/api";
 import { formatPrice } from "@/lib/utils";
+import { getMediaUrl } from "@/lib/media";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -176,7 +177,7 @@ function SuccessContent() {
                     <div className="relative h-16 w-12 shrink-0 rounded-lg overflow-hidden bg-muted">
                       {item.imageUrl ? (
                         <Image
-                          src={item.imageUrl}
+                          src={getMediaUrl(item.imageUrl)}
                           alt={item.productName}
                           fill
                           className="object-cover"

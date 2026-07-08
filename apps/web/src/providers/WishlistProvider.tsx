@@ -59,6 +59,8 @@ export function WishlistProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (isAuthenticated) {
       fetchWishlist();
+    } else {
+      setWishlistIds(new Set());
     }
   }, [isAuthenticated, fetchWishlist]);
 

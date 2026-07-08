@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { api } from "@/lib/api";
 import { formatPrice } from "@/lib/utils";
+import { getMediaUrl } from "@/lib/media";
 import { toast } from "sonner";
 import type { IOrder } from "@/types";
 import { ShoppingBag, ChevronRight, Loader2 } from "lucide-react";
@@ -126,7 +127,7 @@ export default function OrdersPage() {
                       >
                         {item.imageUrl ? (
                           <Image
-                            src={item.imageUrl}
+                            src={getMediaUrl(item.imageUrl)}
                             alt={item.productName}
                             fill
                             className="object-cover"

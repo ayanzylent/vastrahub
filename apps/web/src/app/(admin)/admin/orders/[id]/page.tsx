@@ -34,6 +34,7 @@ import {
 } from "@/components/ui/dialog";
 import { api } from "@/lib/api";
 import { formatPrice } from "@/lib/utils";
+import { getMediaUrl } from "@/lib/media";
 import { toast } from "sonner";
 import type { IOrder } from "@/types";
 import {
@@ -592,7 +593,7 @@ export default function AdminOrderDetailPage() {
                             <div className="relative h-10 w-10 rounded-lg overflow-hidden bg-muted shrink-0">
                               {item.imageUrl ? (
                                 <Image
-                                  src={item.imageUrl}
+                                  src={getMediaUrl(item.imageUrl)}
                                   alt={item.productName}
                                   fill
                                   className="object-cover"
