@@ -1,9 +1,6 @@
 import type { TimestampFields } from './common.types';
 
-/**
- * An ancestor entry in a category's breadcrumb trail.
- */
-export interface ICategoryAncestor {
+interface ICategoryAncestor {
   _id: string;
   name: string;
   slug: string;

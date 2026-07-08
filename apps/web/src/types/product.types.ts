@@ -1,10 +1,7 @@
 import type { TimestampFields } from './common.types';
 import type { IVariantMedia } from './media.types';
 
-/**
- * A single variant option value (e.g., "Red", "XL").
- */
-export interface IVariantOptionValue {
+interface IVariantOptionValue {
   value: string;
   label: string;
   slug: string;
@@ -18,10 +15,7 @@ export interface IVariantOption {
   values: IVariantOptionValue[];
 }
 
-/**
- * Entry in slug change history.
- */
-export interface ISlugHistoryEntry {
+interface ISlugHistoryEntry {
   slug: string;
   changedAt: Date;
   changedBy: string;

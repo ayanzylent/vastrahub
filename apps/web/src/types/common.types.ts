@@ -26,10 +26,6 @@ export interface PaginatedResponse<T> {
   statusCode: number;
 }
 
-/**
- * Sort order direction.
- */
-export type SortOrder = 'asc' | 'desc';
 
 /**
  * Timestamp fields present on all database documents.

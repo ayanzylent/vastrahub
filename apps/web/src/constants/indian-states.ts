@@ -38,8 +38,3 @@ export const INDIAN_STATES = [
   'Puducherry',
 ] as const;
 
-export type IndianState = (typeof INDIAN_STATES)[number];
-
-export function isValidIndianState(state: string): boolean {
-  return (INDIAN_STATES as readonly string[]).includes(state);
-}

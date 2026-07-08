@@ -28,6 +28,3 @@ export const ORDER_STATUS_TRANSITIONS: Record<OrderStatusType, OrderStatusType[]
   [OrderStatus.FAILED]: [OrderStatus.PENDING],
 };
 
-export function isValidOrderTransition(from: OrderStatusType, to: OrderStatusType): boolean {
-  return ORDER_STATUS_TRANSITIONS[from]?.includes(to) ?? false;
-}

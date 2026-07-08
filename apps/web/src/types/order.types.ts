@@ -19,10 +19,7 @@ export enum OrderStatus {
   FAILED = 'failed',
 }
 
-/**
- * Shipping address snapshot on an order.
- */
-export interface IShippingAddress {
+interface IShippingAddress {
   fullName: string;
   phone: string;
   addressLine1: string;
@@ -33,10 +30,7 @@ export interface IShippingAddress {
   country: string;
 }
 
-/**
- * Coupon snapshot as applied at time of order.
- */
-export interface ICouponSnapshot {
+interface ICouponSnapshot {
   code: string;
   discountType: string;
   percentageValue?: number;
@@ -61,10 +55,7 @@ export interface IOrderItem {
   gstAmountPaise: number;
 }
 
-/**
- * Order pricing breakdown.
- */
-export interface IOrderPricing {
+interface IOrderPricing {
   subtotalPaise: number;
   shippingPaise: number;
   taxPaise: number;

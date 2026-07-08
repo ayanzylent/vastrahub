@@ -1,4 +1,3 @@
-import type { TimestampFields } from './common.types';
 import type { ICategory } from './category.types';
 import type { ICollection } from './collection.types';
 import type { IProduct } from './product.types';
@@ -47,7 +46,7 @@ export interface IHeroConfig {
 
 // ---------- Block config shapes ----------
 
-export interface ICategoryShowcaseConfig {
+interface ICategoryShowcaseConfig {
   title?: string;
   subtitle?: string;
   /** Explicitly curated & ordered category ids. Empty => auto (top active categories). */
@@ -55,14 +54,14 @@ export interface ICategoryShowcaseConfig {
   layout: 'grid' | 'carousel';
 }
 
-export interface ICollectionShowcaseConfig {
+interface ICollectionShowcaseConfig {
   title?: string;
   subtitle?: string;
   /** Explicitly curated & ordered collection ids. Empty => featured collections. */
   collectionIds: string[];
 }
 
-export interface IFeaturedProductsConfig {
+interface IFeaturedProductsConfig {
   title?: string;
   subtitle?: string;
   /** Explicitly curated & ordered product ids. Empty => featured products. */
@@ -77,7 +76,7 @@ export interface IVideoEmbedItem {
   caption?: string;
 }
 
-export interface IVideoEmbedConfig {
+interface IVideoEmbedConfig {
   title?: string;
   subtitle?: string;
   videos: IVideoEmbedItem[];
@@ -88,7 +87,7 @@ export interface IVideoEmbedConfig {
  * optional link. Rendered at its natural aspect ratio (height adapts to the
  * image) so banners of slightly different sizes are not stretched or cropped.
  */
-export interface IBannerConfig {
+interface IBannerConfig {
   image?: ResponsiveImage;
   href?: string;
   alt?: string;
@@ -146,12 +145,6 @@ export interface IAnnouncementBar {
 }
 
 // ---------- Site settings ----------
-
-export interface ISiteSettings extends Partial<TimestampFields> {
-  hero: IHeroConfig;
-  homepageBlocks: IHomepageBlock[];
-  announcementBar: IAnnouncementBar;
-}
 
 // ---------- Hydrated (storefront) ----------
 
