@@ -80,13 +80,11 @@ export function WishlistProvider({ children }: { children: React.ReactNode }) {
             next.delete(productId);
             return next;
           });
-          toast.success("Removed from wishlist");
         }
       } else {
         const res = await api.post(`/api/v1/user/wishlist/${productId}`);
         if (res.success) {
           setWishlistIds((prev) => new Set(prev).add(productId));
-          toast.success("Added to wishlist");
         }
       }
     } catch {
