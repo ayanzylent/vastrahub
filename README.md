@@ -45,21 +45,16 @@ vastrahub/
 │   ├── web/                  # Next.js 15 storefront & admin
 │   └── api/                  # Fastify v5 REST API
 ├── packages/
-│   ├── eslint-config/        # Shared ESLint flat config
-│   ├── shared-types/         # TypeScript type definitions
-│   └──shared-constants/     # Business constants & config
+│   └── eslint-config/        # Shared ESLint flat config
 │   
 ├── turbo.json                # Turborepo task pipeline
 ├── pnpm-workspace.yaml       # pnpm workspace config
 ├── tsconfig.base.json        # Shared TypeScript config
 ├── .env.example              # Environment variable template
-└── package.json              # Root package.json
+├── package.json              # Root package.json
 ```
 
 ### Shared Packages
-
-- **`@vastrahub/shared-types`** — TypeScript interfaces and enums for all domain entities (products, SKUs, orders, users, etc.)
-- **`@vastrahub/shared-constants`** — Business constants including order/payment state machines, GST slabs, Indian states, media constraints, currency formatting, and app config limits
 
 - **`@vastrahub/eslint-config`** — Shared ESLint flat configuration
 

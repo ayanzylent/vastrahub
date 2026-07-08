@@ -179,22 +179,6 @@ importers:
         specifier: ^8
         version: 8.60.0(eslint@9.39.4(jiti@2.7.0))(typescript@5.9.3)
 
-  packages/shared-constants:
-    dependencies:
-      '@vastrahub/shared-types':
-        specifier: workspace:*
-        version: link:../shared-types
-    devDependencies:
-      typescript:
-        specifier: ^5
-        version: 5.9.3
-
-  packages/shared-types:
-    devDependencies:
-      typescript:
-        specifier: ^5
-        version: 5.9.3
-
 packages:
 
   '@alloc/quick-lru@5.2.0':
