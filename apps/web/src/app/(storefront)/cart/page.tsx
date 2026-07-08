@@ -87,17 +87,106 @@ export default function CartPage() {
         <div className="lg:col-span-2 space-y-4">
           {cart.items.map((item: ICartItem) => (
             <Card key={item._id}>
-              <CardContent className="p-3 sm:p-4">
-                <div className="flex gap-3 sm:gap-4">
-                  {/* Item Image */}
-                  <div className="relative h-24 w-18 sm:h-28 sm:w-22 shrink-0 rounded-lg overflow-hidden bg-muted">
+              <CardContent className="p-4">
+                {/* Mobile Layout (below sm) */}
+                <div className="flex gap-3 sm:hidden">
+                  {/* Image */}
+                  <div className="relative h-24 w-18 shrink-0 rounded-lg overflow-hidden bg-muted">
                     {item.imageUrl ? (
                       <Image
                         src={getMediaUrl(item.imageUrl)}
                         alt={item.productName ?? ""}
                         fill
                         className="object-cover"
-                        sizes="(max-width: 640px) 72px, 88px"
+                        sizes="72px"
+                      />
+                    ) : (
+                      <div className="flex h-full w-full items-center justify-center text-primary/30 text-xl font-bold">
+                        {(item.productName ?? "P")[0]}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Item Details */}
+                  <div className="flex-1 min-w-0 flex flex-col justify-between">
+                    <div>
+                      <h3 className="text-sm font-medium line-clamp-2 leading-snug">{item.productName}</h3>
+                      {item.variantLabel && (
+                        <p className="text-xs text-muted-foreground mt-0.5">
+                          {item.variantLabel}
+                        </p>
+                      )}
+                      <div className="flex items-baseline gap-1.5 mt-1">
+                        <span className="text-sm font-semibold text-primary">
+                          {formatPrice(item.pricePaise ?? 0)}
+                        </span>
+                        {item.mrpPaise !== undefined && item.pricePaise !== undefined && item.mrpPaise > item.pricePaise && (
+                          <span className="text-[10px] text-muted-foreground line-through">
+                            {formatPrice(item.mrpPaise)}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Bottom Row: Quantity + Trash on left, Line Total on right */}
+                    <div className="flex items-end justify-between mt-2.5 gap-2">
+                      <div className="flex items-center gap-2">
+                        {/* Quantity Selector */}
+                        <div className="flex items-center gap-1">
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            className="h-7 w-7"
+                            disabled={item.quantity <= 1}
+                            onClick={() => updateItem(item.skuId, item.quantity - 1)}
+                          >
+                            <Minus className="h-3 w-3" />
+                          </Button>
+                          <span className="text-xs font-medium w-5 text-center">{item.quantity}</span>
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            className="h-7 w-7"
+                            disabled={item.quantity >= 10}
+                            onClick={() => updateItem(item.skuId, item.quantity + 1)}
+                          >
+                            <Plus className="h-3 w-3" />
+                          </Button>
+                        </div>
+
+                        {/* Trash Button */}
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-7 w-7 text-destructive hover:text-destructive/80"
+                          onClick={() => removeItem(item.skuId)}
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </Button>
+                      </div>
+
+                      {/* Line Total */}
+                      <div className="text-right">
+                        <span className="text-[9px] text-muted-foreground block leading-none">Total</span>
+                        <span className="text-sm font-bold text-foreground block mt-0.5">
+                          {formatPrice((item.pricePaise ?? 0) * item.quantity)}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Desktop Layout (sm and up) */}
+                <div className="hidden sm:flex gap-4">
+                  {/* Item Image */}
+                  <div className="relative h-28 w-22 shrink-0 rounded-lg overflow-hidden bg-muted">
+                    {item.imageUrl ? (
+                      <Image
+                        src={getMediaUrl(item.imageUrl)}
+                        alt={item.productName ?? ""}
+                        fill
+                        className="object-cover"
+                        sizes="88px"
                       />
                     ) : (
                       <div className="flex h-full w-full items-center justify-center text-primary/30 text-2xl font-bold">
@@ -108,11 +197,13 @@ export default function CartPage() {
 
                   {/* Item Details */}
                   <div className="flex-1 min-w-0">
-                    <h3 className="text-sm font-medium truncate">{item.productName}</h3>
-                    <p className="text-xs text-muted-foreground mt-0.5">
-                      {item.variantLabel}
-                    </p>
-                    <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5 mt-1.5">
+                    <h3 className="text-sm font-medium line-clamp-2 leading-snug">{item.productName}</h3>
+                    {item.variantLabel && (
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        {item.variantLabel}
+                      </p>
+                    )}
+                    <div className="flex items-baseline gap-2 mt-2">
                       <span className="text-sm font-bold text-primary">
                         {formatPrice(item.pricePaise ?? 0)}
                       </span>
@@ -124,8 +215,8 @@ export default function CartPage() {
                     </div>
 
                     {/* Quantity + Remove */}
-                    <div className="flex items-center justify-between mt-3 gap-2">
-                      <div className="flex items-center gap-1.5 sm:gap-2">
+                    <div className="flex items-center gap-4 mt-3">
+                      <div className="flex items-center gap-2">
                         <Button
                           variant="outline"
                           size="icon"
@@ -146,30 +237,19 @@ export default function CartPage() {
                           <Plus className="h-3 w-3" />
                         </Button>
                       </div>
-
-                      <div className="flex items-center gap-2 sm:gap-3">
-                        {/* Line Total (Mobile) */}
-                        <div className="sm:hidden text-right">
-                          <span className="text-[10px] text-muted-foreground block leading-none">Total</span>
-                          <span className="text-xs font-bold block mt-0.5">
-                            {formatPrice((item.pricePaise ?? 0) * item.quantity)}
-                          </span>
-                        </div>
-
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-7 w-7 text-destructive hover:text-destructive/80"
-                          onClick={() => removeItem(item.skuId)}
-                        >
-                          <Trash2 className="h-3.5 w-3.5" />
-                        </Button>
-                      </div>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-7 w-7 text-destructive hover:text-destructive/80"
+                        onClick={() => removeItem(item.skuId)}
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </Button>
                     </div>
                   </div>
 
-                  {/* Line Total (Desktop) */}
-                  <div className="hidden sm:block text-right shrink-0">
+                  {/* Line Total */}
+                  <div className="text-right shrink-0">
                     <span className="text-sm font-bold">
                       {formatPrice((item.pricePaise ?? 0) * item.quantity)}
                     </span>
