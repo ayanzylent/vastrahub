@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Search, ShoppingBag, User, Menu, LogOut, Heart, Settings } from "lucide-react";
+import { Search, ShoppingBag, User, Menu, LogOut, Heart, Settings, X } from "lucide-react";
 import { Logo } from "@/components/shared/logo";
 import { ThemeToggle } from "@/components/shared/theme-toggle";
 import { CartDrawer } from "@/components/shared/cart-drawer";
@@ -33,6 +33,7 @@ const navLinks = [
 
 export function Header() {
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const [showMobileSearch, setShowMobileSearch] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const { data: sessionData } = useSession();
   const user = sessionData?.user;
@@ -59,6 +60,7 @@ export function Header() {
     e.preventDefault();
     if (searchQuery.trim()) {
       router.push(`/categories/all?search=${encodeURIComponent(searchQuery.trim())}`);
+      setShowMobileSearch(false);
     }
   }
 
@@ -111,8 +113,13 @@ export function Header() {
             <ThemeToggle />
 
             {/* Search (Mobile) */}
-            <Button variant="ghost" size="icon" className="lg:hidden">
-              <Search className="h-5 w-5" />
+            <Button
+              variant="ghost"
+              size="icon"
+              className="lg:hidden"
+              onClick={() => setShowMobileSearch((prev) => !prev)}
+            >
+              {showMobileSearch ? <X className="h-5 w-5" /> : <Search className="h-5 w-5" />}
               <span className="sr-only">Search</span>
             </Button>
 
@@ -213,6 +220,25 @@ export function Header() {
             )}
           </div>
         </div>
+
+        {/* Mobile Search Input Panel */}
+        {showMobileSearch && (
+          <div className="lg:hidden border-t border-border/20 px-4 py-3 bg-background/95 backdrop-blur-md animate-in slide-in-from-top-2 duration-200">
+            <form onSubmit={handleSearch} className="flex items-center gap-2">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search sarees, lehengas, kurtas..."
+                  className="pl-10 bg-muted/50 border-transparent focus:border-primary/50 w-full"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  autoFocus
+                />
+              </div>
+              <Button type="submit" size="sm">Search</Button>
+            </form>
+          </div>
+        )}
       </header>
 
       {/* Mobile Nav Sheet */}
