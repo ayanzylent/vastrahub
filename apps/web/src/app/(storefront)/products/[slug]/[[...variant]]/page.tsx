@@ -91,6 +91,11 @@ export default function ProductDetailPage() {
 
   const mediaItems = useMemo(() => currentVariantGroup?.media || [], [currentVariantGroup]);
 
+  const activeIndex = useMemo(
+    () => Math.max(0, mediaItems.findIndex((item) => item.url === selectedMedia?.url)),
+    [mediaItems, selectedMedia]
+  );
+
   const [touchStartX, setTouchStartX] = useState(0);
   const [touchEndX, setTouchEndX] = useState(0);
 
@@ -284,35 +289,47 @@ export default function ProductDetailPage() {
             onTouchMove={handleTouchMove}
             onTouchEnd={handleTouchEnd}
           >
-            {selectedMedia ? (
-              selectedMedia.type === "video" ? (
-                <video
-                  src={getMediaUrl(selectedMedia.url)}
-                  controls
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <Image
-                  src={getMediaUrl(selectedMedia.url)}
-                  alt={selectedMedia.alt || product.name}
-                  fill
-                  className="object-cover"
-                  sizes="(max-width: 1024px) 100vw, 50vw"
-                  priority
-                />
-              )
-            ) : (
+            {mediaItems.length === 0 ? (
               <div className="flex h-full items-center justify-center">
                 <span className="text-6xl font-heading font-bold text-primary/20">
                   {product.name[0]}
                 </span>
+              </div>
+            ) : (
+              <div
+                className="flex w-full h-full"
+                style={{
+                  transform: `translateX(-${activeIndex * 100}%)`,
+                  transition: "transform 0.4s cubic-bezier(0.16, 1, 0.3, 1)",
+                }}
+              >
+                {mediaItems.map((item, idx) => (
+                  <div key={idx} className="relative w-full h-full shrink-0">
+                    {item.type === "video" ? (
+                      <video
+                        src={getMediaUrl(item.url)}
+                        controls
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <Image
+                        src={getMediaUrl(item.url)}
+                        alt={item.alt || product.name}
+                        fill
+                        className="object-cover"
+                        sizes="(max-width: 1024px) 100vw, 50vw"
+                        priority={idx === 0}
+                      />
+                    )}
+                  </div>
+                ))}
               </div>
             )}
 
             {/* Mobile swipe index indicator */}
             {mediaItems.length > 1 && selectedMedia && (
               <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-1.5 bg-black/60 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-semibold text-white tracking-wider pointer-events-none lg:hidden">
-                {mediaItems.findIndex((item) => item.url === selectedMedia.url) + 1} / {mediaItems.length}
+                {activeIndex + 1} / {mediaItems.length}
               </div>
             )}
           </div>
