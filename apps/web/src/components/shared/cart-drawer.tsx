@@ -16,7 +16,7 @@ import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { useCart } from "@/providers/CartProvider";
 import { formatPrice } from "@/lib/utils";
-import type { ICartItem } from "@vastrahub/shared-types";
+import type { ICartItem } from "@/types";
 
 export function CartDrawer() {
   const {

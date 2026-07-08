@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { api } from "@/lib/api";
 import { toast } from "sonner";
 import { getMediaUrl } from "@/lib/media";
-import type { ResponsiveImage } from "@vastrahub/shared-types";
+import type { ResponsiveImage } from "@/types";
 
 type Viewport = "desktop" | "tablet" | "mobile";
 

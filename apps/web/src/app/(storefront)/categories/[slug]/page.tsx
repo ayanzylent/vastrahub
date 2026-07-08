@@ -21,7 +21,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sh
 import { ProductCard, type ProductCardProduct } from "@/components/shared/product-card";
 import { Pagination } from "@/components/shared/pagination";
 import { api } from "@/lib/api";
-import type { ICategory, PaginatedResponse } from "@vastrahub/shared-types";
+import type { ICategory, PaginatedResponse } from "@/types";
 
 interface ProductWithSkus extends ProductCardProduct {
   skus?: Array<{ pricePaise: number; mrpPaise: number }>;

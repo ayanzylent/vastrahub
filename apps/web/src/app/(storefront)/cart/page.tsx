@@ -9,7 +9,7 @@ import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useCart } from "@/providers/CartProvider";
 import { formatPrice } from "@/lib/utils";
-import type { ICartItem } from "@vastrahub/shared-types";
+import type { ICartItem } from "@/types";
 
 export default function CartPage() {
   const { cart, loading, updateItem, removeItem, clearCart, itemCount } = useCart();

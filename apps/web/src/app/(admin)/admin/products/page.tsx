@@ -20,7 +20,7 @@ import { Pagination } from "@/components/shared/pagination";
 import { api } from "@/lib/api";
 import { formatPrice } from "@/lib/utils";
 import { toast } from "sonner";
-import type { IProduct, PaginatedResponse } from "@vastrahub/shared-types";
+import type { IProduct, PaginatedResponse } from "@/types";
 
 interface AdminProduct extends IProduct {
   category?: { name: string };

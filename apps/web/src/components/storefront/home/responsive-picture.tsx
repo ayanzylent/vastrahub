@@ -1,5 +1,5 @@
 import { getMediaUrl } from "@/lib/media";
-import type { ResponsiveImage } from "@vastrahub/shared-types";
+import type { ResponsiveImage } from "@/types";
 
 /**
  * Renders a per-viewport banner image via a real `<picture>` element so the

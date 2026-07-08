@@ -19,7 +19,7 @@ import { StatusBadge } from "@/components/shared/status-badge";
 import { api } from "@/lib/api";
 import { getMediaUrl } from "@/lib/media";
 import { formatPrice } from "@/lib/utils";
-import type { ICollection } from "@vastrahub/shared-types";
+import type { ICollection } from "@/types";
 
 interface PreviewProduct {
   _id: string;

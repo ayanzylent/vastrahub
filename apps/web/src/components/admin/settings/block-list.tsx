@@ -2,7 +2,7 @@
 
 import { ChevronUp, ChevronDown, Trash2, Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import type { BlockType, IHomepageBlock } from "@vastrahub/shared-types";
+import type { BlockType, IHomepageBlock } from "@/types";
 import { BLOCK_META, blockTitle } from "./block-meta";
 import { AddBlockMenu } from "./add-block-menu";
 

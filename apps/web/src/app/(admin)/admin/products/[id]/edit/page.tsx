@@ -33,7 +33,7 @@ import { api } from "@/lib/api";
 import { formatPrice } from "@/lib/utils";
 import { toast } from "sonner";
 import { getMediaUrl } from "@/lib/media";
-import type { IProduct, ISku, ICategory, IVariantOption } from "@vastrahub/shared-types";
+import type { IProduct, ISku, ICategory, IVariantOption } from "@/types";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 

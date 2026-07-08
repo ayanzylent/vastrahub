@@ -6,7 +6,7 @@ import Image from "next/image";
 import { api } from "@/lib/api";
 import { formatPrice } from "@/lib/utils";
 import { toast } from "sonner";
-import type { IOrder } from "@vastrahub/shared-types";
+import type { IOrder } from "@/types";
 import { ShoppingBag, ChevronRight, Loader2 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";

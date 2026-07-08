@@ -47,10 +47,7 @@ const nextConfig: NextConfig = {
       }
     ],
   },
-  transpilePackages: [
-    "@vastrahub/shared-types",
-    "@vastrahub/shared-constants",
-  ],
+
   serverExternalPackages: ["better-auth"],
 
   // Proxy /api/* through Next.js to the backend to avoid cross-origin cookies.

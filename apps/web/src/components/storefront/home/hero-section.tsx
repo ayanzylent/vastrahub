@@ -2,7 +2,7 @@ import Link from "next/link";
 import { ArrowRight, Sparkles, TrendingUp, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import type { IHeroConfig } from "@vastrahub/shared-types";
+import type { IHeroConfig } from "@/types";
 import { ResponsivePicture } from "./responsive-picture";
 
 /**

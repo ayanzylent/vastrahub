@@ -35,11 +35,11 @@ import {
 import { api } from "@/lib/api";
 import { formatPrice } from "@/lib/utils";
 import { toast } from "sonner";
-import type { IOrder } from "@vastrahub/shared-types";
+import type { IOrder } from "@/types";
 import {
   ORDER_STATUS_TRANSITIONS,
   type OrderStatusType,
-} from "@vastrahub/shared-constants";
+} from "@/constants";
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */

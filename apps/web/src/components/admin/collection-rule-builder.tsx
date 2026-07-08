@@ -10,7 +10,7 @@ import type {
   CollectionRuleField,
   CollectionRuleOperator,
   CollectionMatchMode,
-} from "@vastrahub/shared-types";
+} from "@/types";
 
 /**
  * Per-field metadata: which operators apply and how the value is entered.

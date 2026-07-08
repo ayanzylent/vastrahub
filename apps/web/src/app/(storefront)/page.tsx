@@ -1,5 +1,5 @@
-import type { IHeroConfig } from "@vastrahub/shared-types";
-import { DEFAULT_HERO } from "@vastrahub/shared-constants";
+import type { IHeroConfig } from "@/types";
+import { DEFAULT_HERO } from "@/constants";
 import { HeroSection } from "@/components/storefront/home/hero-section";
 import { HomepageBlocks } from "@/components/storefront/home/homepage-blocks";
 import { CtaBanner } from "@/components/storefront/home/cta-banner";

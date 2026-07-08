@@ -3,8 +3,8 @@
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
 import { toast } from "sonner";
-import { INDIAN_STATES } from "@vastrahub/shared-constants";
-import type { IAddress } from "@vastrahub/shared-types";
+import { INDIAN_STATES } from "@/constants";
+import type { IAddress } from "@/types";
 import {
   MapPin,
   Plus,

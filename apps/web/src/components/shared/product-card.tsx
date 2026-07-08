@@ -12,7 +12,7 @@ import { cn, formatPrice } from "@/lib/utils";
 import { getMediaUrl } from "@/lib/media";
 import { useWishlist } from "@/providers/WishlistProvider";
 import { useCart } from "@/providers/CartProvider";
-import type { IProduct, ISku, IVariantMedia } from "@vastrahub/shared-types";
+import type { IProduct, ISku, IVariantMedia } from "@/types";
 
 export interface ProductCardProduct {
   _id: string;

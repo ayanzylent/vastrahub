@@ -6,7 +6,7 @@ import {
   Image as ImageIcon,
   type LucideIcon,
 } from "lucide-react";
-import type { BlockType, IHomepageBlock } from "@vastrahub/shared-types";
+import type { BlockType, IHomepageBlock } from "@/types";
 
 export interface BlockMeta {
   type: BlockType;

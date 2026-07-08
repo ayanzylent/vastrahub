@@ -2,9 +2,9 @@
 
 import React, { createContext, useContext, useState, useCallback, useEffect } from "react";
 import { api } from "@/lib/api";
-import type { ICart, ICartItem } from "@vastrahub/shared-types";
+import type { ICart, ICartItem } from "@/types";
 import { toast } from "sonner";
-import { BRAND_CONFIG } from "@vastrahub/shared-constants";
+import { BRAND_CONFIG } from "@/constants";
 
 interface CartContextValue {
   cart: ICart | null;

@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label";
 import { signUp } from "@/lib/auth-client";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
-import { BRAND_CONFIG } from "@vastrahub/shared-constants";
+import { BRAND_CONFIG } from "@/constants";
 
 export default function SignupPage() {
   const router = useRouter();

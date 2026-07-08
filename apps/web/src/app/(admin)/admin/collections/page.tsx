@@ -13,7 +13,7 @@ import { DeleteConfirmationDialog } from "@/components/shared/delete-confirmatio
 import { api } from "@/lib/api";
 import { toast } from "sonner";
 import { getMediaUrl } from "@/lib/media";
-import type { ICollection } from "@vastrahub/shared-types";
+import type { ICollection } from "@/types";
 
 export default function AdminCollectionsPage() {
   const router = useRouter();

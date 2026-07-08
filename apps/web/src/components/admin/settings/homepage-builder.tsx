@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import type { BlockType, IHomepageBlock } from "@vastrahub/shared-types";
+import type { BlockType, IHomepageBlock } from "@/types";
 import { BlockList } from "./block-list";
 import { BlockEditor } from "./block-editor";
 import { BLOCK_META, createBlock } from "./block-meta";

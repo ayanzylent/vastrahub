@@ -7,7 +7,7 @@ import Image from "next/image";
 import { api } from "@/lib/api";
 import { formatPrice } from "@/lib/utils";
 import { toast } from "sonner";
-import { OrderStatus, type IOrder } from "@vastrahub/shared-types";
+import { OrderStatus, type IOrder } from "@/types";
 import {
   ChevronLeft,
   MapPin,

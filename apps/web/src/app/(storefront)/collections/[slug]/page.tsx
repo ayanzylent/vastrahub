@@ -22,7 +22,7 @@ import { ProductCard, type ProductCardProduct } from "@/components/shared/produc
 import { Pagination } from "@/components/shared/pagination";
 import { api } from "@/lib/api";
 import { getMediaUrl } from "@/lib/media";
-import type { ICollection } from "@vastrahub/shared-types";
+import type { ICollection } from "@/types";
 
 interface ProductWithSkus extends ProductCardProduct {
   skus?: Array<{ pricePaise: number; mrpPaise: number }>;

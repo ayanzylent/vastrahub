@@ -1,4 +1,4 @@
-import type { IHydratedHomepageBlock } from "@vastrahub/shared-types";
+import type { IHydratedHomepageBlock } from "@/types";
 import { CategoryShowcaseBlock } from "./blocks/category-showcase-block";
 import { CollectionShowcaseBlock } from "./blocks/collection-showcase-block";
 import { FeaturedProductsBlock } from "./blocks/featured-products-block";

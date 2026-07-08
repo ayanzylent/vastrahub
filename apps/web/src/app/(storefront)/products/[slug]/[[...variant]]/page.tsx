@@ -16,7 +16,7 @@ import { api } from "@/lib/api";
 import { useCart } from "@/providers/CartProvider";
 import { useWishlist } from "@/providers/WishlistProvider";
 import { toast } from "sonner";
-import type { IProduct, ISku, ICategory, IMediaItem } from "@vastrahub/shared-types";
+import type { IProduct, ISku, ICategory, IMediaItem } from "@/types";
 
 /**
  * The server returns the product (or redirect info) at the TOP level of the response JSON:

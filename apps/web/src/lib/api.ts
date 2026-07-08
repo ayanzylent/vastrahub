@@ -1,5 +1,5 @@
-import type { ApiResponse, PaginatedResponse } from "@vastrahub/shared-types";
-import { BRAND_CONFIG } from "@vastrahub/shared-constants";
+import type { ApiResponse, PaginatedResponse } from "@/types";
+import { BRAND_CONFIG } from "@/constants";
 
 /**
  * API base URL — uses same-origin when proxying is enabled (NEXT_PUBLIC_API_PROXY="true"),

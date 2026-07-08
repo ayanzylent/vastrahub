@@ -3,7 +3,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import type { IAnnouncementBar, AnnouncementTone } from "@vastrahub/shared-types";
+import type { IAnnouncementBar, AnnouncementTone } from "@/types";
 import { FieldToggle } from "./field-toggle";
 
 const TONES: Array<{ value: AnnouncementTone; label: string }> = [

@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { X } from "lucide-react";
 import { api } from "@/lib/api";
-import type { IAnnouncementBar, AnnouncementTone } from "@vastrahub/shared-types";
+import type { IAnnouncementBar, AnnouncementTone } from "@/types";
 
 const TONE_CLASSES: Record<AnnouncementTone, string> = {
   default: "bg-foreground text-background",

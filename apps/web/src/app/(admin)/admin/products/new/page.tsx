@@ -23,8 +23,8 @@ import { Badge } from "@/components/ui/badge";
 import { api } from "@/lib/api";
 import { toast } from "sonner";
 import { getMediaUrl } from "@/lib/media";
-import type { ICategory, IVariantOption } from "@vastrahub/shared-types";
-import { BRAND_CONFIG } from "@vastrahub/shared-constants";
+import type { ICategory, IVariantOption } from "@/types";
+import { BRAND_CONFIG } from "@/constants";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 

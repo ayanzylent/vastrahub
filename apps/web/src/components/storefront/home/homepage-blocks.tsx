@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
-import type { IHydratedSiteSettings } from "@vastrahub/shared-types";
+import type { IHydratedSiteSettings } from "@/types";
 import { BlockRenderer } from "./block-renderer";
 import { Skeleton } from "@/components/ui/skeleton";
 

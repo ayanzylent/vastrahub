@@ -14,7 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { api } from "@/lib/api";
 import { toast } from "sonner";
-import type { ISku } from "@vastrahub/shared-types";
+import type { ISku } from "@/types";
 
 interface VariantOptionLocal {
   name: string;

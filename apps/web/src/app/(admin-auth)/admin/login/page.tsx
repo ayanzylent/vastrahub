@@ -12,7 +12,7 @@ import { toast } from "sonner";
 import { Loader2, ShieldCheck, Lock, ArrowLeft } from "lucide-react";
 import { api } from "@/lib/api";
 import Link from "next/link";
-import { BRAND_CONFIG } from "@vastrahub/shared-constants";
+import { BRAND_CONFIG } from "@/constants";
 
 function AdminLoginForm() {
   const searchParams = useSearchParams();

@@ -17,7 +17,7 @@ import {
 import { Pagination } from "@/components/shared/pagination";
 import { api } from "@/lib/api";
 import { formatPrice } from "@/lib/utils";
-import type { IOrder, PaginatedResponse } from "@vastrahub/shared-types";
+import type { IOrder, PaginatedResponse } from "@/types";
 
 
 interface AdminOrder extends Omit<IOrder, "paymentId"> {

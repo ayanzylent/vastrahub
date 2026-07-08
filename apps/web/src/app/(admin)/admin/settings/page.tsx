@@ -16,8 +16,8 @@ import {
 import { api } from "@/lib/api";
 import { toast } from "sonner";
 import { toEmbedSrc } from "@/lib/video-embed";
-import type { IHeroConfig, IHomepageBlock, IAnnouncementBar } from "@vastrahub/shared-types";
-import { DEFAULT_HERO, DEFAULT_ANNOUNCEMENT_BAR } from "@vastrahub/shared-constants";
+import type { IHeroConfig, IHomepageBlock, IAnnouncementBar } from "@/types";
+import { DEFAULT_HERO, DEFAULT_ANNOUNCEMENT_BAR } from "@/constants";
 import { HeroEditor } from "@/components/admin/settings/hero-editor";
 import { HomepageBuilder } from "@/components/admin/settings/homepage-builder";
 import { AnnouncementBarEditor } from "@/components/admin/settings/announcement-bar-editor";

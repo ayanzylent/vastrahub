@@ -1,4 +1,4 @@
-import type { IVideoEmbedBlock } from "@vastrahub/shared-types";
+import type { IVideoEmbedBlock } from "@/types";
 import { toEmbedSrc } from "@/lib/video-embed";
 
 export function VideoEmbedBlock({ block }: { block: IVideoEmbedBlock }) {

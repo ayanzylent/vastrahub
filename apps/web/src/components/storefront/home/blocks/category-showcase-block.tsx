@@ -3,7 +3,7 @@ import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { getMediaUrl } from "@/lib/media";
-import type { ICategoryShowcaseBlock, ICategory } from "@vastrahub/shared-types";
+import type { ICategoryShowcaseBlock, ICategory } from "@/types";
 
 export function CategoryShowcaseBlock({
   block,

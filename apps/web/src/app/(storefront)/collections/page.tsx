@@ -7,7 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { api } from "@/lib/api";
 import { getMediaUrl } from "@/lib/media";
-import type { ICollection } from "@vastrahub/shared-types";
+import type { ICollection } from "@/types";
 
 export default function CollectionsIndexPage() {
   const [collections, setCollections] = useState<ICollection[]>([]);

@@ -1,6 +1,6 @@
 "use client";
 
-import { BRAND_CONFIG } from "@vastrahub/shared-constants";
+import { BRAND_CONFIG } from "@/constants";
 
 const GUEST_ID_KEY = BRAND_CONFIG.GUEST_ID_KEY;
 

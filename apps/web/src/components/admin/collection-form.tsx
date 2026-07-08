@@ -25,7 +25,7 @@ import type {
   ICollectionRule,
   CollectionType,
   CollectionMatchMode,
-} from "@vastrahub/shared-types";
+} from "@/types";
 import {
   CollectionProductPicker,
   type PickerProduct,

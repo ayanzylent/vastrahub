@@ -1,5 +1,5 @@
 import { ProductCard, type ProductCardProduct } from "@/components/shared/product-card";
-import type { IFeaturedProductsBlock, IProduct } from "@vastrahub/shared-types";
+import type { IFeaturedProductsBlock, IProduct } from "@/types";
 
 export function FeaturedProductsBlock({
   block,

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Logo } from "@/components/shared/logo";
 import { Separator } from "@/components/ui/separator";
-import { BRAND_CONFIG } from "@vastrahub/shared-constants";
+import { BRAND_CONFIG } from "@/constants";
 
 const footerLinks = {
   shop: [

@@ -1,7 +1,7 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import type { IHeroConfig, BlockAlignment } from "@vastrahub/shared-types";
+import type { IHeroConfig, BlockAlignment } from "@/types";
 import { ResponsiveImageField } from "./responsive-image-field";
 import { TextField, TextAreaField, Segmented, CtaFields, SectionLabel } from "./fields";
 

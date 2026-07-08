@@ -2,7 +2,7 @@
 
 import { useCallback, useRef } from "react";
 import { api } from "@/lib/api";
-import type { ICategory, ICollection } from "@vastrahub/shared-types";
+import type { ICategory, ICollection } from "@/types";
 import { OrderedPicker, type PickerItem } from "./ordered-picker";
 
 interface PickerProps {

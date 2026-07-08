@@ -8,7 +8,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import type { BlockType } from "@vastrahub/shared-types";
+import type { BlockType } from "@/types";
 import { BLOCK_META, BLOCK_TYPES } from "./block-meta";
 
 export function AddBlockMenu({ onAdd }: { onAdd: (type: BlockType) => void }) {

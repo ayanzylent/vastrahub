@@ -14,10 +14,10 @@ import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-import { INDIAN_STATES } from "@vastrahub/shared-constants";
+import { INDIAN_STATES } from "@/constants";
 import { toast } from "sonner";
 import { MapPin, CreditCard, ChevronRight, Loader2, Plus, Sparkles, AlertCircle } from "lucide-react";
-import type { IAddress, ApiResponse } from "@vastrahub/shared-types";
+import type { IAddress, ApiResponse } from "@/types";
 
 interface CheckoutItem {
   productId: string;

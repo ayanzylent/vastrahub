@@ -13,7 +13,7 @@ import type {
   IBannerBlock,
   VideoProvider,
   IVideoEmbedItem,
-} from "@vastrahub/shared-types";
+} from "@/types";
 import { ResponsiveImageField } from "./responsive-image-field";
 import { CategoryPicker, CollectionPicker, ProductPicker } from "./item-pickers";
 import { toEmbedSrc } from "@/lib/video-embed";

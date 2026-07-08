@@ -1,5 +1,5 @@
 import Link from "next/link";
-import type { IBannerBlock } from "@vastrahub/shared-types";
+import type { IBannerBlock } from "@/types";
 import { ResponsivePicture } from "../responsive-picture";
 
 /**

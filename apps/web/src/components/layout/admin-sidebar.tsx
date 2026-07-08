@@ -43,7 +43,7 @@ import {
 } from "@/components/ui/sidebar";
 import { useSession, signOut } from "@/lib/auth-client";
 import { toast } from "sonner";
-import { BRAND_CONFIG } from "@vastrahub/shared-constants";
+import { BRAND_CONFIG } from "@/constants";
 
 type NavItem = {
   label: string;

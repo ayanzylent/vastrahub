@@ -20,7 +20,7 @@ import { DeleteConfirmationDialog } from "@/components/shared/delete-confirmatio
 import { api } from "@/lib/api";
 import { toast } from "sonner";
 import { getMediaUrl } from "@/lib/media";
-import { ICategory } from "@vastrahub/shared-types";
+import { ICategory } from "@/types";
 
 export default function AdminCategoriesPage() {
   const [categories, setCategories] = useState<ICategory[]>([]);

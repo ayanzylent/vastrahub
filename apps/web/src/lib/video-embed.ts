@@ -1,4 +1,4 @@
-import type { VideoProvider } from "@vastrahub/shared-types";
+import type { VideoProvider } from "@/types";
 
 /**
  * Safe social-video embedding.

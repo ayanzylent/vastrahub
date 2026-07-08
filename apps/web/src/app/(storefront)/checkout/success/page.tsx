@@ -10,8 +10,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { CheckCircle2, ShoppingBag, Truck, Calendar, Sparkles, Loader2, ArrowRight, XCircle, Clock } from "lucide-react";
-import type { IOrder, IOrderItem } from "@vastrahub/shared-types";
-import { BRAND_CONFIG } from "@vastrahub/shared-constants";
+import type { IOrder, IOrderItem } from "@/types";
+import { BRAND_CONFIG } from "@/constants";
 
 /** Resolved payment state shown to the buyer. */
 type PaymentState = "paid" | "failed" | "processing";

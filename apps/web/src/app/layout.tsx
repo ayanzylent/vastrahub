@@ -3,7 +3,7 @@ import { ThemeProvider } from "next-themes";
 import { inter, outfit } from "@/lib/fonts";
 import { Toaster } from "@/components/ui/sonner";
 import { AppProviders } from "@/providers/AppProviders";
-import { BRAND_CONFIG } from "@vastrahub/shared-constants";
+import { BRAND_CONFIG } from "@/constants";
 import "./globals.css";
 
 export const metadata: Metadata = {

@@ -1,5 +1,5 @@
 import { Badge } from "@/components/ui/badge";
-import { OrderStatus } from "@vastrahub/shared-types";
+import { OrderStatus } from "@/types";
 import { cn } from "@/lib/utils";
 
 /** Human-readable label for each order status. */
