@@ -18,9 +18,9 @@ interface MobileNavProps {
 
 const mobileLinks = [
   { label: "Home", href: "/", icon: Home },
-  { label: "Categories", href: "/categories/all", icon: Tag },
+  { label: "Categories", href: "/categories", icon: Tag },
   { label: "Collections", href: "/collections", icon: LayoutGrid },
-  { label: "New Arrivals", href: "/categories/new-arrivals", icon: ShoppingBag },
+  { label: "New Arrivals", href: "/shop?sortBy=newest", icon: ShoppingBag },
   { label: "Wishlist", href: "/account/wishlist", icon: Heart },
   { label: "My Account", href: "/account/profile", icon: User },
   { label: "Sign In", href: "/login", icon: LogIn },

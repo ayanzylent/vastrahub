@@ -77,7 +77,7 @@ export default function OrdersPage() {
             Start shopping to see your order history here.
           </p>
           <Button asChild>
-            <Link href="/categories/all">Continue Shopping</Link>
+            <Link href="/shop">Continue Shopping</Link>
           </Button>
         </CardContent>
       </Card>

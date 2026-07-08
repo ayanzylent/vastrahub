@@ -26,9 +26,9 @@ import { toast } from "sonner";
 
 const navLinks = [
   { label: "Home", href: "/" },
-  { label: "Categories", href: "/categories/all" },
+  { label: "Categories", href: "/categories" },
   { label: "Collections", href: "/collections" },
-  { label: "New Arrivals", href: "/categories/new-arrivals" },
+  { label: "New Arrivals", href: "/shop?sortBy=newest" },
 ];
 
 export function Header() {
@@ -59,7 +59,7 @@ export function Header() {
   function handleSearch(e: React.FormEvent) {
     e.preventDefault();
     if (searchQuery.trim()) {
-      router.push(`/categories/all?search=${encodeURIComponent(searchQuery.trim())}`);
+      router.push(`/shop?search=${encodeURIComponent(searchQuery.trim())}`);
       setShowMobileSearch(false);
     }
   }

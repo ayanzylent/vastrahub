@@ -5,7 +5,7 @@ import { BRAND_CONFIG } from "@/constants";
 
 const footerLinks = {
   shop: [
-    { label: "New Arrivals", href: "/categories/new-arrivals" },
+    { label: "New Arrivals", href: "/shop?sortBy=newest" },
     { label: "Collections", href: "/collections" },
     { label: "Sarees", href: "/categories/sarees" },
     { label: "Lehengas", href: "/categories/lehengas" },

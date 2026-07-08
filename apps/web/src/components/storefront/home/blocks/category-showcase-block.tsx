@@ -26,7 +26,7 @@ export function CategoryShowcaseBlock({
             {c.subtitle && <p className="mt-2 text-muted-foreground">{c.subtitle}</p>}
           </div>
           <Button variant="ghost" asChild>
-            <Link href="/categories/all">
+            <Link href="/categories">
               View All <ArrowRight className="ml-1 h-4 w-4" />
             </Link>
           </Button>

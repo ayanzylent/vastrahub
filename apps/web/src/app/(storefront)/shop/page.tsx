@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState, useCallback } from "react";
-import { useParams, useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useState, useCallback, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { SlidersHorizontal, ChevronDown, X, Package } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -21,7 +21,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sh
 import { ProductCard, type ProductCardProduct } from "@/components/shared/product-card";
 import { Pagination } from "@/components/shared/pagination";
 import { api } from "@/lib/api";
-import type { ICategory, PaginatedResponse } from "@/types";
+import type { PaginatedResponse } from "@/types";
 
 interface ProductWithSkus extends ProductCardProduct {
   skus?: Array<{ pricePaise: number; mrpPaise: number }>;
@@ -34,13 +34,10 @@ const sortOptions = [
   { label: "Rating", value: "rating" },
 ];
 
-export default function CategoryPage() {
-  const params = useParams();
+function ShopContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const slug = params.slug as string;
 
-  const [category, setCategory] = useState<ICategory | null>(null);
   const [products, setProducts] = useState<ProductWithSkus[]>([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(Number(searchParams.get("page")) || 1);
@@ -53,8 +50,11 @@ export default function CategoryPage() {
   const [search, setSearch] = useState(searchParams.get("search") || "");
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
 
-  const categoryName = category?.name ||
-    slug.split("-").map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
+  // Sync search query param updates
+  useEffect(() => {
+    const searchVal = searchParams.get("search") || "";
+    setSearch(searchVal);
+  }, [searchParams]);
 
   const fetchProducts = useCallback(async () => {
     setLoading(true);
@@ -63,16 +63,12 @@ export default function CategoryPage() {
       params.set("page", String(page));
       params.set("limit", "12");
       if (sortBy) params.set("sortBy", sortBy);
-      if (slug) {
-        params.set("categorySlug", slug);
-      }
       if (minPrice) params.set("minPricePaise", String(Number(minPrice) * 100));
       if (maxPrice) params.set("maxPricePaise", String(Number(maxPrice) * 100));
       if (inStockOnly) params.set("inStock", "true");
       if (search) params.set("search", search);
 
       const res = await api.get<PaginatedResponse<ProductWithSkus>>(`/api/v1/storefront/products?${params.toString()}`);
-      // The API response itself IS the paginated response at the top level
       const data = res as unknown as PaginatedResponse<ProductWithSkus>;
       if (data.success && data.data) {
         setProducts(data.data);
@@ -86,15 +82,7 @@ export default function CategoryPage() {
     } finally {
       setLoading(false);
     }
-  }, [page, sortBy, slug, minPrice, maxPrice, inStockOnly, search]);
-
-  useEffect(() => {
-    if (slug) {
-      api.get<ICategory>(`/api/v1/storefront/categories/${slug}`).then((res) => {
-        if (res.success && res.data) setCategory(res.data);
-      });
-    }
-  }, [slug]);
+  }, [page, sortBy, minPrice, maxPrice, inStockOnly, search]);
 
   useEffect(() => {
     fetchProducts();
@@ -201,33 +189,26 @@ export default function CategoryPage() {
       <nav className="mb-6 flex items-center gap-2 text-sm text-muted-foreground">
         <Link href="/" className="hover:text-foreground">Home</Link>
         <span>/</span>
-        <Link href="/categories" className="hover:text-foreground">Categories</Link>
-        <span>/</span>
-        <span className="text-foreground">{categoryName}</span>
+        <span className="text-foreground">Shop</span>
       </nav>
 
       {/* Header */}
       <div className="mb-8">
-        <h1 className="font-heading text-3xl md:text-4xl font-bold">{categoryName}</h1>
-        {category?.description && (
-          <p className="mt-2 text-muted-foreground">{category.description}</p>
-        )}
-        {!category?.description && (
-          <p className="mt-2 text-muted-foreground">
-            Explore our curated collection of {categoryName.toLowerCase()}
-          </p>
-        )}
+        <h1 className="font-heading text-3xl md:text-4xl font-bold">Shop All</h1>
+        <p className="mt-2 text-muted-foreground">
+          Browse our full catalog of handcrafted sarees, premium designer wear, and exclusive heritage collections.
+        </p>
       </div>
 
       <div className="flex gap-8">
-        {/* ─── Filter Sidebar (Desktop) ─── */}
+        {/* Filter Sidebar (Desktop) */}
         <aside className="hidden lg:block w-64 shrink-0">
           <div className="sticky top-24">
             <FilterContent />
           </div>
         </aside>
 
-        {/* ─── Product Grid ─── */}
+        {/* Product Grid */}
         <div className="flex-1">
           {/* Toolbar */}
           <div className="mb-6 flex items-center justify-between">
@@ -364,5 +345,31 @@ export default function CategoryPage() {
         </SheetContent>
       </Sheet>
     </div>
+  );
+}
+
+export default function ShopPage() {
+  return (
+    <Suspense fallback={
+      <div className="mx-auto max-w-7xl px-4 md:px-6 py-12">
+        <div className="space-y-4 max-w-lg mx-auto py-20 text-center">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mt-8">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <Card key={i} className="overflow-hidden opacity-50">
+                <CardContent className="p-0">
+                  <Skeleton className="aspect-[3/4] w-full rounded-none" />
+                  <div className="p-4 space-y-2">
+                    <Skeleton className="h-4 w-3/4" />
+                    <Skeleton className="h-3 w-1/2" />
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </div>
+    }>
+      <ShopContent />
+    </Suspense>
   );
 }

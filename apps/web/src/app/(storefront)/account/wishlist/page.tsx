@@ -203,7 +203,7 @@ export default function WishlistPage() {
               Browse the collection and tap the heart to save items.
             </p>
             <Button asChild>
-              <Link href="/categories/all">Explore Products</Link>
+              <Link href="/shop">Explore Products</Link>
             </Button>
           </CardContent>
         </Card>

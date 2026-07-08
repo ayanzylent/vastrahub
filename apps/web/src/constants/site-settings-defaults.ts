@@ -7,8 +7,8 @@ export const DEFAULT_HERO: IHeroConfig = {
   subheading:
     "Discover handpicked elegance from India's finest weavers and designers. From heritage handlooms to contemporary chic — your wardrobe transformation starts here.",
   alignment: 'center',
-  primaryCta: { label: 'Shop New Arrivals', href: '/categories/new-arrivals' },
-  secondaryCta: { label: 'Explore Collections', href: '/categories/all' },
+  primaryCta: { label: 'Shop New Arrivals', href: '/shop?sortBy=newest' },
+  secondaryCta: { label: 'Explore Collections', href: '/shop' },
 };
 
 /** Announcement bar is off until an admin configures it. */
