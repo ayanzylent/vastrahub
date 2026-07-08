@@ -170,8 +170,8 @@ export async function addItem(owner: CartOwner, input: AddItemInput) {
 
   // Get product for verification
   const product = await Product.findById(sku.productId).lean() as IProductDocument | null;
-  if (!product) {
-    throw new NotFoundError('Product not found');
+  if (!product || !product.isActive || product.deletedAt) {
+    throw new NotFoundError('Product not found or not available');
   }
 
   const cart = await getOrCreateCart(owner);

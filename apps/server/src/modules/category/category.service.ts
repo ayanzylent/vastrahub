@@ -375,6 +375,16 @@ export async function deleteCategory(id: string) {
     );
   }
 
+  // Check no category has this category in their ancestors list (prevents orphaned ancestor references)
+  const referringCategories = await Category.countDocuments({
+    'ancestors._id': category._id,
+  });
+  if (referringCategories > 0) {
+    throw new ConflictError(
+      `Cannot delete category as it is still referenced in the ancestors list of ${referringCategories} category/categories.`,
+    );
+  }
+
   // Hard delete the category
   await Category.deleteOne({ _id: category._id });
 

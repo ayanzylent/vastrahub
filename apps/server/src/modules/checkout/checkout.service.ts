@@ -4,7 +4,7 @@
 
 import crypto from 'node:crypto';
 import mongoose from 'mongoose';
-import { Order, Payment, Sku, Address } from '../../db/models/index.js';
+import { Order, Payment, Sku, Address, Product } from '../../db/models/index.js';
 import type { IOrderDocument, IPaymentDocument, IShippingAddress } from '../../db/models/index.js';
 import { NotFoundError, ValidationError } from '../../lib/errors.js';
 import { getRazorpay } from '../../lib/razorpay.js';
@@ -34,6 +34,13 @@ export async function validateCart(userId: string) {
     const sku = await Sku.findById(item.skuId).lean();
     
     if (!sku || !sku.isActive || sku.deletedAt) {
+      outOfStockItems.push({ skuId: String(item.skuId), available: 0, requested: item.quantity });
+      continue;
+    }
+
+    // Verify parent product is active and not deleted
+    const product = await Product.findById(sku.productId).lean();
+    if (!product || !product.isActive || product.deletedAt) {
       outOfStockItems.push({ skuId: String(item.skuId), available: 0, requested: item.quantity });
       continue;
     }

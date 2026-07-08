@@ -48,6 +48,10 @@ export function softDeletePlugin(schema: Schema): void {
 
   for (const method of queryMiddleware) {
     schema.pre(method, function (this: Query<unknown, unknown>, next: (err?: CallbackError) => void) {
+      if (this.getOptions()._softDeleteBypassed) {
+        return next();
+      }
+
       const filter = this.getFilter();
       // Only add the filter if deletedAt is not explicitly queried
       if (filter.deletedAt === undefined) {
@@ -78,7 +82,7 @@ export function softDeletePlugin(schema: Schema): void {
 
   // Static method: findWithDeleted (bypasses the auto-filter)
   schema.static('findWithDeleted', function (filter: Record<string, unknown> = {}) {
-    return this.find({ ...filter, deletedAt: { $exists: true } }).setOptions({
+    return this.find(filter).setOptions({
       _softDeleteBypassed: true,
     });
   });

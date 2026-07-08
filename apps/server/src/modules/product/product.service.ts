@@ -40,7 +40,7 @@ export interface CreateProductInput {
       sortOrder: number;
       thumbnailUrl?: string | null;
       durationSecs?: number | null;
-      mimeType?: string | null;
+      mimeType: string;
     }>;
     isCoverGroup: boolean;
   }>;
@@ -107,13 +107,23 @@ export async function createProduct(data: CreateProductInput) {
     throw new ValidationError('Visual attribute name (image gallery axis) is required.');
   }
 
-  // Validate variantMedia has exactly 1 isCoverGroup=true
+  // Validate variantMedia has exactly 1 isCoverGroup=true and all media items have mimeType
   if (data.variantMedia && data.variantMedia.length > 0) {
     const coverGroups = data.variantMedia.filter((vm) => vm.isCoverGroup);
     if (coverGroups.length !== 1) {
       throw new ValidationError(
         `variantMedia must have exactly one entry with isCoverGroup=true (found ${coverGroups.length})`,
       );
+    }
+
+    for (const vm of data.variantMedia) {
+      if (vm.media) {
+        for (const m of vm.media) {
+          if (!m.mimeType) {
+            throw new ValidationError('Each media item must have a valid mimeType.');
+          }
+        }
+      }
     }
   }
 
@@ -300,6 +310,16 @@ export async function updateProduct(id: string, data: UpdateProductInput, userId
         `variantMedia must have exactly one entry with isCoverGroup=true (found ${coverGroups.length})`,
       );
     }
+
+    for (const vm of data.variantMedia) {
+      if (vm.media) {
+        for (const m of vm.media) {
+          if (!m.mimeType) {
+            throw new ValidationError('Each media item must have a valid mimeType.');
+          }
+        }
+      }
+    }
   }
 
   // Combine for deep link validation
@@ -422,6 +442,21 @@ export async function deleteProduct(id: string) {
   const product = await Product.findById(id);
   if (!product) {
     throw new NotFoundError('Product not found');
+  }
+
+  const OrderModel = mongoose.model('Order');
+  const activeOrderCount = await OrderModel.countDocuments({
+    'items.productId': product._id,
+    status: { $in: ['pending', 'confirmed', 'processing', 'shipped', 'return_requested'] },
+  });
+  if (activeOrderCount > 0) {
+    if (product.isActive) {
+      product.isActive = false;
+      await product.save();
+    }
+    throw new ConflictError(
+      `Cannot delete product "${product.name}" as it has SKUs referenced in ${activeOrderCount} active order(s). It has been deactivated to prevent new orders.`,
+    );
   }
 
   const now = new Date();

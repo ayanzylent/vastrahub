@@ -3,7 +3,7 @@
  */
 
 import mongoose from 'mongoose';
-import { Sku, Product } from '../../db/models/index.js';
+import { Sku, Product, Order } from '../../db/models/index.js';
 import type { ISkuDocument } from '../../db/models/index.js';
 import { NotFoundError, ValidationError, ConflictError } from '../../lib/errors.js';
 
@@ -126,8 +126,11 @@ export async function createSku(productId: string, data: CreateSkuInput) {
     throw new ValidationError('Price cannot exceed MRP');
   }
 
-  // Check SKU code uniqueness
-  const existingSku = await Sku.findOne({ sku: data.sku.toUpperCase() }).lean();
+  // Check SKU code uniqueness (including soft-deleted SKUs to avoid unique index crash)
+  const existingSku = await Sku.findOne({
+    sku: data.sku.toUpperCase(),
+    deletedAt: { $exists: true },
+  }).lean();
   if (existingSku) {
     throw new ConflictError(`SKU code "${data.sku}" is already in use`);
   }
@@ -338,6 +341,21 @@ export async function deleteSku(id: string) {
     throw new NotFoundError('SKU not found');
   }
 
+  // Check if SKU is used in any active orders
+  const activeOrderCount = await Order.countDocuments({
+    'items.skuId': sku._id,
+    status: { $in: ['pending', 'confirmed', 'processing', 'shipped', 'return_requested'] },
+  });
+  if (activeOrderCount > 0) {
+    if (sku.isActive) {
+      sku.isActive = false;
+      await sku.save();
+    }
+    throw new ConflictError(
+      `Cannot delete SKU "${sku.sku}" as it is referenced in ${activeOrderCount} active order(s). It has been deactivated to prevent new orders.`,
+    );
+  }
+
   if (typeof (sku as ISkuDocument & { softDelete: () => Promise<void> }).softDelete === 'function') {
     await (sku as ISkuDocument & { softDelete: () => Promise<void> }).softDelete();
   } else {
@@ -393,10 +411,10 @@ export async function generateSkuCode(productId: string, attributes: Record<stri
     throw new NotFoundError('Product not found');
   }
 
-  // Build prefix from product slug (uppercase, truncate)
+  // Build prefix from product slug (uppercase, replace hyphens with underscores, truncate)
   const slugPrefix = product.slug
     .toUpperCase()
-    .replace(/-/g, '-')
+    .replace(/-/g, '_')
     .slice(0, 20);
 
   // Build suffix from attribute values in the order of variantOptions
@@ -410,14 +428,22 @@ export async function generateSkuCode(productId: string, attributes: Record<stri
 
   const baseSku = [slugPrefix, ...attrParts].join('-');
 
-  // Check uniqueness and find available code
+  // Check uniqueness and find available code (including soft-deleted SKUs to avoid unique index crash)
   let candidate = baseSku;
   let suffix = 1;
-  while (true) {
-    const existing = await Sku.findOne({ sku: candidate }).lean();
+  const maxAttempts = 100;
+  while (suffix <= maxAttempts) {
+    const existing = await Sku.findOne({
+      sku: candidate,
+      deletedAt: { $exists: true },
+    }).lean();
     if (!existing) break;
     suffix++;
     candidate = `${baseSku}-${suffix}`;
+  }
+
+  if (suffix > maxAttempts) {
+    throw new ConflictError('Could not generate a unique SKU code after 100 attempts.');
   }
 
   return candidate;
