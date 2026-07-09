@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { Search, Clock, Sparkles, X, CornerDownLeft } from "lucide-react";
+import { Search, Clock, Sparkles, X, CornerDownLeft, ArrowLeft } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -97,16 +97,29 @@ export function SearchDialog({ open, onOpenChange }: SearchDialogProps) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent showCloseButton={false} className="p-0 overflow-hidden max-w-lg bg-background border border-border shadow-2xl">
+      <DialogContent
+        showCloseButton={false}
+        className="p-0 overflow-hidden max-sm:fixed max-sm:top-0! max-sm:left-0! max-sm:translate-x-0! max-sm:translate-y-0! max-sm:w-full! max-sm:h-full! max-sm:max-w-none! max-sm:max-h-none! max-sm:rounded-none! max-sm:border-0! flex flex-col gap-0 sm:max-w-lg bg-background border border-border shadow-2xl"
+      >
         <DialogTitle className="sr-only">Search Products</DialogTitle>
         <form
           onSubmit={(e) => {
             e.preventDefault();
             handleSearchSubmit(query);
           }}
-          className="flex items-center border-b border-border px-4 py-3"
+          className="flex items-center border-b border-border px-4 py-3 shrink-0"
         >
-          <Search className="h-5 w-5 text-muted-foreground mr-3 shrink-0" />
+          {/* Back button on mobile */}
+          <button
+            type="button"
+            onClick={() => onOpenChange(false)}
+            className="sm:hidden mr-2.5 p-1 hover:bg-muted rounded-full text-muted-foreground hover:text-foreground shrink-0 transition-colors cursor-pointer"
+          >
+            <ArrowLeft className="h-5 w-5" />
+          </button>
+
+          <Search className="h-5 w-5 text-muted-foreground mr-3 shrink-0 hidden sm:block" />
+          
           <Input
             ref={inputRef}
             placeholder="Search sarees, lehengas, kurtas..."
@@ -125,16 +138,16 @@ export function SearchDialog({ open, onOpenChange }: SearchDialogProps) {
               <X className="h-4 w-4 text-muted-foreground" />
             </Button>
           )}
-          <kbd className="pointer-events-none hidden sm:inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium opacity-100 mr-1 text-muted-foreground">
+          <kbd className="pointer-events-none hidden sm:inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium opacity-100 mr-1 text-muted-foreground animate-in fade-in-50 duration-200">
             esc
           </kbd>
-          <Button type="submit" size="sm" variant="default" className="text-xs gap-1 shrink-0">
+          <Button type="submit" size="sm" variant="default" className="hidden sm:flex text-xs gap-1 shrink-0">
             Search
             <CornerDownLeft className="h-3 w-3" />
           </Button>
         </form>
 
-        <div className="max-h-[350px] overflow-y-auto p-4 space-y-6">
+        <div className="flex-1 overflow-y-auto p-4 space-y-6 sm:max-h-[350px]">
           {/* Recent Searches */}
           {recentSearches.length > 0 && (
             <div>
@@ -194,7 +207,7 @@ export function SearchDialog({ open, onOpenChange }: SearchDialogProps) {
         </div>
 
         {/* Keyboard Helper Footer */}
-        <div className="border-t border-border px-4 py-2.5 bg-muted/30 flex items-center justify-between text-[11px] text-muted-foreground">
+        <div className="border-t border-border px-4 py-2.5 bg-muted/30 hidden sm:flex items-center justify-between text-[11px] text-muted-foreground shrink-0">
           <div className="flex items-center gap-1">
             <span>Tip: Press</span>
             <kbd className="px-1.5 py-0.5 rounded bg-muted border font-mono text-[9px]">Ctrl</kbd>
