@@ -168,10 +168,10 @@ export default function WishlistPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="font-heading text-xl font-semibold">
+        <h1 className="font-heading text-2xl font-bold md:text-3xl">
           Wishlist{products.length > 0 ? ` (${products.length})` : ""}
-        </h2>
-        <p className="text-sm text-muted-foreground">
+        </h1>
+        <p className="mt-1 text-sm text-muted-foreground md:text-base">
           Items you&apos;ve saved for later.
         </p>
       </div>

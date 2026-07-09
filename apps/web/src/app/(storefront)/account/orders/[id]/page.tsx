@@ -164,9 +164,9 @@ export default function OrderDetailPage() {
         </Button>
         <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
           <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-            <h2 className="font-heading text-lg font-semibold break-all md:text-xl">
+            <h1 className="font-heading text-2xl font-bold break-all md:text-3xl">
               {order.orderNumber}
-            </h2>
+            </h1>
             <OrderStatusBadge status={order.status} />
           </div>
           <p className="text-sm text-muted-foreground">

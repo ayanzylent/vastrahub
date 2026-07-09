@@ -22,7 +22,7 @@ const mobileLinks = [
   { label: "Collections", href: "/collections", icon: LayoutGrid },
   { label: "New Arrivals", href: "/shop?sortBy=newest", icon: ShoppingBag },
   { label: "Wishlist", href: "/account/wishlist", icon: Heart },
-  { label: "My Account", href: "/account/profile", icon: User },
+  { label: "Profile", href: "/account/profile", icon: User },
   { label: "Sign In", href: "/login", icon: LogIn },
 ];
 

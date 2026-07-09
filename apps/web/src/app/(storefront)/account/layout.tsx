@@ -36,15 +36,8 @@ export default function AccountLayout({
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-6 md:px-6 md:py-8">
-      <h1 className="font-heading text-2xl font-bold md:text-3xl">My Account</h1>
-      <p className="mt-1 text-sm text-muted-foreground md:text-base">
-        Manage your profile, orders, addresses, and security settings.
-      </p>
-
-      <div className="mt-6 md:mt-8">
-        {/* Content pane */}
-        <div className="min-w-0">{children}</div>
-      </div>
+      {/* Content pane */}
+      <div className="min-w-0">{children}</div>
     </div>
   );
 }

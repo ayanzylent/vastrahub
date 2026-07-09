@@ -87,8 +87,8 @@ export default function OrdersPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="font-heading text-xl font-semibold">Order History</h2>
-        <p className="text-sm text-muted-foreground">
+        <h1 className="font-heading text-2xl font-bold md:text-3xl">Orders</h1>
+        <p className="mt-1 text-sm text-muted-foreground md:text-base">
           View and manage your past orders.
         </p>
       </div>

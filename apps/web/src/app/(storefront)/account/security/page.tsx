@@ -80,8 +80,8 @@ export default function SecurityPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="font-heading text-xl font-semibold">Security</h2>
-        <p className="text-sm text-muted-foreground">
+        <h1 className="font-heading text-2xl font-bold md:text-3xl">Security</h1>
+        <p className="mt-1 text-sm text-muted-foreground md:text-base">
           Manage your password and account security.
         </p>
       </div>

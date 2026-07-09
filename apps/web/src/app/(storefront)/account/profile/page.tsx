@@ -118,6 +118,13 @@ export default function ProfilePage() {
 
   return (
     <div className="space-y-6">
+      <div>
+        <h1 className="font-heading text-2xl font-bold md:text-3xl">Profile</h1>
+        <p className="mt-1 text-sm text-muted-foreground md:text-base">
+          Manage your personal information and contact details.
+        </p>
+      </div>
+
       {/* Identity card */}
       <Card>
         <CardContent className="flex items-center gap-4 pt-6">
