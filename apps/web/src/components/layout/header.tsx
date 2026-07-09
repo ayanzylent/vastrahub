@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Search, ShoppingBag, User, Menu, LogOut, Heart, Settings } from "lucide-react";
+import { Search, ShoppingBag, User, Menu, LogOut, Heart, Settings, MapPin, Lock } from "lucide-react";
 import { Logo } from "@/components/shared/logo";
 import { ThemeToggle } from "@/components/shared/theme-toggle";
 import { CartDrawer } from "@/components/shared/cart-drawer";
@@ -116,13 +116,6 @@ export function Header() {
               <span className="sr-only">Search</span>
             </Button>
 
-            {/* Wishlist */}
-            <Button variant="ghost" size="icon" asChild>
-              <Link href="/account/wishlist">
-                <Heart className="h-5 w-5" />
-                <span className="sr-only">Wishlist</span>
-              </Link>
-            </Button>
 
             {/* Cart */}
             <Button variant="ghost" size="icon" className="relative" onClick={openDrawer}>
@@ -177,6 +170,18 @@ export function Header() {
                     <Link href="/account/wishlist" className="cursor-pointer">
                       <Heart className="mr-2 h-4 w-4" />
                       Wishlist
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/account/addresses" className="cursor-pointer">
+                      <MapPin className="mr-2 h-4 w-4" />
+                      Addresses
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/account/security" className="cursor-pointer">
+                      <Lock className="mr-2 h-4 w-4" />
+                      Security
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
