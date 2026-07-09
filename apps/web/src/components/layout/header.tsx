@@ -41,11 +41,11 @@ export function Header() {
 
   const userInitials = user?.name
     ? user.name
-        .split(" ")
-        .map((n) => n[0])
-        .join("")
-        .toUpperCase()
-        .slice(0, 2)
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase()
+      .slice(0, 2)
     : "U";
 
   async function handleSignOut() {
@@ -182,12 +182,6 @@ export function Header() {
                     <Link href="/account/security" className="cursor-pointer">
                       <Lock className="mr-2 h-4 w-4" />
                       Security
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link href="/cart" className="cursor-pointer">
-                      <ShoppingBag className="mr-2 h-4 w-4" />
-                      Cart
                     </Link>
                   </DropdownMenuItem>
                   {user.role === "admin" || user.role === "superadmin" ? (
