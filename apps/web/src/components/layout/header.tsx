@@ -3,12 +3,11 @@
 import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Search, ShoppingBag, User, Menu, LogOut, Heart, Settings, X } from "lucide-react";
+import { Search, ShoppingBag, User, Menu, LogOut, Heart, Settings } from "lucide-react";
 import { Logo } from "@/components/shared/logo";
 import { ThemeToggle } from "@/components/shared/theme-toggle";
 import { CartDrawer } from "@/components/shared/cart-drawer";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -20,6 +19,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { MobileNav } from "@/components/layout/mobile-nav";
+import { SearchDialog } from "@/components/layout/search-dialog";
 import { useSession, signOut } from "@/lib/auth-client";
 import { useCart } from "@/providers/CartProvider";
 import { toast } from "sonner";
@@ -33,8 +33,7 @@ const navLinks = [
 
 export function Header() {
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
-  const [showMobileSearch, setShowMobileSearch] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchDialogOpen, setSearchDialogOpen] = useState(false);
   const { data: sessionData } = useSession();
   const user = sessionData?.user;
   const { itemCount, openDrawer } = useCart();
@@ -54,14 +53,6 @@ export function Header() {
     toast.success("Signed out successfully");
     router.push("/");
     router.refresh();
-  }
-
-  function handleSearch(e: React.FormEvent) {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      router.push(`/shop?search=${encodeURIComponent(searchQuery.trim())}`);
-      setShowMobileSearch(false);
-    }
   }
 
   return (
@@ -95,31 +86,33 @@ export function Header() {
             ))}
           </nav>
 
-          {/* Search Bar (Desktop) */}
-          <form onSubmit={handleSearch} className="hidden lg:flex flex-1 max-w-md mx-4">
-            <div className="relative w-full">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Search sarees, lehengas, kurtas..."
-                className="pl-10 bg-muted/50 border-transparent focus:border-primary/50"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
+          {/* Search Bar (Desktop Trigger) */}
+          <button
+            type="button"
+            onClick={() => setSearchDialogOpen(true)}
+            className="hidden lg:flex items-center justify-between w-full max-w-md mx-4 px-3.5 py-1.5 bg-muted/40 hover:bg-muted/70 border border-border/50 rounded-lg text-muted-foreground text-sm transition-all text-left group cursor-pointer"
+          >
+            <div className="flex items-center gap-2">
+              <Search className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors" />
+              <span>Search sarees, lehengas, kurtas...</span>
             </div>
-          </form>
+            <kbd className="pointer-events-none inline-flex h-5 select-none items-center gap-0.5 rounded border bg-background px-1.5 font-mono text-[9px] font-medium text-muted-foreground/80 opacity-100">
+              Ctrl K
+            </kbd>
+          </button>
 
           {/* Actions */}
           <div className="flex items-center gap-1">
             <ThemeToggle />
 
-            {/* Search (Mobile) */}
+            {/* Search (Mobile Trigger) */}
             <Button
               variant="ghost"
               size="icon"
               className="lg:hidden"
-              onClick={() => setShowMobileSearch((prev) => !prev)}
+              onClick={() => setSearchDialogOpen(true)}
             >
-              {showMobileSearch ? <X className="h-5 w-5" /> : <Search className="h-5 w-5" />}
+              <Search className="h-5 w-5" />
               <span className="sr-only">Search</span>
             </Button>
 
@@ -221,24 +214,6 @@ export function Header() {
           </div>
         </div>
 
-        {/* Mobile Search Input Panel */}
-        {showMobileSearch && (
-          <div className="lg:hidden border-t border-border/20 px-4 py-3 bg-background/95 backdrop-blur-md animate-in slide-in-from-top-2 duration-200">
-            <form onSubmit={handleSearch} className="flex items-center gap-2">
-              <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="Search sarees, lehengas, kurtas..."
-                  className="pl-10 bg-muted/50 border-transparent focus:border-primary/50 w-full"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  autoFocus
-                />
-              </div>
-              <Button type="submit" size="sm">Search</Button>
-            </form>
-          </div>
-        )}
       </header>
 
       {/* Mobile Nav Sheet */}
@@ -246,6 +221,9 @@ export function Header() {
 
       {/* Cart Drawer */}
       <CartDrawer />
+
+      {/* Search Command Dialog Overlay */}
+      <SearchDialog open={searchDialogOpen} onOpenChange={setSearchDialogOpen} />
     </>
   );
 }
