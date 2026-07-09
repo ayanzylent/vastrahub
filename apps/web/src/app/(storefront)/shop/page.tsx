@@ -2,15 +2,12 @@
 
 import Link from "next/link";
 import { useEffect, useState, useCallback, Suspense } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { SlidersHorizontal, ChevronDown, X, Package } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -20,6 +17,7 @@ import {
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { ProductCard, type ProductCardProduct } from "@/components/shared/product-card";
 import { Pagination } from "@/components/shared/pagination";
+import { FilterSidebar } from "@/components/shared/filter-sidebar";
 import { api } from "@/lib/api";
 import type { PaginatedResponse } from "@/types";
 
@@ -35,7 +33,6 @@ const sortOptions = [
 ];
 
 function ShopContent() {
-  const router = useRouter();
   const searchParams = useSearchParams();
 
   const [products, setProducts] = useState<ProductWithSkus[]>([]);
@@ -47,14 +44,8 @@ function ShopContent() {
   const [minPrice, setMinPrice] = useState(searchParams.get("minPrice") || "");
   const [maxPrice, setMaxPrice] = useState(searchParams.get("maxPrice") || "");
   const [inStockOnly, setInStockOnly] = useState(searchParams.get("inStock") === "true");
-  const [search, setSearch] = useState(searchParams.get("search") || "");
+  const search = searchParams.get("search") || "";
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
-
-  // Sync search query param updates
-  useEffect(() => {
-    const searchVal = searchParams.get("search") || "";
-    setSearch(searchVal);
-  }, [searchParams]);
 
   const fetchProducts = useCallback(async () => {
     setLoading(true);
@@ -98,90 +89,20 @@ function ShopContent() {
     setPage(1);
   }
 
-  function handleApplyFilters() {
+  function handleApplyFilters(min: string, max: string, stock: boolean) {
+    setMinPrice(min);
+    setMaxPrice(max);
+    setInStockOnly(stock);
     setPage(1);
     setMobileFilterOpen(false);
-    fetchProducts();
   }
 
   function handleClearFilters() {
     setMinPrice("");
     setMaxPrice("");
     setInStockOnly(false);
-    setSearch("");
     setPage(1);
   }
-
-  const FilterContent = () => (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h2 className="text-sm font-semibold flex items-center gap-2">
-          <SlidersHorizontal className="h-4 w-4" />
-          Filters
-        </h2>
-        <button
-          className="text-xs text-primary hover:underline"
-          onClick={handleClearFilters}
-        >
-          Clear All
-        </button>
-      </div>
-
-      <Separator />
-
-      {/* Search */}
-      <div>
-        <Label className="text-sm font-medium mb-2 block">Search</Label>
-        <Input
-          placeholder="Search products..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="text-sm"
-        />
-      </div>
-
-      <Separator />
-
-      {/* Price Range */}
-      <div>
-        <Label className="text-sm font-medium mb-3 block">Price Range (₹)</Label>
-        <div className="flex gap-2">
-          <Input
-            type="number"
-            placeholder="Min"
-            value={minPrice}
-            onChange={(e) => setMinPrice(e.target.value)}
-            className="text-sm"
-          />
-          <span className="flex items-center text-muted-foreground">–</span>
-          <Input
-            type="number"
-            placeholder="Max"
-            value={maxPrice}
-            onChange={(e) => setMaxPrice(e.target.value)}
-            className="text-sm"
-          />
-        </div>
-      </div>
-
-      <Separator />
-
-      {/* In Stock */}
-      <label className="flex items-center gap-2 cursor-pointer">
-        <input
-          type="checkbox"
-          checked={inStockOnly}
-          onChange={(e) => setInStockOnly(e.target.checked)}
-          className="rounded border-border bg-transparent text-primary focus:ring-primary/20"
-        />
-        <span className="text-sm">In Stock Only</span>
-      </label>
-
-      <Button variant="default" className="w-full" onClick={handleApplyFilters}>
-        Apply Filters
-      </Button>
-    </div>
-  );
 
   return (
     <div className="mx-auto max-w-7xl px-4 md:px-6 py-8">
@@ -194,9 +115,13 @@ function ShopContent() {
 
       {/* Header */}
       <div className="mb-8">
-        <h1 className="font-heading text-3xl md:text-4xl font-bold">Shop All</h1>
+        <h1 className="font-heading text-3xl md:text-4xl font-bold">
+          {search ? `Search Results for "${search}"` : "Shop All"}
+        </h1>
         <p className="mt-2 text-muted-foreground">
-          Browse our full catalog of handcrafted sarees, premium designer wear, and exclusive heritage collections.
+          {search
+            ? `Showing products matching "${search}"`
+            : "Browse our full catalog of handcrafted sarees, premium designer wear, and exclusive heritage collections."}
         </p>
       </div>
 
@@ -204,7 +129,13 @@ function ShopContent() {
         {/* Filter Sidebar (Desktop) */}
         <aside className="hidden lg:block w-64 shrink-0">
           <div className="sticky top-24">
-            <FilterContent />
+            <FilterSidebar
+              minPrice={minPrice}
+              maxPrice={maxPrice}
+              inStockOnly={inStockOnly}
+              onApply={handleApplyFilters}
+              onClear={handleClearFilters}
+            />
           </div>
         </aside>
 
@@ -256,24 +187,30 @@ function ShopContent() {
           </div>
 
           {/* Active filters */}
-          {(minPrice || maxPrice || inStockOnly || search) && (
+          {(minPrice || maxPrice || inStockOnly) && (
             <div className="mb-4 flex flex-wrap gap-2">
-              {search && (
-                <Badge variant="secondary" className="gap-1">
-                  Search: {search}
-                  <X className="h-3 w-3 cursor-pointer" onClick={() => { setSearch(""); setPage(1); }} />
-                </Badge>
-              )}
               {(minPrice || maxPrice) && (
                 <Badge variant="secondary" className="gap-1">
                   ₹{minPrice || "0"} – ₹{maxPrice || "∞"}
-                  <X className="h-3 w-3 cursor-pointer" onClick={() => { setMinPrice(""); setMaxPrice(""); setPage(1); }} />
+                  <button
+                    type="button"
+                    onClick={() => { setMinPrice(""); setMaxPrice(""); setPage(1); }}
+                    className="ml-1 rounded-full p-0.5 hover:bg-black/10 dark:hover:bg-white/10 transition-colors text-muted-foreground hover:text-foreground"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
                 </Badge>
               )}
               {inStockOnly && (
                 <Badge variant="secondary" className="gap-1">
                   In Stock
-                  <X className="h-3 w-3 cursor-pointer" onClick={() => { setInStockOnly(false); setPage(1); }} />
+                  <button
+                    type="button"
+                    onClick={() => { setInStockOnly(false); setPage(1); }}
+                    className="ml-1 rounded-full p-0.5 hover:bg-black/10 dark:hover:bg-white/10 transition-colors text-muted-foreground hover:text-foreground"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
                 </Badge>
               )}
             </div>
@@ -335,12 +272,19 @@ function ShopContent() {
 
       {/* Mobile Filter Sheet */}
       <Sheet open={mobileFilterOpen} onOpenChange={setMobileFilterOpen}>
-        <SheetContent side="left" className="w-[300px] overflow-y-auto">
-          <SheetHeader>
-            <SheetTitle>Filters</SheetTitle>
+        <SheetContent side="right" className="w-full sm:max-w-md p-0 flex flex-col h-full gap-0 bg-background">
+          <SheetHeader className="border-b px-6 py-4 flex flex-row items-center justify-between shrink-0">
+            <SheetTitle className="text-lg font-semibold">Filters</SheetTitle>
           </SheetHeader>
-          <div className="mt-4">
-            <FilterContent />
+          <div className="flex-1 overflow-hidden">
+            <FilterSidebar
+              minPrice={minPrice}
+              maxPrice={maxPrice}
+              inStockOnly={inStockOnly}
+              onApply={handleApplyFilters}
+              onClear={handleClearFilters}
+              isMobile={true}
+            />
           </div>
         </SheetContent>
       </Sheet>
