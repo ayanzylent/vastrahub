@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/shared/password-input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { signIn } from "@/lib/auth-client";
@@ -143,9 +144,8 @@ function AdminLoginForm() {
                 <Label htmlFor="admin-password" className="text-foreground">
                   Password
                 </Label>
-                <Input
+                <PasswordInput
                   id="admin-password"
-                  type="password"
                   placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
