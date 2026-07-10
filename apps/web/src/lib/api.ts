@@ -82,7 +82,7 @@ async function request<T>(
 
       return {
         success: false,
-        error: errorData.error ?? errorData.message ?? `Request failed with status ${response.status}`,
+        error: errorData.message ?? errorData.error ?? `Request failed with status ${response.status}`,
         data: undefined as unknown as T,
         statusCode: response.status,
       };
@@ -136,6 +136,16 @@ async function paginatedRequest<T>(
 
   try {
     const response = await fetch(url, fetchOptions);
+
+    if (!response.ok) {
+      return {
+        success: false,
+        data: [],
+        pagination: { page: 1, limit: 20, total: 0, totalPages: 0, hasNextPage: false, hasPrevPage: false },
+        statusCode: response.status,
+      };
+    }
+
     return response.json() as Promise<PaginatedResponse<T>>;
   } catch {
     return {
