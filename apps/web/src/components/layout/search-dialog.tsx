@@ -6,6 +6,7 @@ import { Search, Clock, Sparkles, X, CornerDownLeft, ArrowLeft } from "lucide-re
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { BRAND_CONFIG } from "@/constants";
 
 interface SearchDialogProps {
   open: boolean;
@@ -30,7 +31,7 @@ export function SearchDialog({ open, onOpenChange }: SearchDialogProps) {
   useEffect(() => {
     if (typeof window !== "undefined") {
       try {
-        const stored = localStorage.getItem("vastrahub_recent_searches");
+        const stored = localStorage.getItem(BRAND_CONFIG.RECENT_SEARCH_KEY);
         if (stored) {
           setRecentSearches(JSON.parse(stored));
         }
@@ -71,7 +72,7 @@ export function SearchDialog({ open, onOpenChange }: SearchDialogProps) {
     const updated = [trimmed, ...recentSearches.filter((s) => s !== trimmed)].slice(0, 5);
     setRecentSearches(updated);
     if (typeof window !== "undefined") {
-      localStorage.setItem("vastrahub_recent_searches", JSON.stringify(updated));
+      localStorage.setItem(BRAND_CONFIG.RECENT_SEARCH_KEY, JSON.stringify(updated));
     }
 
     onOpenChange(false);
@@ -82,7 +83,7 @@ export function SearchDialog({ open, onOpenChange }: SearchDialogProps) {
     e.stopPropagation();
     setRecentSearches([]);
     if (typeof window !== "undefined") {
-      localStorage.removeItem("vastrahub_recent_searches");
+      localStorage.removeItem(BRAND_CONFIG.RECENT_SEARCH_KEY);
     }
   };
 
@@ -91,7 +92,7 @@ export function SearchDialog({ open, onOpenChange }: SearchDialogProps) {
     const updated = recentSearches.filter((s) => s !== itemToRemove);
     setRecentSearches(updated);
     if (typeof window !== "undefined") {
-      localStorage.setItem("vastrahub_recent_searches", JSON.stringify(updated));
+      localStorage.setItem(BRAND_CONFIG.RECENT_SEARCH_KEY, JSON.stringify(updated));
     }
   };
 
@@ -119,7 +120,7 @@ export function SearchDialog({ open, onOpenChange }: SearchDialogProps) {
           </button>
 
           <Search className="h-5 w-5 text-muted-foreground mr-3 shrink-0 hidden sm:block" />
-          
+
           <Input
             ref={inputRef}
             placeholder="Search sarees, lehengas, kurtas..."

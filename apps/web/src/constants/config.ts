@@ -6,4 +6,5 @@ export const BRAND_CONFIG = {
   META_TITLE: 'VastraHub | Premium Indian Fashion',
   META_DESCRIPTION: "Discover premium Indian fashion at VastraHub. Shop handpicked sarees, lehengas, kurtas, and more from India's finest weavers and designers.",
   GUEST_ID_KEY: 'vastrahub_guest_id',
+  RECENT_SEARCH_KEY: 'vastrahub_recent_searches'
 } as const;
