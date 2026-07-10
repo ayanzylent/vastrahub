@@ -22,5 +22,5 @@ export async function handlePurge(request: FastifyRequest, reply: FastifyReply) 
       : `[PURGE] Purged ${result.productsDeleted} products, ${result.skusDeleted} SKUs`,
   );
 
-  reply.send({ success: true, data: result });
+  return reply.status(200).send({ success: true, data: result, statusCode: 200 });
 }

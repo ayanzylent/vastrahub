@@ -8,9 +8,10 @@ import {
   getPaymentByOrderId,
 } from './payment.service.js';
 import { getConfig } from '../../config/env.js';
+import { ValidationError } from '../../lib/errors.js';
 
 export async function verify(request: FastifyRequest, reply: FastifyReply) {
-  return reply.status(400).send({ error: 'Razorpay payment verification is disabled.' });
+  throw new ValidationError('Razorpay payment verification is disabled.', 'PAYMENT_DISABLED');
   /*
   const body = request.body as {
     gatewayName?: 'razorpay' | 'icici';
@@ -40,7 +41,7 @@ export async function verify(request: FastifyRequest, reply: FastifyReply) {
 }
 
 export async function razorpayWebhook(request: FastifyRequest, reply: FastifyReply) {
-  return reply.status(400).send({ error: 'Razorpay webhooks are disabled.' });
+  throw new ValidationError('Razorpay webhooks are disabled.', 'WEBHOOKS_DISABLED');
   /*
   const signature = request.headers['x-razorpay-signature'] as string;
   if (!signature) {
@@ -76,7 +77,7 @@ export async function iciciWebhook(request: FastifyRequest, reply: FastifyReply)
   const result = await handleIciciWebhook(fields);
 
   if (!result.received) {
-    return reply.status(400).send({ error: 'Invalid webhook signature' });
+    throw new ValidationError('Invalid webhook signature', 'INVALID_SIGNATURE');
   }
 
   // Per ICICI spec: return HTTP 200 to stop webhook retries.
@@ -117,7 +118,7 @@ export async function iciciStatus(request: FastifyRequest, reply: FastifyReply) 
   const { orderId } = request.params as { orderId: string };
 
   const result = await getIciciPaymentStatusForUser(orderId, userId);
-  return reply.status(200).send(result);
+  return reply.status(200).send({ success: true, data: result, statusCode: 200 });
 }
 
 export async function getStatus(request: FastifyRequest, reply: FastifyReply) {
@@ -125,7 +126,7 @@ export async function getStatus(request: FastifyRequest, reply: FastifyReply) {
   const { orderId } = request.params as { orderId: string };
 
   const result = await getPaymentByOrderId(orderId, userId);
-  return reply.status(200).send(result);
+  return reply.status(200).send({ success: true, data: result, statusCode: 200 });
 }
 
 /** Resolve the storefront base URL (first origin if several are configured). */
