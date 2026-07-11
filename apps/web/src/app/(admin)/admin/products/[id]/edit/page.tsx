@@ -18,6 +18,7 @@ import {
   Image as ImageIcon,
   RefreshCw,
   Upload,
+  Star,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -73,6 +74,10 @@ export default function EditProductPage() {
   const [careInstructions, setCareInstructions] = useState("");
   const [isFeatured, setIsFeatured] = useState(false);
   const [isActive, setIsActive] = useState(true);
+
+  // ── Ratings fields ──────────────────────────────────────────────────────
+  const [averageRating, setAverageRating] = useState("0");
+  const [reviewCount, setReviewCount] = useState("0");
 
   // ── SEO fields ────────────────────────────────────────────────────────────
   const [metaTitle, setMetaTitle] = useState("");
@@ -136,6 +141,8 @@ export default function EditProductPage() {
       setCareInstructions(p.careInstructions ?? "");
       setIsFeatured(p.isFeatured ?? false);
       setIsActive(p.isActive ?? true);
+      setAverageRating(String(p.averageRating ?? 0));
+      setReviewCount(String(p.reviewCount ?? 0));
       setMetaTitle(p.metadata?.metaTitle ?? "");
       setMetaDescription(
         p.metadata?.metaDescription ?? ""
@@ -296,6 +303,39 @@ export default function EditProductPage() {
       }
     } catch {
       toast.error("Failed to save SEO");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  // ─── Save Ratings ───────────────────────────────────────────────────────
+
+  async function handleSaveRatings() {
+    const rating = parseFloat(averageRating);
+    const count = parseInt(reviewCount);
+    if (isNaN(rating) || rating < 0 || rating > 5) {
+      toast.error("Average rating must be between 0 and 5");
+      return;
+    }
+    if (isNaN(count) || count < 0) {
+      toast.error("Review count must be a non-negative number");
+      return;
+    }
+    setSaving(true);
+    try {
+      const body = {
+        averageRating: Math.round(rating * 10) / 10,
+        reviewCount: count,
+      };
+      const res = await api.put(`/api/v1/admin/products/${productId}`, body);
+      if (res.success) {
+        toast.success("Ratings updated");
+        setProduct((p) => (p ? { ...p, ...body } : p));
+      } else {
+        toast.error(res.error ?? "Failed to save ratings");
+      }
+    } catch {
+      toast.error("Failed to save ratings");
     } finally {
       setSaving(false);
     }
@@ -688,6 +728,7 @@ export default function EditProductPage() {
             { value: "variants", label: "Variants & Media" },
             { value: "skus", label: `SKUs (${skus.length})` },
             { value: "settings", label: "SEO & Slug" },
+            { value: "ratings", label: "Ratings" },
           ].map((tab) => (
             <TabsTrigger
               key={tab.value}
@@ -1357,6 +1398,87 @@ export default function EditProductPage() {
                 <Button variant="default" onClick={handleSaveSeo} disabled={saving}>
                   {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                   Save SEO
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* ── Tab: Ratings ────────────────────────────────────────────── */}
+        <TabsContent value="ratings" className="space-y-5">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base flex items-center gap-2">
+                <Star className="h-4 w-4 text-amber-500" />
+                Ratings & Reviews
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <p className="text-sm text-muted-foreground">
+                Manually control the displayed average rating and review count for this product.
+                These values are typically auto-calculated from customer reviews, but you can
+                override them here.
+              </p>
+
+              {/* Star preview */}
+              <div className="flex items-center gap-4 p-4 rounded-lg border border-border bg-muted/30">
+                <div className="flex items-center gap-0.5">
+                  {[1, 2, 3, 4, 5].map((star) => {
+                    const rating = parseFloat(averageRating) || 0;
+                    const filled = star <= Math.floor(rating);
+                    const partial = !filled && star === Math.ceil(rating) && rating % 1 > 0;
+                    return (
+                      <Star
+                        key={star}
+                        className={`h-6 w-6 ${
+                          filled
+                            ? "text-amber-400 fill-amber-400"
+                            : partial
+                            ? "text-amber-400 fill-amber-400/50"
+                            : "text-muted-foreground/30"
+                        }`}
+                      />
+                    );
+                  })}
+                </div>
+                <div className="text-sm">
+                  <span className="font-semibold text-lg">{(parseFloat(averageRating) || 0).toFixed(1)}</span>
+                  <span className="text-muted-foreground ml-1.5">({reviewCount} reviews)</span>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Average Rating (0 – 5)</Label>
+                  <Input
+                    type="number"
+                    min="0"
+                    max="5"
+                    step="0.1"
+                    value={averageRating}
+                    onChange={(e) => setAverageRating(e.target.value)}
+                    placeholder="e.g. 4.2"
+                  />
+                  <p className="text-xs text-muted-foreground">Decimal value between 0 and 5</p>
+                </div>
+                <div className="space-y-2">
+                  <Label>Review Count</Label>
+                  <Input
+                    type="number"
+                    min="0"
+                    step="1"
+                    value={reviewCount}
+                    onChange={(e) => setReviewCount(e.target.value)}
+                    placeholder="e.g. 150"
+                  />
+                  <p className="text-xs text-muted-foreground">Total number of ratings displayed</p>
+                </div>
+              </div>
+
+              <div className="flex justify-end">
+                <Button variant="default" onClick={handleSaveRatings} disabled={saving}>
+                  {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  Save Ratings
                 </Button>
               </div>
             </CardContent>
