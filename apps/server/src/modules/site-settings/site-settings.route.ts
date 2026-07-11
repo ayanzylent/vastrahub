@@ -1,17 +1,16 @@
 /**
  * Site settings route plugin.
- * Admin: read / full-replace update / reset the singleton settings.
- * Storefront: read the hydrated homepage settings (public).
+ * Admin: read / full-replace / reset the singleton settings.
+ * Storefront: public reads for hero, homepage blocks, announcement, product page.
  */
 
 import fp from 'fastify-plugin';
 import type { FastifyInstance } from 'fastify';
 import { authenticate, requireRole } from '../../middleware/auth.middleware.js';
 import * as handler from './site-settings.handler.js';
-import { PatchSiteSettingsBody, UpdateSiteSettingsBody } from './site-settings.schema.js';
+import { UpdateSiteSettingsBody } from './site-settings.schema.js';
 
 export default fp(async function siteSettingsRoutes(fastify: FastifyInstance) {
-  // ---------- Admin routes ----------
   fastify.get('/api/v1/admin/site-settings', {
     preHandler: [authenticate, requireRole('superadmin')],
     schema: {
@@ -25,16 +24,7 @@ export default fp(async function siteSettingsRoutes(fastify: FastifyInstance) {
     schema: {
       body: UpdateSiteSettingsBody,
       tags: ['Admin - Settings'],
-      summary: 'Replace homepage blocks and announcement bar',
-    },
-  }, handler.update);
-
-  fastify.patch('/api/v1/admin/site-settings', {
-    preHandler: [authenticate, requireRole('superadmin')],
-    schema: {
-      body: PatchSiteSettingsBody,
-      tags: ['Admin - Settings'],
-      summary: 'Update selected site settings sections',
+      summary: 'Replace all site settings',
     },
   }, handler.update);
 
@@ -42,11 +32,10 @@ export default fp(async function siteSettingsRoutes(fastify: FastifyInstance) {
     preHandler: [authenticate, requireRole('superadmin')],
     schema: {
       tags: ['Admin - Settings'],
-      summary: 'Reset site settings to defaults',
+      summary: 'Delete saved settings and recreate hero-only defaults',
     },
   }, handler.reset);
 
-  // ---------- Storefront routes ----------
   fastify.get('/api/v1/storefront/hero', {
     schema: {
       tags: ['Storefront - Settings'],

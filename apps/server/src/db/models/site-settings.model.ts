@@ -64,7 +64,7 @@ const siteSettingsSchema = new Schema<ISiteSettingsDocument>(
       default: 'singleton',
       enum: ['singleton'],
     },
-    schemaVersion: { type: Number, default: 2 },
+    schemaVersion: { type: Number, default: 3 },
     // Singleton hero config; shape enforced by TypeBox on the update route.
     hero: {
       type: Schema.Types.Mixed,

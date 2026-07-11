@@ -15,7 +15,7 @@ import { SITE_SETTINGS_LIMITS } from '../../constants/index.js';
 
 const BlockBase = {
   id: Type.String({ minLength: 1, maxLength: 64 }),
-  version: Type.Optional(Type.Literal(1)),
+  version: Type.Literal(1),
   enabled: Type.Boolean(),
 };
 
@@ -38,7 +38,7 @@ const Alignment = Type.Union([
 
 // ---------- Singleton hero (not a block) ----------
 
-const HeroSlideFields = {
+const HeroSlide = Type.Object({
   id: Type.String({ minLength: 1, maxLength: 64 }),
   enabled: Type.Boolean(),
   heading: Type.String({ minLength: 1, maxLength: 160 }),
@@ -48,18 +48,6 @@ const HeroSlideFields = {
   alignment: Alignment,
   primaryCta: Type.Optional(Cta),
   secondaryCta: Type.Optional(Cta),
-};
-
-const HeroSlide = Type.Object(HeroSlideFields);
-
-const LegacyHero = Type.Object({
-  heading: HeroSlideFields.heading,
-  subheading: HeroSlideFields.subheading,
-  badge: HeroSlideFields.badge,
-  image: HeroSlideFields.image,
-  alignment: HeroSlideFields.alignment,
-  primaryCta: HeroSlideFields.primaryCta,
-  secondaryCta: HeroSlideFields.secondaryCta,
 });
 
 export const Hero = Type.Object({
@@ -141,19 +129,6 @@ export const HomepageBlock = Type.Union([
   BannerBlock,
 ]);
 
-const LegacyAnnouncementBar = Type.Object({
-  enabled: Type.Boolean(),
-  message: Type.String({ maxLength: 200 }),
-  linkText: Type.Optional(Type.String({ maxLength: 60 })),
-  linkHref: Type.Optional(Type.String({ maxLength: 500 })),
-  tone: Type.Union([
-    Type.Literal('default'),
-    Type.Literal('promo'),
-    Type.Literal('info'),
-    Type.Literal('warning'),
-  ]),
-});
-
 export const AnnouncementBar = Type.Object({
   version: Type.Literal(1),
   enabled: Type.Boolean(),
@@ -212,19 +187,9 @@ export const ProductPage = Type.Object({
 // ---------- Request schemas ----------
 
 export const UpdateSiteSettingsBody = Type.Object({
-  schemaVersion: Type.Optional(Type.Literal(2)),
-  hero: Type.Union([Hero, LegacyHero]),
-  homepageBlocks: Type.Array(HomepageBlock, { maxItems: SITE_SETTINGS_LIMITS.MAX_HOMEPAGE_BLOCKS }),
-  announcementBar: Type.Union([AnnouncementBar, LegacyAnnouncementBar]),
-  productPage: Type.Optional(ProductPage),
-});
-export type UpdateSiteSettingsBodyType = Static<typeof UpdateSiteSettingsBody>;
-
-export const PatchSiteSettingsBody = Type.Partial(Type.Object({
-  schemaVersion: Type.Literal(2),
   hero: Hero,
   homepageBlocks: Type.Array(HomepageBlock, { maxItems: SITE_SETTINGS_LIMITS.MAX_HOMEPAGE_BLOCKS }),
   announcementBar: AnnouncementBar,
   productPage: ProductPage,
-}), { minProperties: 1 });
-export type PatchSiteSettingsBodyType = Static<typeof PatchSiteSettingsBody>;
+});
+export type UpdateSiteSettingsBodyType = Static<typeof UpdateSiteSettingsBody>;

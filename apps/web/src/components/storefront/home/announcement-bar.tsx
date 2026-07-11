@@ -5,7 +5,6 @@ import Link from "next/link";
 import { X } from "lucide-react";
 import { api } from "@/lib/api";
 import type { IAnnouncementBar, AnnouncementTone } from "@/types";
-import { normalizeAnnouncement } from "@/lib/site-settings-normalize";
 
 const TONE_CLASSES: Record<AnnouncementTone, string> = {
   default: "bg-foreground text-background",
@@ -37,7 +36,7 @@ export function AnnouncementBar() {
   useEffect(() => {
     let cancelled = false;
     api.get<IAnnouncementBar>("/api/v1/storefront/announcement").then((res) => {
-      if (!cancelled && res.success && res.data) setBar(normalizeAnnouncement(res.data));
+      if (!cancelled && res.success && res.data) setBar(res.data);
     });
     return () => {
       cancelled = true;

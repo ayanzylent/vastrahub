@@ -28,7 +28,6 @@ import { toast } from "sonner";
 import type { IProduct, ISku, ICategory, IMediaItem, IProductPageConfig } from "@/types";
 import { DEFAULT_PRODUCT_PAGE } from "@/constants";
 import { ProductSettingsPanel } from "@/components/storefront/product/product-settings-panel";
-import { normalizeProductPage } from "@/lib/site-settings-normalize";
 
 /* ────────────────────────────────────────────────────────────────
    Types
@@ -134,7 +133,7 @@ export default function ProductDetailPage() {
           api.get<SlugApiResponse>(`/api/v1/storefront/products/${slug}`),
           api.get<IProductPageConfig>("/api/v1/storefront/product-page-settings"),
         ]);
-        if (settingsRes.success && settingsRes.data) setProductPageSettings(normalizeProductPage(settingsRes.data));
+        if (settingsRes.success && settingsRes.data) setProductPageSettings(settingsRes.data);
         if (res.success) {
           const body = res as unknown as SlugApiResponse;
           if (body.redirect && body.newSlug) {

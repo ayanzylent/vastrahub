@@ -17,7 +17,12 @@ import { api } from "@/lib/api";
 import { toast } from "sonner";
 import { toEmbedSrc } from "@/lib/video-embed";
 import type { IHeroConfig, IHomepageBlock, IAnnouncementBar, IProductPageConfig } from "@/types";
-import { DEFAULT_HERO, DEFAULT_ANNOUNCEMENT_BAR, DEFAULT_PRODUCT_PAGE } from "@/constants";
+import {
+  DEFAULT_HERO,
+  DEFAULT_ANNOUNCEMENT_BAR,
+  DEFAULT_PRODUCT_PAGE,
+  DEFAULT_HOMEPAGE_BLOCKS,
+} from "@/constants";
 import { HeroEditor } from "@/components/admin/settings/hero-editor";
 import { HomepageBuilder } from "@/components/admin/settings/homepage-builder";
 import { AnnouncementBarEditor } from "@/components/admin/settings/announcement-bar-editor";
@@ -26,12 +31,6 @@ import { revalidateHome } from "./actions";
 import { useSession } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import {
-  normalizeAnnouncement,
-  normalizeHero,
-  normalizeHomepageBlocks,
-  normalizeProductPage,
-} from "@/lib/site-settings-normalize";
 
 interface SiteSettingsPayload {
   hero: IHeroConfig;
@@ -40,7 +39,6 @@ interface SiteSettingsPayload {
   productPage: IProductPageConfig;
 }
 
-/** Client-side guard mirroring the server's requirements. */
 function validate(
   hero: IHeroConfig,
   blocks: IHomepageBlock[],
@@ -80,10 +78,9 @@ export default function AdminSettingsPage() {
   const [resetting, setResetting] = useState(false);
 
   const [hero, setHero] = useState<IHeroConfig>(DEFAULT_HERO);
-  const [blocks, setBlocks] = useState<IHomepageBlock[]>([]);
+  const [blocks, setBlocks] = useState<IHomepageBlock[]>(DEFAULT_HOMEPAGE_BLOCKS);
   const [announcement, setAnnouncement] = useState<IAnnouncementBar>(DEFAULT_ANNOUNCEMENT_BAR);
   const [productPage, setProductPage] = useState<IProductPageConfig>(DEFAULT_PRODUCT_PAGE);
-  const [dirty, setDirty] = useState<Set<"hero" | "homepageBlocks" | "announcementBar" | "productPage">>(new Set());
 
   const router = useRouter();
 
@@ -99,11 +96,10 @@ export default function AdminSettingsPage() {
       const res = await api.get<SiteSettingsPayload>("/api/v1/admin/site-settings");
       if (cancelled) return;
       if (res.success && res.data) {
-        setHero(normalizeHero(res.data.hero));
-        setBlocks(normalizeHomepageBlocks(res.data.homepageBlocks));
-        setAnnouncement(normalizeAnnouncement(res.data.announcementBar));
-        setProductPage(normalizeProductPage(res.data.productPage));
-        setDirty(new Set());
+        setHero(res.data.hero ?? DEFAULT_HERO);
+        setBlocks(res.data.homepageBlocks ?? DEFAULT_HOMEPAGE_BLOCKS);
+        setAnnouncement(res.data.announcementBar ?? DEFAULT_ANNOUNCEMENT_BAR);
+        setProductPage(res.data.productPage ?? DEFAULT_PRODUCT_PAGE);
       } else {
         toast.error(res.error || "Failed to load settings");
       }
@@ -114,7 +110,6 @@ export default function AdminSettingsPage() {
     };
   }, []);
 
-  // Superadmin-only guard
   if (sessionData && userRole !== "superadmin") {
     return (
       <div className="flex h-[60vh] items-center justify-center">
@@ -142,20 +137,14 @@ export default function AdminSettingsPage() {
     }
     setSaving(true);
     try {
-      if (dirty.size === 0) {
-        toast.info("No changes to save");
-        return;
-      }
-      const patch: Partial<SiteSettingsPayload> = {};
-      if (dirty.has("hero")) patch.hero = hero;
-      if (dirty.has("homepageBlocks")) patch.homepageBlocks = blocks;
-      if (dirty.has("announcementBar")) patch.announcementBar = announcement;
-      if (dirty.has("productPage")) patch.productPage = productPage;
-      const res = await api.patch<SiteSettingsPayload>("/api/v1/admin/site-settings", patch);
+      const res = await api.put<SiteSettingsPayload>("/api/v1/admin/site-settings", {
+        hero,
+        homepageBlocks: blocks,
+        announcementBar: announcement,
+        productPage,
+      });
       if (res.success) {
         toast.success("Settings saved");
-        setDirty(new Set());
-        // Bust the ISR cache so hero edits show on the storefront immediately.
         revalidateHome().catch(() => {});
       } else {
         toast.error(res.error || "Failed to save settings");
@@ -172,11 +161,10 @@ export default function AdminSettingsPage() {
     try {
       const res = await api.post<SiteSettingsPayload>("/api/v1/admin/site-settings/reset");
       if (res.success && res.data) {
-        setHero(normalizeHero(res.data.hero));
-        setBlocks(normalizeHomepageBlocks(res.data.homepageBlocks));
-        setAnnouncement(normalizeAnnouncement(res.data.announcementBar));
-        setProductPage(normalizeProductPage(res.data.productPage));
-        setDirty(new Set());
+        setHero(res.data.hero ?? DEFAULT_HERO);
+        setBlocks(res.data.homepageBlocks ?? DEFAULT_HOMEPAGE_BLOCKS);
+        setAnnouncement(res.data.announcementBar ?? DEFAULT_ANNOUNCEMENT_BAR);
+        setProductPage(res.data.productPage ?? DEFAULT_PRODUCT_PAGE);
         toast.success("Reset to defaults");
         revalidateHome().catch(() => {});
         setResetOpen(false);
@@ -205,19 +193,18 @@ export default function AdminSettingsPage() {
 
   return (
     <div className="space-y-6 pb-10">
-      {/* Header */}
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <h1 className="font-heading text-2xl md:text-3xl font-bold">Settings</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Configure the storefront homepage and announcement bar.
+            Configure homepage, announcement bar, and product page settings.
           </p>
         </div>
         <div className="flex gap-2">
           <Button variant="outline" onClick={() => setResetOpen(true)}>
             <RotateCcw className="mr-2 h-4 w-4" /> Reset
           </Button>
-          <Button onClick={handleSave} disabled={saving || dirty.size === 0}>
+          <Button onClick={handleSave} disabled={saving}>
             {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
             Save changes
           </Button>
@@ -234,35 +221,35 @@ export default function AdminSettingsPage() {
 
         <TabsContent value="hero">
           <div className="max-w-2xl">
-            <HeroEditor value={hero} onChange={(value) => { setHero(value); setDirty((current) => new Set(current).add("hero")); }} />
+            <HeroEditor value={hero} onChange={setHero} />
           </div>
         </TabsContent>
 
         <TabsContent value="homepage">
-          <HomepageBuilder blocks={blocks} onChange={(value) => { setBlocks(value); setDirty((current) => new Set(current).add("homepageBlocks")); }} />
+          <HomepageBuilder blocks={blocks} onChange={setBlocks} />
         </TabsContent>
 
         <TabsContent value="announcement">
           <div className="max-w-2xl">
-            <AnnouncementBarEditor value={announcement} onChange={(value) => { setAnnouncement(value); setDirty((current) => new Set(current).add("announcementBar")); }} />
+            <AnnouncementBarEditor value={announcement} onChange={setAnnouncement} />
           </div>
         </TabsContent>
 
         <TabsContent value="product">
           <div className="max-w-3xl">
-            <ProductPageEditor value={productPage} onChange={(value) => { setProductPage(value); setDirty((current) => new Set(current).add("productPage")); }} />
+            <ProductPageEditor value={productPage} onChange={setProductPage} />
           </div>
         </TabsContent>
       </Tabs>
 
-      {/* Reset confirmation */}
       <Dialog open={resetOpen} onOpenChange={setResetOpen}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Reset settings to defaults?</DialogTitle>
             <DialogDescription>
-              This immediately replaces the saved hero, homepage layout and announcement bar with
-              the built-in defaults. Your curated selections will be lost. This cannot be undone.
+              This deletes the current site settings and recreates a clean default with only a hero
+              slide. Homepage blocks, announcement bar, and product page content will be cleared.
+              This cannot be undone.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>

@@ -183,7 +183,7 @@ export interface IProductPageConfig {
 // ---------- Site settings ----------
 
 export interface ISiteSettings extends Partial<TimestampFields> {
-  schemaVersion: 2;
+  schemaVersion: 3;
   hero: IHeroConfig;
   homepageBlocks: IHomepageBlock[];
   announcementBar: IAnnouncementBar;

@@ -180,7 +180,7 @@ export interface IProductPageConfig {
 }
 
 export interface ISiteSettings {
-  schemaVersion: 2;
+  schemaVersion: 3;
   hero: IHeroConfig;
   homepageBlocks: IHomepageBlock[];
   announcementBar: IAnnouncementBar;
