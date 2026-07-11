@@ -1,5 +1,6 @@
 "use client";
 
+import type { ComponentType } from "react";
 import { Plus, Trash2, Check, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,6 +14,7 @@ import type {
   IBannerBlock,
   VideoProvider,
   IVideoEmbedItem,
+  BlockType,
 } from "@/types";
 import { ResponsiveImageField } from "./responsive-image-field";
 import { CategoryPicker, CollectionPicker, ProductPicker } from "./item-pickers";
@@ -235,16 +237,19 @@ export function BlockEditor({
   block: IHomepageBlock;
   onChange: (b: IHomepageBlock) => void;
 }) {
-  switch (block.type) {
-    case "categoryShowcase":
-      return <CategoryShowcaseEditor block={block} onChange={onChange} />;
-    case "collectionShowcase":
-      return <CollectionShowcaseEditor block={block} onChange={onChange} />;
-    case "featuredProducts":
-      return <FeaturedProductsEditor block={block} onChange={onChange} />;
-    case "videoEmbed":
-      return <VideoEmbedEditor block={block} onChange={onChange} />;
-    case "banner":
-      return <BannerEditor block={block} onChange={onChange} />;
-  }
+  const Editor = BLOCK_EDITORS[block.type] as ComponentType<{
+    block: typeof block;
+    onChange: (block: IHomepageBlock) => void;
+  }> | undefined;
+  return Editor
+    ? <Editor block={block} onChange={onChange} />
+    : <p className="text-sm text-muted-foreground">This block type is not supported by this editor.</p>;
 }
+
+const BLOCK_EDITORS = {
+  categoryShowcase: CategoryShowcaseEditor,
+  collectionShowcase: CollectionShowcaseEditor,
+  featuredProducts: FeaturedProductsEditor,
+  videoEmbed: VideoEmbedEditor,
+  banner: BannerEditor,
+} satisfies Record<BlockType, ComponentType<never>>;

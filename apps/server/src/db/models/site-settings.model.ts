@@ -14,6 +14,7 @@ import type {
   IHeroConfig,
   IHomepageBlock,
   IAnnouncementBar,
+  IProductPageConfig,
   BlockType,
 } from '../../types/index.js';
 
@@ -21,9 +22,11 @@ import type {
 
 export interface ISiteSettingsDocument extends Document {
   key: 'singleton';
+  schemaVersion: number;
   hero: IHeroConfig;
   homepageBlocks: IHomepageBlock[];
   announcementBar: IAnnouncementBar;
+  productPage: IProductPageConfig;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -41,25 +44,11 @@ const BLOCK_TYPES: BlockType[] = [
 const blockSchema = new Schema(
   {
     id: { type: String, required: true },
+    version: { type: Number, default: 1 },
     type: { type: String, required: true, enum: BLOCK_TYPES },
     enabled: { type: Boolean, default: true },
     // Mixed: shape depends on `type`, enforced by TypeBox on the update route.
     config: { type: Schema.Types.Mixed, default: {} },
-  },
-  { _id: false },
-);
-
-const announcementBarSchema = new Schema<IAnnouncementBar>(
-  {
-    enabled: { type: Boolean, default: false },
-    message: { type: String, default: '', maxlength: 200 },
-    linkText: { type: String, default: '', maxlength: 60 },
-    linkHref: { type: String, default: '', maxlength: 500 },
-    tone: {
-      type: String,
-      enum: ['default', 'promo', 'info', 'warning'],
-      default: 'default',
-    },
   },
   { _id: false },
 );
@@ -75,6 +64,7 @@ const siteSettingsSchema = new Schema<ISiteSettingsDocument>(
       default: 'singleton',
       enum: ['singleton'],
     },
+    schemaVersion: { type: Number, default: 2 },
     // Singleton hero config; shape enforced by TypeBox on the update route.
     hero: {
       type: Schema.Types.Mixed,
@@ -85,7 +75,11 @@ const siteSettingsSchema = new Schema<ISiteSettingsDocument>(
       default: [],
     },
     announcementBar: {
-      type: announcementBarSchema,
+      type: Schema.Types.Mixed,
+      default: () => ({}),
+    },
+    productPage: {
+      type: Schema.Types.Mixed,
       default: () => ({}),
     },
   },

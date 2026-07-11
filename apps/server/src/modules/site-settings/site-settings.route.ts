@@ -8,7 +8,7 @@ import fp from 'fastify-plugin';
 import type { FastifyInstance } from 'fastify';
 import { authenticate, requireRole } from '../../middleware/auth.middleware.js';
 import * as handler from './site-settings.handler.js';
-import { UpdateSiteSettingsBody } from './site-settings.schema.js';
+import { PatchSiteSettingsBody, UpdateSiteSettingsBody } from './site-settings.schema.js';
 
 export default fp(async function siteSettingsRoutes(fastify: FastifyInstance) {
   // ---------- Admin routes ----------
@@ -26,6 +26,15 @@ export default fp(async function siteSettingsRoutes(fastify: FastifyInstance) {
       body: UpdateSiteSettingsBody,
       tags: ['Admin - Settings'],
       summary: 'Replace homepage blocks and announcement bar',
+    },
+  }, handler.update);
+
+  fastify.patch('/api/v1/admin/site-settings', {
+    preHandler: [authenticate, requireRole('superadmin')],
+    schema: {
+      body: PatchSiteSettingsBody,
+      tags: ['Admin - Settings'],
+      summary: 'Update selected site settings sections',
     },
   }, handler.update);
 
@@ -58,4 +67,11 @@ export default fp(async function siteSettingsRoutes(fastify: FastifyInstance) {
       summary: 'Get the announcement bar (lightweight, no homepage hydration)',
     },
   }, handler.getStorefrontAnnouncement);
+
+  fastify.get('/api/v1/storefront/product-page-settings', {
+    schema: {
+      tags: ['Storefront - Settings'],
+      summary: 'Get lightweight product-page display settings',
+    },
+  }, handler.getStorefrontProductPage);
 });

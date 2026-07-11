@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { X } from "lucide-react";
 import { api } from "@/lib/api";
 import type { IAnnouncementBar, AnnouncementTone } from "@/types";
+import { normalizeAnnouncement } from "@/lib/site-settings-normalize";
 
 const TONE_CLASSES: Record<AnnouncementTone, string> = {
   default: "bg-foreground text-background",
@@ -28,11 +29,15 @@ function hashMessage(s: string): string {
 export function AnnouncementBar() {
   const [bar, setBar] = useState<IAnnouncementBar | null>(null);
   const [dismissed, setDismissed] = useState(true);
+  const [messageIndex, setMessageIndex] = useState(0);
+  const [characterCount, setCharacterCount] = useState(0);
+  const [deleting, setDeleting] = useState(false);
+  const [reduceMotion, setReduceMotion] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
     api.get<IAnnouncementBar>("/api/v1/storefront/announcement").then((res) => {
-      if (!cancelled && res.success && res.data) setBar(res.data);
+      if (!cancelled && res.success && res.data) setBar(normalizeAnnouncement(res.data));
     });
     return () => {
       cancelled = true;
@@ -40,23 +45,64 @@ export function AnnouncementBar() {
   }, []);
 
   useEffect(() => {
-    if (!bar || !bar.enabled || !bar.message) {
+    const media = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const update = () => setReduceMotion(media.matches);
+    update();
+    media.addEventListener("change", update);
+    return () => media.removeEventListener("change", update);
+  }, []);
+
+  const messages = useMemo(
+    () => bar?.messages.map((message) => message.trim()).filter(Boolean) ?? [],
+    [bar],
+  );
+
+  useEffect(() => {
+    if (!bar || !bar.enabled || messages.length === 0) {
       setDismissed(true);
       return;
     }
-    const key = `vh_ann_${hashMessage(bar.message)}`;
+    const key = `vh_ann_${hashMessage(JSON.stringify(bar))}`;
     setDismissed(!!localStorage.getItem(key));
-  }, [bar]);
+  }, [bar, messages.length]);
 
-  if (!bar || !bar.enabled || !bar.message || dismissed) return null;
+  useEffect(() => {
+    if (!bar || bar.mode !== "typewriter" || messages.length === 0 || reduceMotion) {
+      setMessageIndex(0);
+      setCharacterCount(messages[0]?.length ?? 0);
+      setDeleting(false);
+      return;
+    }
 
-  const key = `vh_ann_${hashMessage(bar.message)}`;
+    const current = messages[messageIndex % messages.length];
+    const finishedTyping = !deleting && characterCount >= current.length;
+    const finishedDeleting = deleting && characterCount === 0;
+    const delay = finishedTyping ? 1600 : finishedDeleting ? 250 : deleting ? 28 : 55;
+    const timer = window.setTimeout(() => {
+      if (finishedTyping) {
+        setDeleting(true);
+      } else if (finishedDeleting) {
+        setDeleting(false);
+        setMessageIndex((index) => (index + 1) % messages.length);
+      } else {
+        setCharacterCount((count) => count + (deleting ? -1 : 1));
+      }
+    }, delay);
+    return () => window.clearTimeout(timer);
+  }, [bar, messages, messageIndex, characterCount, deleting, reduceMotion]);
+
+  if (!bar || !bar.enabled || messages.length === 0 || dismissed) return null;
+
+  const key = `vh_ann_${hashMessage(JSON.stringify(bar))}`;
   const tone = TONE_CLASSES[bar.tone] ?? TONE_CLASSES.default;
+  const currentMessage = bar.mode === "typewriter"
+    ? messages[messageIndex % messages.length].slice(0, characterCount)
+    : messages[0];
 
   return (
     <div className={`relative ${tone}`}>
       <div className="mx-auto max-w-7xl px-8 py-2 text-center text-sm">
-        <span>{bar.message}</span>
+        <span aria-label={messages[messageIndex % messages.length]}>{currentMessage}</span>
         {bar.linkHref && bar.linkText && (
           <Link
             href={bar.linkHref}

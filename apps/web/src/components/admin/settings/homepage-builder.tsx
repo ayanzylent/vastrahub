@@ -73,7 +73,7 @@ export function HomepageBuilder({ blocks, onChange }: HomepageBuilderProps) {
         {selected ? (
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">Edit {BLOCK_META[selected.type].label}</CardTitle>
+              <CardTitle className="text-base">Edit {BLOCK_META[selected.type]?.label ?? "unsupported block"}</CardTitle>
             </CardHeader>
             <CardContent>
               <BlockEditor block={selected} onChange={updateBlock} />

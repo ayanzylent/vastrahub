@@ -2,7 +2,7 @@ import type { IHeroConfig } from "@/types";
 import { DEFAULT_HERO } from "@/constants";
 import { HeroSection } from "@/components/storefront/home/hero-section";
 import { HomepageBlocks } from "@/components/storefront/home/homepage-blocks";
-import { CtaBanner } from "@/components/storefront/home/cta-banner";
+import { normalizeHero } from "@/lib/site-settings-normalize";
 
 // ISR: the hero is server-rendered and cached, regenerated at most once a minute.
 export const revalidate = 60;
@@ -18,7 +18,7 @@ async function getHero(): Promise<IHeroConfig> {
     const res = await fetch(`${base}/api/v1/storefront/hero`, { next: { revalidate: 60 } });
     if (!res.ok) return DEFAULT_HERO;
     const json = (await res.json()) as { data?: IHeroConfig };
-    return json.data ?? DEFAULT_HERO;
+    return normalizeHero(json.data ?? DEFAULT_HERO);
   } catch {
     return DEFAULT_HERO;
   }
@@ -33,8 +33,6 @@ export default async function HomePage() {
       <HeroSection hero={hero} />
       {/* Dynamic, admin-curated blocks (client-fetched) */}
       <HomepageBlocks />
-      {/* Static promotional CTA */}
-      <CtaBanner />
     </div>
   );
 }

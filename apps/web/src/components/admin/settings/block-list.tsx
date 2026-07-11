@@ -1,10 +1,11 @@
 "use client";
 
-import { ChevronUp, ChevronDown, Trash2, Eye, EyeOff } from "lucide-react";
+import { ChevronUp, ChevronDown, Trash2, Eye, EyeOff, CircleHelp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { BlockType, IHomepageBlock } from "@/types";
 import { BLOCK_META, blockTitle } from "./block-meta";
 import { AddBlockMenu } from "./add-block-menu";
+import { SITE_SETTINGS_LIMITS } from "@/constants";
 
 interface BlockListProps {
   blocks: IHomepageBlock[];
@@ -34,7 +35,7 @@ export function BlockList({
       ) : (
         <ul className="space-y-1.5">
           {blocks.map((block, index) => {
-            const meta = BLOCK_META[block.type];
+            const meta = BLOCK_META[block.type] ?? { icon: CircleHelp, label: "Unsupported block" };
             const Icon = meta.icon;
             const active = block.id === selectedId;
             return (
@@ -96,7 +97,7 @@ export function BlockList({
           })}
         </ul>
       )}
-      <AddBlockMenu onAdd={onAdd} />
+      <AddBlockMenu onAdd={onAdd} disabled={blocks.length >= SITE_SETTINGS_LIMITS.MAX_HOMEPAGE_BLOCKS} />
     </div>
   );
 }

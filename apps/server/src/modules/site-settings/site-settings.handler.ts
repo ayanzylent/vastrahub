@@ -38,3 +38,8 @@ export async function getStorefrontAnnouncement(_request: FastifyRequest, reply:
   const data = await service.getAnnouncementBar();
   return reply.status(200).send({ success: true, data, statusCode: 200 });
 }
+
+export async function getStorefrontProductPage(_request: FastifyRequest, reply: FastifyReply) {
+  const data = await service.getProductPageSettings();
+  return reply.status(200).send({ success: true, data, statusCode: 200 });
+}

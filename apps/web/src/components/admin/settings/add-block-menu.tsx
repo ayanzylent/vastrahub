@@ -11,11 +11,11 @@ import {
 import type { BlockType } from "@/types";
 import { BLOCK_META, BLOCK_TYPES } from "./block-meta";
 
-export function AddBlockMenu({ onAdd }: { onAdd: (type: BlockType) => void }) {
+export function AddBlockMenu({ onAdd, disabled = false }: { onAdd: (type: BlockType) => void; disabled?: boolean }) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button type="button" variant="outline" size="sm" className="w-full">
+        <Button type="button" variant="outline" size="sm" className="w-full" disabled={disabled}>
           <Plus className="mr-1.5 h-4 w-4" /> Add block
         </Button>
       </DropdownMenuTrigger>

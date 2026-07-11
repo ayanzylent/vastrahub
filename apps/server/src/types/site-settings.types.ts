@@ -3,14 +3,7 @@ import type { ICategory } from './category.types.js';
 import type { ICollection } from './collection.types.js';
 import type { IProduct } from './product.types.js';
 
-/**
- * Site settings — the admin-configurable storefront homepage.
- *
- * Layout = a fixed, singleton **hero** (served by its own storefront endpoint
- * and rendered with ISR for speed) + an ordered array of dynamic **blocks** +
- * a global announcement bar. The bottom promotional CTA is static (in code),
- * not configurable.
- */
+/** Versioned, admin-configurable storefront settings. */
 
 /** A call-to-action button (label + link). */
 export interface ICta {
@@ -35,7 +28,9 @@ export interface ResponsiveImage {
 
 // ---------- Hero (singleton — NOT a block) ----------
 
-export interface IHeroConfig {
+export interface IHeroSlide {
+  id: string;
+  enabled: boolean;
   heading: string;
   subheading?: string;
   badge?: string;
@@ -43,6 +38,13 @@ export interface IHeroConfig {
   alignment: BlockAlignment;
   primaryCta?: ICta;
   secondaryCta?: ICta;
+}
+
+export interface IHeroConfig {
+  version: 1;
+  slides: IHeroSlide[];
+  autoplay: boolean;
+  intervalMs: number;
 }
 
 // ---------- Block config shapes ----------
@@ -99,6 +101,7 @@ export interface IBannerConfig {
 interface IBlockBase {
   /** Stable id, generated client-side (crypto.randomUUID) when a block is added. */
   id: string;
+  version: 1;
   enabled: boolean;
 }
 
@@ -135,22 +138,56 @@ export type BlockType = IHomepageBlock['type'];
 // ---------- Announcement bar ----------
 
 export type AnnouncementTone = 'default' | 'promo' | 'info' | 'warning';
+export type AnnouncementMode = 'simple' | 'typewriter';
 
 /** A global, dismissible top-of-site message (not a block). */
 export interface IAnnouncementBar {
+  version: 1;
   enabled: boolean;
-  message: string;
+  mode: AnnouncementMode;
+  messages: string[];
   linkText?: string;
   linkHref?: string;
   tone: AnnouncementTone;
 }
 
+// ---------- Product page ----------
+
+export type ProductInfoType = 'returns' | 'shipping' | 'seller' | 'help' | 'custom';
+export type ProductInfoIcon = 'rotate' | 'truck' | 'store' | 'help' | 'info' | 'shield';
+
+export interface IEstimatedDeliveryConfig {
+  enabled: boolean;
+  minDays: number;
+  maxDays: number;
+}
+
+export interface IProductInfoSection {
+  id: string;
+  version: 1;
+  enabled: boolean;
+  type: ProductInfoType;
+  icon: ProductInfoIcon;
+  title: string;
+  content: string;
+  linkText?: string;
+  linkHref?: string;
+}
+
+export interface IProductPageConfig {
+  version: 1;
+  estimatedDelivery: IEstimatedDeliveryConfig;
+  sections: IProductInfoSection[];
+}
+
 // ---------- Site settings ----------
 
 export interface ISiteSettings extends Partial<TimestampFields> {
+  schemaVersion: 2;
   hero: IHeroConfig;
   homepageBlocks: IHomepageBlock[];
   announcementBar: IAnnouncementBar;
+  productPage: IProductPageConfig;
 }
 
 // ---------- Hydrated (storefront) ----------

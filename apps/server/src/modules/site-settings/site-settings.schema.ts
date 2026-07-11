@@ -15,6 +15,7 @@ import { SITE_SETTINGS_LIMITS } from '../../constants/index.js';
 
 const BlockBase = {
   id: Type.String({ minLength: 1, maxLength: 64 }),
+  version: Type.Optional(Type.Literal(1)),
   enabled: Type.Boolean(),
 };
 
@@ -37,7 +38,9 @@ const Alignment = Type.Union([
 
 // ---------- Singleton hero (not a block) ----------
 
-export const Hero = Type.Object({
+const HeroSlideFields = {
+  id: Type.String({ minLength: 1, maxLength: 64 }),
+  enabled: Type.Boolean(),
   heading: Type.String({ minLength: 1, maxLength: 160 }),
   subheading: Type.Optional(Type.String({ maxLength: 400 })),
   badge: Type.Optional(Type.String({ maxLength: 60 })),
@@ -45,6 +48,25 @@ export const Hero = Type.Object({
   alignment: Alignment,
   primaryCta: Type.Optional(Cta),
   secondaryCta: Type.Optional(Cta),
+};
+
+const HeroSlide = Type.Object(HeroSlideFields);
+
+const LegacyHero = Type.Object({
+  heading: HeroSlideFields.heading,
+  subheading: HeroSlideFields.subheading,
+  badge: HeroSlideFields.badge,
+  image: HeroSlideFields.image,
+  alignment: HeroSlideFields.alignment,
+  primaryCta: HeroSlideFields.primaryCta,
+  secondaryCta: HeroSlideFields.secondaryCta,
+});
+
+export const Hero = Type.Object({
+  version: Type.Literal(1),
+  slides: Type.Array(HeroSlide, { minItems: 1, maxItems: SITE_SETTINGS_LIMITS.MAX_HERO_SLIDES }),
+  autoplay: Type.Boolean(),
+  intervalMs: Type.Integer({ minimum: 2000, maximum: 30000 }),
 });
 
 // ---------- Block variants ----------
@@ -119,7 +141,7 @@ export const HomepageBlock = Type.Union([
   BannerBlock,
 ]);
 
-export const AnnouncementBar = Type.Object({
+const LegacyAnnouncementBar = Type.Object({
   enabled: Type.Boolean(),
   message: Type.String({ maxLength: 200 }),
   linkText: Type.Optional(Type.String({ maxLength: 60 })),
@@ -132,11 +154,77 @@ export const AnnouncementBar = Type.Object({
   ]),
 });
 
+export const AnnouncementBar = Type.Object({
+  version: Type.Literal(1),
+  enabled: Type.Boolean(),
+  mode: Type.Union([Type.Literal('simple'), Type.Literal('typewriter')]),
+  messages: Type.Array(Type.String({ maxLength: 200 }), {
+    minItems: 1,
+    maxItems: SITE_SETTINGS_LIMITS.MAX_ANNOUNCEMENT_MESSAGES,
+  }),
+  linkText: Type.Optional(Type.String({ maxLength: 60 })),
+  linkHref: Type.Optional(Type.String({ maxLength: 500 })),
+  tone: Type.Union([
+    Type.Literal('default'),
+    Type.Literal('promo'),
+    Type.Literal('info'),
+    Type.Literal('warning'),
+  ]),
+});
+
+const ProductInfoSection = Type.Object({
+  id: Type.String({ minLength: 1, maxLength: 64 }),
+  version: Type.Literal(1),
+  enabled: Type.Boolean(),
+  type: Type.Union([
+    Type.Literal('returns'),
+    Type.Literal('shipping'),
+    Type.Literal('seller'),
+    Type.Literal('help'),
+    Type.Literal('custom'),
+  ]),
+  icon: Type.Union([
+    Type.Literal('rotate'),
+    Type.Literal('truck'),
+    Type.Literal('store'),
+    Type.Literal('help'),
+    Type.Literal('info'),
+    Type.Literal('shield'),
+  ]),
+  title: Type.String({ minLength: 1, maxLength: 100 }),
+  content: Type.String({ minLength: 1, maxLength: 1200 }),
+  linkText: Type.Optional(Type.String({ maxLength: 60 })),
+  linkHref: Type.Optional(Type.String({ maxLength: 500 })),
+});
+
+export const ProductPage = Type.Object({
+  version: Type.Literal(1),
+  estimatedDelivery: Type.Object({
+    enabled: Type.Boolean(),
+    minDays: Type.Integer({ minimum: 0, maximum: 365 }),
+    maxDays: Type.Integer({ minimum: 0, maximum: 365 }),
+  }),
+  sections: Type.Array(ProductInfoSection, {
+    maxItems: SITE_SETTINGS_LIMITS.MAX_PRODUCT_INFO_SECTIONS,
+  }),
+});
+
 // ---------- Request schemas ----------
 
 export const UpdateSiteSettingsBody = Type.Object({
+  schemaVersion: Type.Optional(Type.Literal(2)),
+  hero: Type.Union([Hero, LegacyHero]),
+  homepageBlocks: Type.Array(HomepageBlock, { maxItems: SITE_SETTINGS_LIMITS.MAX_HOMEPAGE_BLOCKS }),
+  announcementBar: Type.Union([AnnouncementBar, LegacyAnnouncementBar]),
+  productPage: Type.Optional(ProductPage),
+});
+export type UpdateSiteSettingsBodyType = Static<typeof UpdateSiteSettingsBody>;
+
+export const PatchSiteSettingsBody = Type.Partial(Type.Object({
+  schemaVersion: Type.Literal(2),
   hero: Hero,
   homepageBlocks: Type.Array(HomepageBlock, { maxItems: SITE_SETTINGS_LIMITS.MAX_HOMEPAGE_BLOCKS }),
   announcementBar: AnnouncementBar,
-});
-export type UpdateSiteSettingsBodyType = Static<typeof UpdateSiteSettingsBody>;
+  productPage: ProductPage,
+}), { minProperties: 1 });
+export type PatchSiteSettingsBodyType = Static<typeof PatchSiteSettingsBody>;

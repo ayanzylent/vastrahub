@@ -1,4 +1,5 @@
-import type { IHydratedHomepageBlock } from "@/types";
+import type { ComponentType } from "react";
+import type { BlockType, IHydratedHomepageBlock } from "@/types";
 import { CategoryShowcaseBlock } from "./blocks/category-showcase-block";
 import { CollectionShowcaseBlock } from "./blocks/collection-showcase-block";
 import { FeaturedProductsBlock } from "./blocks/featured-products-block";
@@ -13,21 +14,17 @@ export function BlockRenderer({ blocks }: { blocks: IHydratedHomepageBlock[] }) 
   return (
     <>
       {blocks.map((block) => {
-        switch (block.type) {
-          case "categoryShowcase":
-            return <CategoryShowcaseBlock key={block.id} block={block} />;
-          case "collectionShowcase":
-            return <CollectionShowcaseBlock key={block.id} block={block} />;
-          case "featuredProducts":
-            return <FeaturedProductsBlock key={block.id} block={block} />;
-          case "videoEmbed":
-            return <VideoEmbedBlock key={block.id} block={block} />;
-          case "banner":
-            return <BannerBlock key={block.id} block={block} />;
-          default:
-            return null;
-        }
+        const Component = BLOCK_RENDERERS[block.type] as ComponentType<{ block: typeof block }> | undefined;
+        return Component ? <Component key={block.id} block={block} /> : null;
       })}
     </>
   );
 }
+
+const BLOCK_RENDERERS = {
+  categoryShowcase: CategoryShowcaseBlock,
+  collectionShowcase: CollectionShowcaseBlock,
+  featuredProducts: FeaturedProductsBlock,
+  videoEmbed: VideoEmbedBlock,
+  banner: BannerBlock,
+} satisfies Record<BlockType, ComponentType<never>>;

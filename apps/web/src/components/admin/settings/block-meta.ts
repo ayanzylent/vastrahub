@@ -62,13 +62,13 @@ export function blockTitle(block: IHomepageBlock): string {
   const c = block.config as unknown as Record<string, unknown>;
   const candidate = c.title as string | undefined;
   if (candidate && candidate.trim()) return candidate.trim();
-  return BLOCK_META[block.type].label;
+  return BLOCK_META[block.type]?.label ?? "Unsupported block";
 }
 
 /** Build a new block with sensible defaults. Id is generated client-side. */
 export function createBlock(type: BlockType): IHomepageBlock {
   const id = crypto.randomUUID();
-  const base = { id, enabled: true };
+  const base = { id, version: 1 as const, enabled: true };
 
   switch (type) {
     case "categoryShowcase":
