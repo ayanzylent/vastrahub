@@ -68,7 +68,7 @@ export function HeroSection({ hero }: { hero: IHeroConfig }) {
             <div className={`mx-auto flex w-full max-w-7xl flex-col px-4 md:px-6 ${textAlign}`}>
               {slide.badge && <Badge variant="default" className="mb-6 px-4 py-1.5 text-xs"><Sparkles className="mr-1 h-3 w-3" />{slide.badge}</Badge>}
               <h1 className="font-heading text-4xl font-bold tracking-tight md:text-6xl lg:text-7xl">
-                <span className="bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">{slide.heading}</span>
+                <span className="text-primary">{slide.heading}</span>
               </h1>
               {slide.subheading && <p className={`mt-6 max-w-2xl text-lg text-muted-foreground ${mx}`}>{slide.subheading}</p>}
               {(slide.primaryCta || slide.secondaryCta) && (
