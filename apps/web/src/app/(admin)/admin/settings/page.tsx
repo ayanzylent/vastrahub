@@ -40,6 +40,16 @@ interface SiteSettingsPayload {
   productPage: IProductPageConfig;
 }
 
+function ctaError(cta: { label: string; href: string } | undefined, fieldLabel: string): string | null {
+  if (!cta) return null;
+  const hasLabel = cta.label.trim().length > 0;
+  const hasHref = cta.href.trim().length > 0;
+  if (hasLabel !== hasHref) {
+    return `${fieldLabel} must include both button text and a link, or be left empty.`;
+  }
+  return null;
+}
+
 function validate(
   hero: IHeroConfig,
   blocks: IHomepageBlock[],
@@ -48,14 +58,24 @@ function validate(
 ): string | null {
   if (hero.slides.length === 0) return "The hero needs at least one slide.";
   if (hero.slides.some((slide) => !slide.heading.trim())) return "Every hero slide needs a heading.";
+  if (!hero.slides.some((slide) => slide.enabled)) return "At least one hero slide must be enabled.";
+  for (const slide of hero.slides) {
+    const primaryErr = ctaError(slide.primaryCta, "Primary button");
+    if (primaryErr) return primaryErr;
+    const secondaryErr = ctaError(slide.secondaryCta, "Secondary button");
+    if (secondaryErr) return secondaryErr;
+  }
   if (announcement.enabled && !announcement.messages.some((message) => message.trim())) {
     return "The announcement bar needs at least one message.";
   }
   if (productPage.estimatedDelivery.minDays > productPage.estimatedDelivery.maxDays) {
     return "Estimated delivery minimum days cannot exceed maximum days.";
   }
-  if (productPage.sections.some((section) => !section.title.trim() || !section.content.trim())) {
-    return "Every product information section needs a title and content.";
+  for (const section of productPage.sections) {
+    if (!section.enabled) continue;
+    if (!section.title.trim() || !section.content.trim()) {
+      return "Every enabled product information section needs a title and content.";
+    }
   }
   for (const b of blocks) {
     if (b.type === "banner" && b.enabled && !hasResponsiveImage(b.config?.image)) {
@@ -63,7 +83,9 @@ function validate(
     }
     if (b.type === "videoEmbed") {
       for (const v of b.config.videos) {
-        if (v.url.trim() && !toEmbedSrc(v.provider, v.url).ok) {
+        const url = v.url.trim();
+        if (!url) return "Remove empty video rows or fill in every video URL.";
+        if (!toEmbedSrc(v.provider, url).ok) {
           return "One or more video URLs are invalid — fix or remove them.";
         }
       }
