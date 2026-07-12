@@ -84,8 +84,16 @@ export function HeroSection({ hero }: { hero: IHeroConfig }) {
       })}
       {slides.length > 1 && (
         <>
-          <Button type="button" size="icon" variant="secondary" className="absolute left-3 top-1/2 z-20 -translate-y-1/2 rounded-full" onClick={() => goTo(current - 1)} aria-label="Previous hero slide"><ChevronLeft className="h-5 w-5" /></Button>
-          <Button type="button" size="icon" variant="secondary" className="absolute right-3 top-1/2 z-20 -translate-y-1/2 rounded-full" onClick={() => goTo(current + 1)} aria-label="Next hero slide"><ChevronRight className="h-5 w-5" /></Button>
+          <div className="absolute left-3 top-1/2 z-20 -translate-y-1/2">
+            <Button type="button" size="icon" variant="secondary" className="rounded-full" onClick={() => goTo(current - 1)} aria-label="Previous hero slide">
+              <ChevronLeft className="h-5 w-5" />
+            </Button>
+          </div>
+          <div className="absolute right-3 top-1/2 z-20 -translate-y-1/2">
+            <Button type="button" size="icon" variant="secondary" className="rounded-full" onClick={() => goTo(current + 1)} aria-label="Next hero slide">
+              <ChevronRight className="h-5 w-5" />
+            </Button>
+          </div>
           <div className="absolute bottom-5 left-1/2 z-20 flex -translate-x-1/2 gap-2">
             {slides.map((slide, index) => <button key={slide.id} type="button" onClick={() => goTo(index)} aria-label={`Show hero slide ${index + 1}`} aria-current={index === current} className={`h-2 rounded-full transition-all ${index === current ? "w-7 bg-primary" : "w-2 bg-foreground/35"}`} />)}
           </div>
