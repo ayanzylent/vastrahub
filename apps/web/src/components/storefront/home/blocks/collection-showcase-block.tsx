@@ -13,7 +13,7 @@ export function CollectionShowcaseBlock({
   const collections = block.resolved ?? [];
   if (collections.length === 0) return null;
 
-  const c = block.config;
+  const c = block.config ?? { collectionIds: [], layout: "grid" as const };
   const layout = c.layout ?? "grid";
 
   return (

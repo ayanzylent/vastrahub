@@ -10,7 +10,7 @@ export function FeaturedProductsBlock({
   const products = block.resolved ?? [];
   if (products.length === 0) return null;
 
-  const c = block.config;
+  const c = block.config ?? { productIds: [], layout: "grid" as const };
   const layout = c.layout ?? "grid";
 
   return (

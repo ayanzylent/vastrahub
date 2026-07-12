@@ -22,6 +22,10 @@ import { toEmbedSrc } from "@/lib/video-embed";
 import { SITE_SETTINGS_LIMITS } from "@/constants";
 import { TextField, Segmented, SectionLabel, selectCls } from "./fields";
 
+function blockConfig<T>(block: { config?: T }, fallback: T): T {
+  return block.config ?? fallback;
+}
+
 // ---------- Per-type editors ----------
 
 function CategoryShowcaseEditor({
@@ -31,7 +35,7 @@ function CategoryShowcaseEditor({
   block: ICategoryShowcaseBlock;
   onChange: (b: IHomepageBlock) => void;
 }) {
-  const c = block.config;
+  const c = blockConfig(block, { categoryIds: [], layout: "grid" as const });
   const set = (patch: Partial<ICategoryShowcaseBlock["config"]>) =>
     onChange({ ...block, config: { ...c, ...patch } });
   return (
@@ -62,7 +66,7 @@ function CollectionShowcaseEditor({
   block: ICollectionShowcaseBlock;
   onChange: (b: IHomepageBlock) => void;
 }) {
-  const c = block.config;
+  const c = blockConfig(block, { collectionIds: [], layout: "grid" as const });
   const set = (patch: Partial<ICollectionShowcaseBlock["config"]>) =>
     onChange({ ...block, config: { ...c, ...patch } });
   return (
@@ -93,7 +97,7 @@ function FeaturedProductsEditor({
   block: IFeaturedProductsBlock;
   onChange: (b: IHomepageBlock) => void;
 }) {
-  const c = block.config;
+  const c = blockConfig(block, { productIds: [], layout: "grid" as const });
   const set = (patch: Partial<IFeaturedProductsBlock["config"]>) =>
     onChange({ ...block, config: { ...c, ...patch } });
   return (
@@ -124,7 +128,7 @@ function VideoEmbedEditor({
   block: IVideoEmbedBlock;
   onChange: (b: IHomepageBlock) => void;
 }) {
-  const c = block.config;
+  const c = blockConfig(block, { videos: [] });
   const set = (patch: Partial<IVideoEmbedBlock["config"]>) =>
     onChange({ ...block, config: { ...c, ...patch } });
 
@@ -220,7 +224,7 @@ function BannerEditor({
   block: IBannerBlock;
   onChange: (b: IHomepageBlock) => void;
 }) {
-  const c = block.config;
+  const c = blockConfig(block, {});
   const set = (patch: Partial<IBannerBlock["config"]>) =>
     onChange({ ...block, config: { ...c, ...patch } });
   return (

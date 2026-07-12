@@ -130,19 +130,19 @@ const BLOCK_HYDRATORS = {
   categoryShowcase: async (block) => ({
     ...block,
     resolved: await resolveCategories(
-      block.type === 'categoryShowcase' ? block.config.categoryIds ?? [] : [],
+      block.type === 'categoryShowcase' ? block.config?.categoryIds ?? [] : [],
     ) as never,
   }),
   collectionShowcase: async (block) => ({
     ...block,
     resolved: await resolveCollections(
-      block.type === 'collectionShowcase' ? block.config.collectionIds ?? [] : [],
+      block.type === 'collectionShowcase' ? block.config?.collectionIds ?? [] : [],
     ) as never,
   }),
   featuredProducts: async (block) => ({
     ...block,
     resolved: await resolveProducts(
-      block.type === 'featuredProducts' ? block.config.productIds ?? [] : [],
+      block.type === 'featuredProducts' ? block.config?.productIds ?? [] : [],
     ) as never,
   }),
   videoEmbed: async (block) => block as IHydratedHomepageBlock,

@@ -59,7 +59,7 @@ export const BLOCK_META: Record<BlockType, BlockMeta> = {
 
 /** A short human label for a block, preferring its configured title. */
 export function blockTitle(block: IHomepageBlock): string {
-  const c = block.config as unknown as Record<string, unknown>;
+  const c = (block.config ?? {}) as Record<string, unknown>;
   const candidate = c.title as string | undefined;
   if (candidate && candidate.trim()) return candidate.trim();
   return BLOCK_META[block.type]?.label ?? "Unsupported block";

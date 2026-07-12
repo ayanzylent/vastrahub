@@ -22,6 +22,12 @@ import type {
   AnnouncementTone,
   BlockAlignment,
   ShowcaseLayout,
+  ICategoryShowcaseConfig,
+  ICollectionShowcaseConfig,
+  IFeaturedProductsConfig,
+  IVideoEmbedConfig,
+  IBannerConfig,
+  VideoProvider,
 } from '../../types/index.js';
 
 const ANNOUNCEMENT_MODES = new Set<AnnouncementMode>(['simple', 'typewriter']);
@@ -37,22 +43,87 @@ const BLOCK_TYPES = new Set<IHomepageBlock['type']>([
 
 const SHOWCASE_LAYOUTS = new Set<ShowcaseLayout>(['grid', 'carousel']);
 
-const SHOWCASE_BLOCK_TYPES = new Set<IHomepageBlock['type']>([
-  'categoryShowcase',
-  'collectionShowcase',
-  'featuredProducts',
-]);
+const VIDEO_PROVIDERS = new Set<VideoProvider>(['instagram', 'facebook', 'youtube']);
+
+function normalizeShowcaseLayout(raw: unknown): ShowcaseLayout {
+  return SHOWCASE_LAYOUTS.has(raw as ShowcaseLayout) ? (raw as ShowcaseLayout) : 'grid';
+}
+
+function normalizeIdArray(raw: unknown): string[] {
+  return Array.isArray(raw) ? raw.filter((id): id is string => typeof id === 'string') : [];
+}
+
+function normalizeOptionalString(raw: unknown): string | undefined {
+  return typeof raw === 'string' ? raw : undefined;
+}
 
 function normalizeHomepageBlock(block: IHomepageBlock): IHomepageBlock {
-  if (!SHOWCASE_BLOCK_TYPES.has(block.type)) return block;
+  const raw =
+    block.config && typeof block.config === 'object'
+      ? (block.config as Record<string, unknown>)
+      : {};
 
-  const config = block.config as { layout?: unknown };
-  if (SHOWCASE_LAYOUTS.has(config.layout as ShowcaseLayout)) return block;
-
-  return {
-    ...block,
-    config: { ...config, layout: 'grid' },
-  } as IHomepageBlock;
+  switch (block.type) {
+    case 'categoryShowcase': {
+      const config: ICategoryShowcaseConfig = {
+        title: normalizeOptionalString(raw.title),
+        subtitle: normalizeOptionalString(raw.subtitle),
+        categoryIds: normalizeIdArray(raw.categoryIds),
+        layout: normalizeShowcaseLayout(raw.layout),
+      };
+      return { ...block, config };
+    }
+    case 'collectionShowcase': {
+      const config: ICollectionShowcaseConfig = {
+        title: normalizeOptionalString(raw.title),
+        subtitle: normalizeOptionalString(raw.subtitle),
+        collectionIds: normalizeIdArray(raw.collectionIds),
+        layout: normalizeShowcaseLayout(raw.layout),
+      };
+      return { ...block, config };
+    }
+    case 'featuredProducts': {
+      const config: IFeaturedProductsConfig = {
+        title: normalizeOptionalString(raw.title),
+        subtitle: normalizeOptionalString(raw.subtitle),
+        productIds: normalizeIdArray(raw.productIds),
+        layout: normalizeShowcaseLayout(raw.layout),
+      };
+      return { ...block, config };
+    }
+    case 'videoEmbed': {
+      const videos = Array.isArray(raw.videos)
+        ? raw.videos
+            .filter((item): item is Record<string, unknown> => !!item && typeof item === 'object')
+            .map((item) => ({
+              provider: VIDEO_PROVIDERS.has(item.provider as VideoProvider)
+                ? (item.provider as VideoProvider)
+                : 'youtube',
+              url: typeof item.url === 'string' ? item.url : '',
+              caption: normalizeOptionalString(item.caption),
+            }))
+        : [];
+      const config: IVideoEmbedConfig = {
+        title: normalizeOptionalString(raw.title),
+        subtitle: normalizeOptionalString(raw.subtitle),
+        videos,
+      };
+      return { ...block, config };
+    }
+    case 'banner': {
+      const config: IBannerConfig = {
+        image:
+          raw.image && typeof raw.image === 'object'
+            ? (raw.image as IBannerConfig['image'])
+            : undefined,
+        href: normalizeOptionalString(raw.href),
+        alt: normalizeOptionalString(raw.alt),
+      };
+      return { ...block, config };
+    }
+    default:
+      return block;
+  }
 }
 
 function normalizeHeroSlide(raw: unknown, index: number): IHeroSlide {

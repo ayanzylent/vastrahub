@@ -44,7 +44,7 @@ export function CategoryShowcaseBlock({
   const categories = block.resolved ?? [];
   if (categories.length === 0) return null;
 
-  const c = block.config;
+  const c = block.config ?? { categoryIds: [], layout: "grid" as const };
   const layout = c.layout ?? "grid";
 
   return (
