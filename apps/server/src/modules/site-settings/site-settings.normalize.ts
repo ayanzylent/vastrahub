@@ -21,6 +21,7 @@ import type {
   AnnouncementMode,
   AnnouncementTone,
   BlockAlignment,
+  ShowcaseLayout,
 } from '../../types/index.js';
 
 const ANNOUNCEMENT_MODES = new Set<AnnouncementMode>(['simple', 'typewriter']);
@@ -33,6 +34,26 @@ const BLOCK_TYPES = new Set<IHomepageBlock['type']>([
   'videoEmbed',
   'banner',
 ]);
+
+const SHOWCASE_LAYOUTS = new Set<ShowcaseLayout>(['grid', 'carousel']);
+
+const SHOWCASE_BLOCK_TYPES = new Set<IHomepageBlock['type']>([
+  'categoryShowcase',
+  'collectionShowcase',
+  'featuredProducts',
+]);
+
+function normalizeHomepageBlock(block: IHomepageBlock): IHomepageBlock {
+  if (!SHOWCASE_BLOCK_TYPES.has(block.type)) return block;
+
+  const config = block.config as { layout?: unknown };
+  if (SHOWCASE_LAYOUTS.has(config.layout as ShowcaseLayout)) return block;
+
+  return {
+    ...block,
+    config: { ...config, layout: 'grid' },
+  } as IHomepageBlock;
+}
 
 function normalizeHeroSlide(raw: unknown, index: number): IHeroSlide {
   const fallback = DEFAULT_HERO.slides[0];
@@ -142,16 +163,18 @@ export function normalizeProductPage(raw: unknown): IProductPageConfig {
 export function normalizeHomepageBlocks(raw: unknown): IHomepageBlock[] {
   if (!Array.isArray(raw)) return structuredClone(DEFAULT_HOMEPAGE_BLOCKS);
 
-  return raw.filter((block): block is IHomepageBlock => {
-    if (!block || typeof block !== 'object') return false;
-    const candidate = block as Partial<IHomepageBlock>;
-    return (
-      typeof candidate.id === 'string' &&
-      candidate.id.trim().length > 0 &&
-      typeof candidate.type === 'string' &&
-      BLOCK_TYPES.has(candidate.type as IHomepageBlock['type'])
-    );
-  });
+  return raw
+    .filter((block): block is IHomepageBlock => {
+      if (!block || typeof block !== 'object') return false;
+      const candidate = block as Partial<IHomepageBlock>;
+      return (
+        typeof candidate.id === 'string' &&
+        candidate.id.trim().length > 0 &&
+        typeof candidate.type === 'string' &&
+        BLOCK_TYPES.has(candidate.type as IHomepageBlock['type'])
+      );
+    })
+    .map(normalizeHomepageBlock);
 }
 
 export function toSiteSettings(doc: unknown): ISiteSettings {

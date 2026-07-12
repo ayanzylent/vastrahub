@@ -1,5 +1,6 @@
 import { ProductCard, type ProductCardProduct } from "@/components/shared/product-card";
 import type { IFeaturedProductsBlock, IProduct } from "@/types";
+import { FeaturedProductsCarousel } from "./featured-products-carousel";
 
 export function FeaturedProductsBlock({
   block,
@@ -10,6 +11,7 @@ export function FeaturedProductsBlock({
   if (products.length === 0) return null;
 
   const c = block.config;
+  const layout = c.layout ?? "grid";
 
   return (
     <section className="py-16 md:py-24 bg-card/50">
@@ -23,16 +25,20 @@ export function FeaturedProductsBlock({
           </div>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
-          {products.map((product) => (
-            <ProductCard
-              key={product._id}
-              product={product as unknown as ProductCardProduct}
-              lowestPricePaise={product.basePricePaise}
-              lowestMrpPaise={product.baseMrpPaise}
-            />
-          ))}
-        </div>
+        {layout === "carousel" ? (
+          <FeaturedProductsCarousel products={products} />
+        ) : (
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+            {products.map((product) => (
+              <ProductCard
+                key={product._id}
+                product={product as unknown as ProductCardProduct}
+                lowestPricePaise={product.basePricePaise}
+                lowestMrpPaise={product.baseMrpPaise}
+              />
+            ))}
+          </div>
+        )}
       </div>
     </section>
   );

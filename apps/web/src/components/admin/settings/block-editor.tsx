@@ -69,6 +69,15 @@ function CollectionShowcaseEditor({
     <div className="space-y-4">
       <TextField label="Title" value={c.title ?? ""} onChange={(v) => set({ title: v || undefined })} maxLength={120} />
       <TextField label="Subtitle" value={c.subtitle ?? ""} onChange={(v) => set({ subtitle: v || undefined })} maxLength={200} />
+      <Segmented
+        label="Layout"
+        value={c.layout ?? "grid"}
+        onChange={(v) => set({ layout: v })}
+        options={[
+          { value: "grid", label: "Grid" },
+          { value: "carousel", label: "Carousel" },
+        ]}
+      />
       <div className="space-y-2">
         <SectionLabel>Collections</SectionLabel>
         <CollectionPicker ids={c.collectionIds} onChange={(ids) => set({ collectionIds: ids })} />
@@ -91,6 +100,15 @@ function FeaturedProductsEditor({
     <div className="space-y-4">
       <TextField label="Title" value={c.title ?? ""} onChange={(v) => set({ title: v || undefined })} maxLength={120} />
       <TextField label="Subtitle" value={c.subtitle ?? ""} onChange={(v) => set({ subtitle: v || undefined })} maxLength={200} />
+      <Segmented
+        label="Layout"
+        value={c.layout ?? "grid"}
+        onChange={(v) => set({ layout: v })}
+        options={[
+          { value: "grid", label: "Grid" },
+          { value: "carousel", label: "Carousel" },
+        ]}
+      />
       <div className="space-y-2">
         <SectionLabel>Products</SectionLabel>
         <ProductPicker ids={c.productIds} onChange={(ids) => set({ productIds: ids })} />

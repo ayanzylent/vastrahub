@@ -36,6 +36,8 @@ const Alignment = Type.Union([
   Type.Literal('right'),
 ]);
 
+const ShowcaseLayout = Type.Union([Type.Literal('grid'), Type.Literal('carousel')]);
+
 // ---------- Singleton hero (not a block) ----------
 
 const HeroSlide = Type.Object({
@@ -66,7 +68,7 @@ const CategoryShowcaseBlock = Type.Object({
     title: Type.Optional(Type.String({ maxLength: 120 })),
     subtitle: Type.Optional(Type.String({ maxLength: 200 })),
     categoryIds: Type.Array(ObjectId, { maxItems: SITE_SETTINGS_LIMITS.MAX_SHOWCASE_CATEGORIES }),
-    layout: Type.Union([Type.Literal('grid'), Type.Literal('carousel')]),
+    layout: ShowcaseLayout,
   }),
 });
 
@@ -77,6 +79,7 @@ const CollectionShowcaseBlock = Type.Object({
     title: Type.Optional(Type.String({ maxLength: 120 })),
     subtitle: Type.Optional(Type.String({ maxLength: 200 })),
     collectionIds: Type.Array(ObjectId, { maxItems: SITE_SETTINGS_LIMITS.MAX_SHOWCASE_COLLECTIONS }),
+    layout: ShowcaseLayout,
   }),
 });
 
@@ -87,6 +90,7 @@ const FeaturedProductsBlock = Type.Object({
     title: Type.Optional(Type.String({ maxLength: 120 })),
     subtitle: Type.Optional(Type.String({ maxLength: 200 })),
     productIds: Type.Array(ObjectId, { maxItems: SITE_SETTINGS_LIMITS.MAX_SHOWCASE_PRODUCTS }),
+    layout: ShowcaseLayout,
   }),
 });
 

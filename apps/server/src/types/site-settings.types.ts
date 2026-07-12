@@ -49,12 +49,14 @@ export interface IHeroConfig {
 
 // ---------- Block config shapes ----------
 
+export type ShowcaseLayout = 'grid' | 'carousel';
+
 export interface ICategoryShowcaseConfig {
   title?: string;
   subtitle?: string;
   /** Explicitly curated & ordered category ids. Empty => auto (top active categories). */
   categoryIds: string[];
-  layout: 'grid' | 'carousel';
+  layout: ShowcaseLayout;
 }
 
 export interface ICollectionShowcaseConfig {
@@ -62,6 +64,7 @@ export interface ICollectionShowcaseConfig {
   subtitle?: string;
   /** Explicitly curated & ordered collection ids. Empty => featured collections. */
   collectionIds: string[];
+  layout: ShowcaseLayout;
 }
 
 export interface IFeaturedProductsConfig {
@@ -69,6 +72,7 @@ export interface IFeaturedProductsConfig {
   subtitle?: string;
   /** Explicitly curated & ordered product ids. Empty => featured products. */
   productIds: string[];
+  layout: ShowcaseLayout;
 }
 
 export type VideoProvider = 'instagram' | 'facebook' | 'youtube';

@@ -81,13 +81,13 @@ export function createBlock(type: BlockType): IHomepageBlock {
       return {
         ...base,
         type,
-        config: { title: "Shop by Collection", collectionIds: [] },
+        config: { title: "Shop by Collection", collectionIds: [], layout: "grid" },
       };
     case "featuredProducts":
       return {
         ...base,
         type,
-        config: { title: "Featured Products", productIds: [] },
+        config: { title: "Featured Products", productIds: [], layout: "grid" },
       };
     case "videoEmbed":
       return {

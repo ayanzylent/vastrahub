@@ -25,6 +25,7 @@ export type {
   ICta,
   BlockAlignment,
   ResponsiveImage,
+  ShowcaseLayout,
   IHeroSlide,
   IHeroConfig,
   ICategoryShowcaseConfig,
