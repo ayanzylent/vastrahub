@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { ArrowRight, ChevronLeft, ChevronRight, Sparkles, TrendingUp, Star } from "lucide-react";
+import { ArrowRight, ChevronLeft, ChevronRight, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import type { IHeroConfig } from "@/types";
@@ -77,11 +77,7 @@ export function HeroSection({ hero }: { hero: IHeroConfig }) {
                   {slide.secondaryCta && <Button variant="outline" size="lg" asChild><Link href={slide.secondaryCta.href}>{slide.secondaryCta.label}</Link></Button>}
                 </div>
               )}
-              <div className={`mt-12 flex flex-wrap items-center gap-8 text-sm text-muted-foreground ${justify}`}>
-                <div className="flex items-center gap-2"><Star className="h-4 w-4 text-primary" /><span>4.9/5 Rating</span></div>
-                <div className="flex items-center gap-2"><TrendingUp className="h-4 w-4 text-emerald-600 dark:text-emerald-400" /><span>50K+ Happy Customers</span></div>
-                <div className="flex items-center gap-2"><Sparkles className="h-4 w-4 text-primary" /><span>Handpicked Quality</span></div>
-              </div>
+
             </div>
           </div>
         );
