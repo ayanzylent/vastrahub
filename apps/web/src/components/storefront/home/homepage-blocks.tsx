@@ -5,21 +5,24 @@ import { RefreshCw } from "lucide-react";
 import { api } from "@/lib/api";
 import type { IHydratedSiteSettings } from "@/types";
 import { BlockRenderer } from "./block-renderer";
+import { HOME_BLOCK_HEADER_CLASS, HOME_BLOCK_LIST_CLASS } from "./blocks/home-block-section";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 
 function BlocksSkeleton() {
   return (
-    <section className="py-16">
-      <div className="mx-auto max-w-7xl px-4 md:px-6">
-        <Skeleton className="mb-10 h-8 w-56" />
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-          {Array.from({ length: 6 }).map((_, i) => (
-            <Skeleton key={i} className="aspect-[4/5] w-full" />
-          ))}
+    <div className={HOME_BLOCK_LIST_CLASS}>
+      <section>
+        <div className="mx-auto max-w-7xl px-4 md:px-6">
+          <Skeleton className={`${HOME_BLOCK_HEADER_CLASS} h-8 w-56`} />
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 md:gap-4">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <Skeleton key={i} className="aspect-[4/5] w-full" />
+            ))}
+          </div>
         </div>
-      </div>
-    </section>
+      </section>
+    </div>
   );
 }
 
@@ -58,15 +61,17 @@ export function HomepageBlocks() {
 
   if (error) {
     return (
-      <section className="py-16">
-        <div className="mx-auto max-w-7xl px-4 md:px-6 text-center">
-          <p className="text-sm text-muted-foreground">{error}</p>
-          <Button type="button" variant="outline" size="sm" className="mt-4" onClick={load}>
-            <RefreshCw className="mr-2 h-4 w-4" />
-            Retry
-          </Button>
-        </div>
-      </section>
+      <div className={HOME_BLOCK_LIST_CLASS}>
+        <section>
+          <div className="mx-auto max-w-7xl px-4 md:px-6 text-center">
+            <p className="text-sm text-muted-foreground">{error}</p>
+            <Button type="button" variant="outline" size="sm" className="mt-4" onClick={load}>
+              <RefreshCw className="mr-2 h-4 w-4" />
+              Retry
+            </Button>
+          </div>
+        </section>
+      </div>
     );
   }
 

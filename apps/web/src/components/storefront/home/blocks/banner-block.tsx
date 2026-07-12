@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { IBannerBlock } from "@/types";
 import { hasResponsiveImage } from "@/lib/responsive-image";
 import { ResponsivePicture } from "../responsive-picture";
+import { HomeBlockSection } from "./home-block-section";
 
 /**
  * A pure image banner rendered at its natural height (`h-auto`) so banners of
@@ -22,16 +23,14 @@ export function BannerBlock({ block }: { block: IBannerBlock }) {
   );
 
   return (
-    <section className="py-6 md:py-8">
-      <div className="mx-auto max-w-7xl px-4 md:px-6">
-        {c.href?.trim() ? (
-          <Link href={c.href.trim()} className="block overflow-hidden rounded-xl">
-            {picture}
-          </Link>
-        ) : (
-          <div className="overflow-hidden rounded-xl">{picture}</div>
-        )}
-      </div>
-    </section>
+    <HomeBlockSection>
+      {c.href?.trim() ? (
+        <Link href={c.href.trim()} className="block overflow-hidden rounded-xl">
+          {picture}
+        </Link>
+      ) : (
+        <div className="overflow-hidden rounded-xl">{picture}</div>
+      )}
+    </HomeBlockSection>
   );
 }

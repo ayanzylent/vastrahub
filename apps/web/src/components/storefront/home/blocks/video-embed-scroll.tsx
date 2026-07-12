@@ -18,7 +18,7 @@ export function VideoEmbedScroll({ items }: { items: VideoEmbedItem[] }) {
     const el = scrollRef.current;
     if (!el) return;
     const card = el.querySelector<HTMLElement>("[data-video-card]");
-    const gap = 24;
+    const gap = 16;
     const step = (card?.offsetWidth ?? 320) + gap;
     el.scrollBy({ left: dir * step, behavior: "smooth" });
   }
@@ -27,7 +27,7 @@ export function VideoEmbedScroll({ items }: { items: VideoEmbedItem[] }) {
     <div className="relative">
       <div
         ref={scrollRef}
-        className="flex gap-6 overflow-x-auto scroll-smooth snap-x snap-mandatory pb-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        className="flex gap-4 md:gap-5 overflow-x-auto scroll-smooth snap-x snap-mandatory pb-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         aria-roledescription="carousel"
       >
         {items.map((item, i) => {
@@ -36,7 +36,7 @@ export function VideoEmbedScroll({ items }: { items: VideoEmbedItem[] }) {
             <div
               key={i}
               data-video-card
-              className="w-full shrink-0 snap-start sm:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)]"
+              className="w-full shrink-0 snap-start sm:w-[calc(50%-8px)] lg:w-[calc(33.333%-11px)]"
             >
               <div className="space-y-2">
                 <div

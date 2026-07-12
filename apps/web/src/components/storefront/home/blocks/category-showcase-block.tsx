@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { getMediaUrl } from "@/lib/media";
 import type { ICategoryShowcaseBlock, ICategory } from "@/types";
 import { CategoryShowcaseCarousel } from "./category-showcase-carousel";
+import { HOME_BLOCK_HEADER_CLASS, HomeBlockSection } from "./home-block-section";
 
 function CategoryCard({ cat }: { cat: ICategory }) {
   return (
@@ -48,32 +49,30 @@ export function CategoryShowcaseBlock({
   const layout = c.layout ?? "grid";
 
   return (
-    <section className="py-16 md:py-24">
-      <div className="mx-auto max-w-7xl px-4 md:px-6">
-        <div className="flex items-center justify-between mb-10">
-          <div>
-            <h2 className="font-heading text-2xl md:text-3xl font-bold">
-              {c.title || "Shop by Category"}
-            </h2>
-            {c.subtitle && <p className="mt-2 text-muted-foreground">{c.subtitle}</p>}
-          </div>
-          <Button variant="ghost" asChild>
-            <Link href="/categories">
-              View All <ArrowRight className="ml-1 h-4 w-4" />
-            </Link>
-          </Button>
+    <HomeBlockSection>
+      <div className={`flex items-center justify-between ${HOME_BLOCK_HEADER_CLASS}`}>
+        <div>
+          <h2 className="font-heading text-2xl md:text-3xl font-bold">
+            {c.title || "Shop by Category"}
+          </h2>
+          {c.subtitle && <p className="mt-2 text-muted-foreground">{c.subtitle}</p>}
         </div>
-
-        {layout === "carousel" ? (
-          <CategoryShowcaseCarousel categories={categories} />
-        ) : (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-            {categories.map((cat) => (
-              <CategoryCard key={cat._id} cat={cat} />
-            ))}
-          </div>
-        )}
+        <Button variant="ghost" asChild>
+          <Link href="/categories">
+            View All <ArrowRight className="ml-1 h-4 w-4" />
+          </Link>
+        </Button>
       </div>
-    </section>
+
+      {layout === "carousel" ? (
+        <CategoryShowcaseCarousel categories={categories} />
+      ) : (
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 md:gap-4">
+          {categories.map((cat) => (
+            <CategoryCard key={cat._id} cat={cat} />
+          ))}
+        </div>
+      )}
+    </HomeBlockSection>
   );
 }
