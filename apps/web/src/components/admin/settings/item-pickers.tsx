@@ -10,38 +10,30 @@ interface PickerProps {
   onChange: (ids: string[]) => void;
 }
 
+function categoryToItem(c: ICategory): PickerItem {
+  return { _id: c._id, name: c.name, image: c.image ?? null };
+}
+
 // ---------- Categories ----------
 
 export function CategoryPicker({ ids, onChange }: PickerProps) {
-  const listRef = useRef<Promise<PickerItem[]> | null>(null);
-
-  const loadList = useCallback(() => {
-    if (!listRef.current) {
-      listRef.current = api.get<ICategory[]>("/api/v1/admin/categories").then((res) => {
-        const data = res.success && Array.isArray(res.data) ? res.data : [];
-        return data.map((c) => ({ _id: c._id, name: c.name, image: c.image ?? null }));
-      });
-    }
-    return listRef.current;
+  const search = useCallback(async (q: string) => {
+    const res = await api.get<ICategory[]>(
+      `/api/v1/admin/categories?search=${encodeURIComponent(q)}&limit=20`,
+    );
+    const data = res.success && Array.isArray(res.data) ? res.data : [];
+    return data.map(categoryToItem);
   }, []);
 
-  const search = useCallback(
-    async (q: string) => {
-      const list = await loadList();
-      const lc = q.toLowerCase();
-      return list.filter((i) => i.name.toLowerCase().includes(lc)).slice(0, 20);
-    },
-    [loadList],
-  );
-
-  const resolve = useCallback(
-    async (wanted: string[]) => {
-      const list = await loadList();
-      const set = new Set(wanted);
-      return list.filter((i) => set.has(i._id));
-    },
-    [loadList],
-  );
+  const resolve = useCallback(async (wanted: string[]) => {
+    const results = await Promise.all(
+      wanted.map(async (id) => {
+        const res = await api.get<ICategory>(`/api/v1/admin/categories/${id}`);
+        return res.success && res.data ? categoryToItem(res.data) : null;
+      }),
+    );
+    return results.filter((x): x is PickerItem => x !== null);
+  }, []);
 
   return (
     <OrderedPicker
