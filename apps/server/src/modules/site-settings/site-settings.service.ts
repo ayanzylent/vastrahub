@@ -20,8 +20,8 @@ import type {
   ISiteSettings,
   BlockType,
 } from '../../types/index.js';
-import { ValidationError } from '../../lib/errors.js';
 import { hasResponsiveImage } from '../../lib/responsive-image.js';
+import { assertValidSettings } from './site-settings.validation.js';
 
 const STOREFRONT_PRODUCT_CONSTRAINTS: Record<string, unknown> = {
   isActive: true,
@@ -56,23 +56,6 @@ function toSiteSettings(doc: unknown): ISiteSettings {
     createdAt: record.createdAt as Date | undefined,
     updatedAt: record.updatedAt as Date | undefined,
   };
-}
-
-export function assertValidSettings(
-  settings: Pick<ISiteSettings, 'productPage' | 'homepageBlocks'>,
-): void {
-  const { minDays, maxDays } = settings.productPage.estimatedDelivery;
-  if (minDays > maxDays) {
-    throw new ValidationError('Estimated delivery minimum days cannot exceed maximum days');
-  }
-
-  for (const block of settings.homepageBlocks) {
-    if (block.type === 'banner' && block.enabled && !hasResponsiveImage(block.config?.image)) {
-      throw new ValidationError(
-        'Enabled image banner blocks require at least one image (desktop, tablet, or mobile).',
-      );
-    }
-  }
 }
 
 export async function getOrCreateSettings(): Promise<ISiteSettings> {
