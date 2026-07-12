@@ -78,10 +78,6 @@ export function assertValidSettings(
 export async function getOrCreateSettings(): Promise<ISiteSettings> {
   const existing = await SiteSettings.findOne({ key: 'singleton' }).lean();
   if (existing) {
-    // Stale schema versions are wiped and recreated from the current defaults.
-    if ((existing as { schemaVersion?: number }).schemaVersion !== SITE_SETTINGS_SCHEMA_VERSION) {
-      return resetSettings();
-    }
     return toSiteSettings(existing);
   }
 
