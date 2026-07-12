@@ -19,6 +19,7 @@ import type {
 import { ResponsiveImageField } from "./responsive-image-field";
 import { CategoryPicker, CollectionPicker, ProductPicker } from "./item-pickers";
 import { toEmbedSrc } from "@/lib/video-embed";
+import { SITE_SETTINGS_LIMITS } from "@/constants";
 import { TextField, Segmented, SectionLabel, selectCls } from "./fields";
 
 // ---------- Per-type editors ----------
@@ -180,7 +181,13 @@ function VideoEmbedEditor({
             </div>
           );
         })}
-        <Button type="button" variant="outline" size="sm" onClick={addVideo}>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={addVideo}
+          disabled={c.videos.length >= SITE_SETTINGS_LIMITS.MAX_VIDEOS_PER_BLOCK}
+        >
           <Plus className="mr-1.5 h-4 w-4" /> Add video
         </Button>
       </div>

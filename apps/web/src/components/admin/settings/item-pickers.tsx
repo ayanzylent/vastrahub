@@ -2,6 +2,7 @@
 
 import { useCallback } from "react";
 import { api } from "@/lib/api";
+import { SITE_SETTINGS_LIMITS } from "@/constants";
 import type { ICategory, ICollection } from "@/types";
 import { OrderedPicker, type PickerItem } from "./ordered-picker";
 
@@ -11,7 +12,7 @@ interface PickerProps {
 }
 
 function categoryToItem(c: ICategory): PickerItem {
-  return { _id: c._id, name: c.name, image: c.image ?? null };
+  return { _id: c._id, name: c.name, image: c.image ?? null, inactive: !c.isActive };
 }
 
 // ---------- Categories ----------
@@ -44,12 +45,18 @@ export function CategoryPicker({ ids, onChange }: PickerProps) {
       searchPlaceholder="Search categories to add…"
       emptyHint="No categories selected — the homepage will auto-show top categories."
       noun="categories"
+      maxCount={SITE_SETTINGS_LIMITS.MAX_SHOWCASE_CATEGORIES}
     />
   );
 }
 
 function collectionToItem(c: ICollection): PickerItem {
-  return { _id: c._id, name: c.name, image: c.bannerImage || c.image || null };
+  return {
+    _id: c._id,
+    name: c.name,
+    image: c.bannerImage || c.image || null,
+    inactive: !c.isActive,
+  };
 }
 
 // ---------- Collections ----------
@@ -82,6 +89,7 @@ export function CollectionPicker({ ids, onChange }: PickerProps) {
       searchPlaceholder="Search collections to add…"
       emptyHint="No collections selected — the homepage will auto-show featured collections."
       noun="collections"
+      maxCount={SITE_SETTINGS_LIMITS.MAX_SHOWCASE_COLLECTIONS}
     />
   );
 }
@@ -91,13 +99,17 @@ export function CollectionPicker({ ids, onChange }: PickerProps) {
 interface RawProduct {
   _id: string;
   name: string;
+  isActive?: boolean;
+  publishedAt?: string | Date | null;
+  deletedAt?: string | Date | null;
   variantMedia?: Array<{ isCoverGroup?: boolean; media?: Array<{ type: string; url: string }> }>;
 }
 
 function productToItem(p: RawProduct): PickerItem {
   const group = p.variantMedia?.find((vm) => vm.isCoverGroup) ?? p.variantMedia?.[0];
   const cover = group?.media?.find((m) => m.type === "image");
-  return { _id: p._id, name: p.name, image: cover?.url ?? null };
+  const inactive = p.isActive === false || !p.publishedAt || !!p.deletedAt;
+  return { _id: p._id, name: p.name, image: cover?.url ?? null, inactive };
 }
 
 export function ProductPicker({ ids, onChange }: PickerProps) {
@@ -128,6 +140,7 @@ export function ProductPicker({ ids, onChange }: PickerProps) {
       searchPlaceholder="Search products to add…"
       emptyHint="No products selected — the homepage will auto-show featured products."
       noun="products"
+      maxCount={SITE_SETTINGS_LIMITS.MAX_SHOWCASE_PRODUCTS}
     />
   );
 }

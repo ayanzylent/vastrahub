@@ -11,6 +11,8 @@ export interface PickerItem {
   _id: string;
   name: string;
   image?: string | null;
+  /** When true, item won't appear on the storefront showcase hydration. */
+  inactive?: boolean;
 }
 
 interface OrderedPickerProps {
@@ -24,6 +26,7 @@ interface OrderedPickerProps {
   searchPlaceholder?: string;
   emptyHint?: string;
   noun?: string;
+  maxCount?: number;
 }
 
 /**
@@ -39,6 +42,7 @@ export function OrderedPicker({
   searchPlaceholder = "Search to add…",
   emptyHint = "Nothing selected yet. Search above to add.",
   noun = "items",
+  maxCount,
 }: OrderedPickerProps) {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<PickerItem[]>([]);
@@ -99,6 +103,7 @@ export function OrderedPicker({
 
   function add(id: string) {
     if (selectedSet.has(id)) return;
+    if (maxCount !== undefined && ids.length >= maxCount) return;
     onChange([...ids, id]);
   }
 
@@ -121,6 +126,8 @@ export function OrderedPicker({
   }
 
   const itemFor = (id: string): PickerItem => cache[id] ?? { _id: id, name: id };
+  const atLimit = maxCount !== undefined && ids.length >= maxCount;
+  const inactiveCount = ids.filter((id) => itemFor(id).inactive).length;
 
   return (
     <div className="space-y-4">
@@ -152,12 +159,19 @@ export function OrderedPicker({
                       <img src={img} alt={it.name} className="h-full w-full object-cover" />
                     ) : null}
                   </div>
-                  <span className="flex-1 truncate text-sm">{it.name}</span>
+                  <div className="min-w-0 flex-1">
+                    <span className="block truncate text-sm">{it.name}</span>
+                    {it.inactive && (
+                      <span className="text-[11px] text-amber-600 dark:text-amber-400">
+                        Inactive — won&apos;t show on storefront
+                      </span>
+                    )}
+                  </div>
                   <Button
                     type="button"
                     variant={already ? "ghost" : "outline"}
                     size="sm"
-                    disabled={already}
+                    disabled={already || atLimit}
                     onClick={() => add(it._id)}
                   >
                     {already ? "Added" : (<><Plus className="mr-1 h-3.5 w-3.5" /> Add</>)}
@@ -173,10 +187,20 @@ export function OrderedPicker({
       <div>
         <div className="mb-2 flex items-center justify-between">
           <span className="text-sm font-medium">
-            Selected {noun} ({ids.length})
+            Selected {noun} ({ids.length}{maxCount !== undefined ? ` / ${maxCount}` : ""})
           </span>
           <span className="text-xs text-muted-foreground">Drag to reorder</span>
         </div>
+        {atLimit && (
+          <p className="mb-2 text-xs text-muted-foreground">
+            Maximum of {maxCount} {noun} reached.
+          </p>
+        )}
+        {inactiveCount > 0 && (
+          <p className="mb-2 text-xs text-amber-600 dark:text-amber-400">
+            {inactiveCount} selected {noun} {inactiveCount === 1 ? "is" : "are"} inactive and won&apos;t appear on the storefront.
+          </p>
+        )}
 
         {ids.length === 0 ? (
           <p className="rounded-md border border-dashed border-border/60 py-6 text-center text-sm text-muted-foreground">
@@ -215,7 +239,12 @@ export function OrderedPicker({
                       <img src={img} alt={it.name} className="h-full w-full object-cover" />
                     ) : null}
                   </div>
-                  <span className="flex-1 truncate text-sm">{it.name}</span>
+                  <div className="min-w-0 flex-1">
+                    <span className="block truncate text-sm">{it.name}</span>
+                    {it.inactive && (
+                      <span className="text-[11px] text-amber-600 dark:text-amber-400">Inactive</span>
+                    )}
+                  </div>
                   <div className="flex items-center gap-0.5 shrink-0">
                     <Button
                       type="button"
