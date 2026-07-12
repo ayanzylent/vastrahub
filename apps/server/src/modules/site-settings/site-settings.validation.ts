@@ -14,6 +14,20 @@ import { ValidationError } from '../../lib/errors.js';
 import { hasResponsiveImage } from '../../lib/responsive-image.js';
 import { toEmbedSrc } from '../../lib/video-embed.js';
 
+function validateOptionalLinkPair(
+  text: string | undefined,
+  href: string | undefined,
+  fieldLabel: string,
+): void {
+  const hasText = !!text?.trim();
+  const hasHref = !!href?.trim();
+  if (hasText !== hasHref) {
+    throw new ValidationError(
+      `${fieldLabel} must include both link text and URL, or be left empty.`,
+    );
+  }
+}
+
 function validateCta(cta: ICta | undefined, fieldLabel: string): void {
   if (!cta) return;
   const hasLabel = cta.label.trim().length > 0;
@@ -47,6 +61,7 @@ export function validateAnnouncement(bar: IAnnouncementBar): void {
   if (bar.enabled && !bar.messages.some((message) => message.trim())) {
     throw new ValidationError('The announcement bar needs at least one message.');
   }
+  validateOptionalLinkPair(bar.linkText, bar.linkHref, 'Announcement bar link');
 }
 
 export function validateProductPage(productPage: IProductPageConfig): void {
@@ -60,6 +75,7 @@ export function validateProductPage(productPage: IProductPageConfig): void {
     if (!section.title.trim() || !section.content.trim()) {
       throw new ValidationError('Every enabled product information section needs a title and content.');
     }
+    validateOptionalLinkPair(section.linkText, section.linkHref, `Product section "${section.title.trim()}" link`);
   }
 }
 
@@ -71,7 +87,7 @@ export function validateHomepageBlocks(blocks: IHomepageBlock[]): void {
       );
     }
 
-    if (block.type === 'videoEmbed') {
+    if (block.type === 'videoEmbed' && block.enabled) {
       for (const video of block.config.videos) {
         const url = video.url.trim();
         if (!url) {
