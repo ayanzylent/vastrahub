@@ -1,4 +1,5 @@
 import { getMediaUrl } from "@/lib/media";
+import { resolveResponsiveImageKeys } from "@/lib/responsive-image";
 import type { ResponsiveImage } from "@/types";
 
 /**
@@ -17,18 +18,15 @@ export function ResponsivePicture({
   className?: string;
   imgClassName?: string;
 }) {
-  const base = image?.desktop || image?.tablet || image?.mobile;
-  if (!base) return null;
-
-  const tablet = image?.tablet || base;
-  const mobile = image?.mobile || base;
+  const keys = resolveResponsiveImageKeys(image);
+  if (!keys) return null;
 
   return (
     <picture className={className}>
-      <source media="(max-width: 640px)" srcSet={getMediaUrl(mobile)} />
-      <source media="(max-width: 1024px)" srcSet={getMediaUrl(tablet)} />
+      <source media="(max-width: 640px)" srcSet={getMediaUrl(keys.mobile)} />
+      <source media="(max-width: 1024px)" srcSet={getMediaUrl(keys.tablet)} />
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={getMediaUrl(base)} alt={alt} className={imgClassName} />
+      <img src={getMediaUrl(keys.base)} alt={alt} className={imgClassName} />
     </picture>
   );
 }

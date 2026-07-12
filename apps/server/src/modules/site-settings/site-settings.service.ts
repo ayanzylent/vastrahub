@@ -21,6 +21,7 @@ import type {
   BlockType,
 } from '../../types/index.js';
 import { ValidationError } from '../../lib/errors.js';
+import { hasResponsiveImage } from '../../lib/responsive-image.js';
 
 const STOREFRONT_PRODUCT_CONSTRAINTS: Record<string, unknown> = {
   isActive: true,
@@ -57,10 +58,20 @@ function toSiteSettings(doc: unknown): ISiteSettings {
   };
 }
 
-export function assertValidSettings(settings: Pick<ISiteSettings, 'productPage'>): void {
+export function assertValidSettings(
+  settings: Pick<ISiteSettings, 'productPage' | 'homepageBlocks'>,
+): void {
   const { minDays, maxDays } = settings.productPage.estimatedDelivery;
   if (minDays > maxDays) {
     throw new ValidationError('Estimated delivery minimum days cannot exceed maximum days');
+  }
+
+  for (const block of settings.homepageBlocks) {
+    if (block.type === 'banner' && block.enabled && !hasResponsiveImage(block.config?.image)) {
+      throw new ValidationError(
+        'Enabled image banner blocks require at least one image (desktop, tablet, or mobile).',
+      );
+    }
   }
 }
 
@@ -174,7 +185,11 @@ const BLOCK_HYDRATORS = {
 
 export async function getHydratedStorefrontSettings() {
   const settings = await getOrCreateSettings();
-  const enabled = settings.homepageBlocks.filter((b) => b.enabled);
+  const enabled = settings.homepageBlocks.filter((b) => {
+    if (!b.enabled) return false;
+    if (b.type === 'banner') return hasResponsiveImage(b.config?.image);
+    return true;
+  });
 
   const hydrated: IHydratedHomepageBlock[] = await Promise.all(
     enabled.map((block) => BLOCK_HYDRATORS[block.type](block)),

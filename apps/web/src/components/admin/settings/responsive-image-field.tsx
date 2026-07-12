@@ -12,9 +12,9 @@ import type { ResponsiveImage } from "@/types";
 type Viewport = "desktop" | "tablet" | "mobile";
 
 const SLOTS: Array<{ key: Viewport; label: string; hint: string; aspect: string }> = [
-  { key: "desktop", label: "Desktop", hint: "Wide banner · ~1920×720", aspect: "aspect-[16/6]" },
+  { key: "desktop", label: "Desktop", hint: "Wide · ~1920×720", aspect: "aspect-[16/6]" },
   { key: "tablet", label: "Tablet", hint: "Optional · ~1280×720", aspect: "aspect-[16/9]" },
-  { key: "mobile", label: "Mobile", hint: "Optional · portrait ~800×1000", aspect: "aspect-[4/5]" },
+  { key: "mobile", label: "Mobile", hint: "Optional · ~800×1000", aspect: "aspect-[4/5]" },
 ];
 
 interface ResponsiveImageFieldProps {
@@ -106,7 +106,7 @@ export function ResponsiveImageField({ value, onChange }: ResponsiveImageFieldPr
                 className={`flex items-center justify-center rounded-md border border-dashed border-border/60 bg-muted/20 ${slot.aspect}`}
               >
                 <span className="text-xs text-muted-foreground px-3 text-center">
-                  {slot.key === "desktop" ? "Required base image" : "Falls back to desktop"}
+                  At least one device image required
                 </span>
               </div>
             )}

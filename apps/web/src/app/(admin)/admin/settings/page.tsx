@@ -16,6 +16,7 @@ import {
 import { api } from "@/lib/api";
 import { toast } from "sonner";
 import { toEmbedSrc } from "@/lib/video-embed";
+import { hasResponsiveImage } from "@/lib/responsive-image";
 import type { IHeroConfig, IHomepageBlock, IAnnouncementBar, IProductPageConfig } from "@/types";
 import {
   DEFAULT_HERO,
@@ -57,6 +58,9 @@ function validate(
     return "Every product information section needs a title and content.";
   }
   for (const b of blocks) {
+    if (b.type === "banner" && b.enabled && !hasResponsiveImage(b.config?.image)) {
+      return "Enabled image banners need at least one image (desktop, tablet, or mobile).";
+    }
     if (b.type === "videoEmbed") {
       for (const v of b.config.videos) {
         if (v.url.trim() && !toEmbedSrc(v.provider, v.url).ok) {

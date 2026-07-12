@@ -203,8 +203,8 @@ function BannerEditor({
       <div className="space-y-2">
         <SectionLabel>Banner image (per device)</SectionLabel>
         <p className="text-xs text-muted-foreground">
-          Shown at its natural height — the section grows/shrinks to fit the image, so upload art
-          already sized for each device.
+          Upload at least one image for any device — missing sizes fall back automatically (e.g.
+          desktop-only art is used on tablet and mobile).
         </p>
         <ResponsiveImageField value={c.image} onChange={(img) => set({ image: img })} />
       </div>

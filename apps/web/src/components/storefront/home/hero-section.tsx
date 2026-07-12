@@ -6,6 +6,7 @@ import { ArrowRight, ChevronLeft, ChevronRight, Sparkles, TrendingUp, Star } fro
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import type { IHeroConfig } from "@/types";
+import { hasResponsiveImage } from "@/lib/responsive-image";
 import { ResponsivePicture } from "./responsive-picture";
 
 /**
@@ -43,7 +44,7 @@ export function HeroSection({ hero }: { hero: IHeroConfig }) {
       }}
     >
       {slides.map((slide, index) => {
-        const hasImage = !!(slide.image?.desktop || slide.image?.tablet || slide.image?.mobile);
+        const hasImage = hasResponsiveImage(slide.image);
         const textAlign = slide.alignment === "left" ? "text-left items-start" : slide.alignment === "right" ? "text-right items-end" : "text-center items-center";
         const justify = slide.alignment === "left" ? "justify-start" : slide.alignment === "right" ? "justify-end" : "justify-center";
         const mx = slide.alignment === "center" ? "mx-auto" : "";
