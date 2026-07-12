@@ -56,7 +56,13 @@ export function AnnouncementBarEditor({
         <Segmented<AnnouncementMode>
           label="Display mode"
           value={value.mode}
-          onChange={(mode) => set({ mode })}
+          onChange={(mode) => {
+            if (mode === "simple") {
+              set({ mode, messages: [messages[0] ?? ""] });
+              return;
+            }
+            set({ mode });
+          }}
           options={[
             { value: "simple", label: "Simple" },
             { value: "typewriter", label: "Typewriter" },

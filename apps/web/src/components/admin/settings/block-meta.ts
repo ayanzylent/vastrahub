@@ -28,7 +28,7 @@ export const BLOCK_META: Record<BlockType, BlockMeta> = {
   categoryShowcase: {
     type: "categoryShowcase",
     label: "Category showcase",
-    description: "A grid of hand-picked categories",
+    description: "Hand-picked categories in a grid or carousel",
     icon: FolderTree,
   },
   collectionShowcase: {

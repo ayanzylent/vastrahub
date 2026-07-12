@@ -8,6 +8,8 @@ import type { VideoProvider } from "@/types";
  * provider-specific iframe `src` that WE control. Both the admin editor (live
  * preview + save gate) and the storefront renderer call this — the stored URL
  * is always treated as untrusted.
+ *
+ * Keep logic identical to apps/server/src/lib/video-embed.ts (no shared package).
  */
 
 export interface EmbedResult {

@@ -47,13 +47,12 @@ function defaultSettingsPayload() {
 }
 
 export async function getOrCreateSettings(): Promise<ISiteSettings> {
-  const existing = await SiteSettings.findOne({ key: 'singleton' }).lean();
-  if (existing) {
-    return toSiteSettings(existing);
-  }
-
-  const created = await SiteSettings.create(defaultSettingsPayload());
-  return toSiteSettings(created.toObject());
+  const doc = await SiteSettings.findOneAndUpdate(
+    { key: 'singleton' },
+    { $setOnInsert: defaultSettingsPayload() },
+    { upsert: true, new: true, setDefaultsOnInsert: true },
+  ).lean();
+  return toSiteSettings(doc);
 }
 
 export interface UpdateSettingsInput {

@@ -6,7 +6,7 @@ import type { VideoProvider } from '../types/index.js';
  * We NEVER render provider-supplied embed HTML. Instead we validate the URL
  * against a host allowlist, extract the id/path we recognise, and build a
  * provider-specific iframe `src` that WE control. Kept in sync with
- * apps/web/src/lib/video-embed.ts (no shared package).
+ * apps/web/src/lib/video-embed.ts — update both when changing embed rules.
  */
 
 export interface EmbedResult {
