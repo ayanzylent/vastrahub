@@ -1,12 +1,21 @@
 import type { IVideoEmbedBlock } from "@/types";
 import { toEmbedSrc } from "@/lib/video-embed";
+import { VideoEmbedScroll } from "./video-embed-scroll";
 
 export function VideoEmbedBlock({ block }: { block: IVideoEmbedBlock }) {
-  const c = block.config;
+  const c = block.config ?? { videos: [] };
   // Re-validate the stored (untrusted) URL before rendering an iframe.
   const items = (c.videos ?? [])
-    .map((v) => ({ v, embed: toEmbedSrc(v.provider, v.url) }))
-    .filter((x) => x.embed.ok && x.embed.src);
+    .map((v) => {
+      const embed = toEmbedSrc(v.provider, v.url);
+      if (!embed.ok || !embed.src) return null;
+      return {
+        provider: v.provider,
+        caption: v.caption,
+        embedSrc: embed.src,
+      };
+    })
+    .filter((item): item is NonNullable<typeof item> => item !== null);
 
   if (items.length === 0) return null;
 
@@ -22,29 +31,7 @@ export function VideoEmbedBlock({ block }: { block: IVideoEmbedBlock }) {
           </div>
         )}
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {items.map(({ v, embed }, i) => {
-            const aspect = v.provider === "youtube" ? "aspect-video" : "aspect-[4/5]";
-            return (
-              <div key={i} className="space-y-2">
-                <div
-                  className={`relative overflow-hidden rounded-xl border border-border/50 bg-muted ${aspect}`}
-                >
-                  <iframe
-                    src={embed.src}
-                    title={v.caption || "Embedded video"}
-                    className="absolute inset-0 h-full w-full"
-                    loading="lazy"
-                    allow="accelerometer; encrypted-media; picture-in-picture; fullscreen"
-                    referrerPolicy="strict-origin-when-cross-origin"
-                    allowFullScreen
-                  />
-                </div>
-                {v.caption && <p className="text-sm text-muted-foreground">{v.caption}</p>}
-              </div>
-            );
-          })}
-        </div>
+        <VideoEmbedScroll items={items} />
       </div>
     </section>
   );
