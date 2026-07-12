@@ -22,6 +22,11 @@
   }
 }
 
+@keyframes ann-cursor-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
 /* === ROSE / NEUTRAL THEME (preset b501U2Nvc · style vega) === */
 :root {
   --radius: 0.45rem;

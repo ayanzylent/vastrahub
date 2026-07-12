@@ -94,14 +94,31 @@ export function AnnouncementBar() {
 
   const key = `vh_ann_${hashMessage(JSON.stringify(bar))}`;
   const tone = TONE_CLASSES[bar.tone] ?? TONE_CLASSES.default;
-  const currentMessage = bar.mode === "typewriter"
+  const isTypewriter = bar.mode === "typewriter";
+  const rawSlice = isTypewriter
     ? messages[messageIndex % messages.length].slice(0, characterCount)
     : messages[0];
+  // Use a non-breaking space when the slice is empty so the element keeps its
+  // line-height and the bar never collapses to zero height.
+  const currentMessage = rawSlice || "\u00A0";
 
   return (
-    <div className={`relative ${tone}`}>
+    <div className={`relative ${tone}`} style={{ minHeight: "2.25rem" }}>
       <div className="mx-auto max-w-7xl px-8 py-2 text-center text-sm">
-        <span aria-label={messages[messageIndex % messages.length]}>{currentMessage}</span>
+        <span aria-label={messages[messageIndex % messages.length]}>
+          {currentMessage}
+          {isTypewriter && (
+            <span
+              className="inline-block w-[2px] align-middle ml-0.5"
+              style={{
+                height: "1em",
+                backgroundColor: "currentColor",
+                animation: "ann-cursor-blink 0.7s step-end infinite",
+              }}
+              aria-hidden="true"
+            />
+          )}
+        </span>
         {bar.linkHref && bar.linkText && (
           <Link
             href={bar.linkHref}
