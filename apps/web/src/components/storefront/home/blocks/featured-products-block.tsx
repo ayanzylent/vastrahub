@@ -7,6 +7,8 @@ export function FeaturedProductsBlock({
   block: IFeaturedProductsBlock & { resolved?: IProduct[] };
 }) {
   const products = block.resolved ?? [];
+  if (products.length === 0) return null;
+
   const c = block.config;
 
   return (
@@ -30,11 +32,6 @@ export function FeaturedProductsBlock({
               lowestMrpPaise={product.baseMrpPaise}
             />
           ))}
-          {products.length === 0 && (
-            <div className="col-span-full text-center py-12">
-              <p className="text-muted-foreground">No featured products yet. Check back soon!</p>
-            </div>
-          )}
         </div>
       </div>
     </section>

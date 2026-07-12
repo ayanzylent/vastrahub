@@ -84,7 +84,12 @@ export function ProductPageEditor({
                 min={0}
                 max={365}
                 value={value.estimatedDelivery.minDays}
-                onChange={(event) => set({ estimatedDelivery: { ...value.estimatedDelivery, minDays: Math.max(0, Number(event.target.value) || 0) } })}
+                onChange={(event) => set({
+                  estimatedDelivery: {
+                    ...value.estimatedDelivery,
+                    minDays: Math.min(365, Math.max(0, Number(event.target.value) || 0)),
+                  },
+                })}
               />
             </div>
             <div className="space-y-2">
@@ -94,7 +99,12 @@ export function ProductPageEditor({
                 min={0}
                 max={365}
                 value={value.estimatedDelivery.maxDays}
-                onChange={(event) => set({ estimatedDelivery: { ...value.estimatedDelivery, maxDays: Math.max(0, Number(event.target.value) || 0) } })}
+                onChange={(event) => set({
+                  estimatedDelivery: {
+                    ...value.estimatedDelivery,
+                    maxDays: Math.min(365, Math.max(0, Number(event.target.value) || 0)),
+                  },
+                })}
               />
             </div>
           </div>

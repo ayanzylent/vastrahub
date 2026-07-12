@@ -40,6 +40,19 @@ interface SiteSettingsPayload {
   productPage: IProductPageConfig;
 }
 
+function optionalLinkError(
+  text: string | undefined,
+  href: string | undefined,
+  fieldLabel: string,
+): string | null {
+  const hasText = !!text?.trim();
+  const hasHref = !!href?.trim();
+  if (hasText !== hasHref) {
+    return `${fieldLabel} must include both link text and URL, or be left empty.`;
+  }
+  return null;
+}
+
 function ctaError(cta: { label: string; href: string } | undefined, fieldLabel: string): string | null {
   if (!cta) return null;
   const hasLabel = cta.label.trim().length > 0;
@@ -68,6 +81,12 @@ function validate(
   if (announcement.enabled && !announcement.messages.some((message) => message.trim())) {
     return "The announcement bar needs at least one message.";
   }
+  const annLinkErr = optionalLinkError(
+    announcement.linkText,
+    announcement.linkHref,
+    "Announcement bar link",
+  );
+  if (annLinkErr) return annLinkErr;
   if (productPage.estimatedDelivery.minDays > productPage.estimatedDelivery.maxDays) {
     return "Estimated delivery minimum days cannot exceed maximum days.";
   }
@@ -76,12 +95,18 @@ function validate(
     if (!section.title.trim() || !section.content.trim()) {
       return "Every enabled product information section needs a title and content.";
     }
+    const sectionLinkErr = optionalLinkError(
+      section.linkText,
+      section.linkHref,
+      `Product section "${section.title.trim()}" link`,
+    );
+    if (sectionLinkErr) return sectionLinkErr;
   }
   for (const b of blocks) {
     if (b.type === "banner" && b.enabled && !hasResponsiveImage(b.config?.image)) {
       return "Enabled image banners need at least one image (desktop, tablet, or mobile).";
     }
-    if (b.type === "videoEmbed") {
+    if (b.type === "videoEmbed" && b.enabled) {
       for (const v of b.config.videos) {
         const url = v.url.trim();
         if (!url) return "Remove empty video rows or fill in every video URL.";
@@ -171,7 +196,10 @@ export default function AdminSettingsPage() {
       });
       if (res.success) {
         toast.success("Settings saved");
-        revalidateHome().catch(() => {});
+        const revalidated = await revalidateHome().catch(() => ({ ok: false }));
+        if (!revalidated.ok) {
+          toast.warning("Saved, but the homepage hero may take up to a minute to refresh.");
+        }
       } else {
         toast.error(res.error || "Failed to save settings");
       }
@@ -192,7 +220,10 @@ export default function AdminSettingsPage() {
         setAnnouncement(res.data.announcementBar ?? DEFAULT_ANNOUNCEMENT_BAR);
         setProductPage(res.data.productPage ?? DEFAULT_PRODUCT_PAGE);
         toast.success("Reset to defaults");
-        revalidateHome().catch(() => {});
+        const revalidated = await revalidateHome().catch(() => ({ ok: false }));
+        if (!revalidated.ok) {
+          toast.warning("Reset saved, but the homepage hero may take up to a minute to refresh.");
+        }
         setResetOpen(false);
       } else {
         toast.error(res.error || "Failed to reset");
