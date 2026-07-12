@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useRef } from "react";
+import { useCallback } from "react";
 import { api } from "@/lib/api";
 import type { ICategory, ICollection } from "@/types";
 import { OrderedPicker, type PickerItem } from "./ordered-picker";
@@ -48,44 +48,30 @@ export function CategoryPicker({ ids, onChange }: PickerProps) {
   );
 }
 
+function collectionToItem(c: ICollection): PickerItem {
+  return { _id: c._id, name: c.name, image: c.bannerImage || c.image || null };
+}
+
 // ---------- Collections ----------
 
 export function CollectionPicker({ ids, onChange }: PickerProps) {
-  const listRef = useRef<Promise<PickerItem[]> | null>(null);
-
-  const loadList = useCallback(() => {
-    if (!listRef.current) {
-      listRef.current = api
-        .get<ICollection[]>("/api/v1/admin/collections?limit=100")
-        .then((res) => {
-          const data = res.success && Array.isArray(res.data) ? res.data : [];
-          return data.map((c) => ({
-            _id: c._id,
-            name: c.name,
-            image: c.bannerImage || c.image || null,
-          }));
-        });
-    }
-    return listRef.current;
+  const search = useCallback(async (q: string) => {
+    const res = await api.get<ICollection[]>(
+      `/api/v1/admin/collections?search=${encodeURIComponent(q)}&limit=20`,
+    );
+    const data = res.success && Array.isArray(res.data) ? res.data : [];
+    return data.map(collectionToItem);
   }, []);
 
-  const search = useCallback(
-    async (q: string) => {
-      const list = await loadList();
-      const lc = q.toLowerCase();
-      return list.filter((i) => i.name.toLowerCase().includes(lc)).slice(0, 20);
-    },
-    [loadList],
-  );
-
-  const resolve = useCallback(
-    async (wanted: string[]) => {
-      const list = await loadList();
-      const set = new Set(wanted);
-      return list.filter((i) => set.has(i._id));
-    },
-    [loadList],
-  );
+  const resolve = useCallback(async (wanted: string[]) => {
+    const results = await Promise.all(
+      wanted.map(async (id) => {
+        const res = await api.get<ICollection>(`/api/v1/admin/collections/${id}`);
+        return res.success && res.data ? collectionToItem(res.data) : null;
+      }),
+    );
+    return results.filter((x): x is PickerItem => x !== null);
+  }, []);
 
   return (
     <OrderedPicker
