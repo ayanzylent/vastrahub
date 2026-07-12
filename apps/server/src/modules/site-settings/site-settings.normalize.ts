@@ -41,7 +41,7 @@ function normalizeHeroSlide(raw: unknown, index: number): IHeroSlide {
   return {
     id: typeof slide.id === 'string' && slide.id.trim() ? slide.id : `slide-${index + 1}`,
     enabled: typeof slide.enabled === 'boolean' ? slide.enabled : fallback.enabled,
-    heading: typeof slide.heading === 'string' ? slide.heading : fallback.heading,
+    heading: typeof slide.heading === 'string' && slide.heading.trim() ? slide.heading : undefined,
     subheading: typeof slide.subheading === 'string' ? slide.subheading : undefined,
     badge: typeof slide.badge === 'string' ? slide.badge : undefined,
     image: slide.image && typeof slide.image === 'object' ? slide.image : undefined,

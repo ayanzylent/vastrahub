@@ -70,7 +70,6 @@ function validate(
   productPage: IProductPageConfig,
 ): string | null {
   if (hero.slides.length === 0) return "The hero needs at least one slide.";
-  if (hero.slides.some((slide) => !slide.heading.trim())) return "Every hero slide needs a heading.";
   if (!hero.slides.some((slide) => slide.enabled)) return "At least one hero slide must be enabled.";
   for (const slide of hero.slides) {
     const primaryErr = ctaError(slide.primaryCta, "Primary button");

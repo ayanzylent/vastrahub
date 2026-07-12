@@ -45,9 +45,6 @@ export function validateHero(hero: IHeroConfig): void {
   }
 
   for (const slide of hero.slides) {
-    if (!slide.heading.trim()) {
-      throw new ValidationError('Every hero slide needs a heading.');
-    }
     validateCta(slide.primaryCta, 'Primary button');
     validateCta(slide.secondaryCta, 'Secondary button');
   }

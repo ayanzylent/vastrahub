@@ -67,10 +67,12 @@ export function HeroSection({ hero }: { hero: IHeroConfig }) {
             )}
             <div className={`mx-auto flex w-full max-w-7xl flex-col px-4 md:px-6 ${textAlign}`}>
               {slide.badge && <Badge variant="default" className="mb-6 px-4 py-1.5 text-xs"><Sparkles className="mr-1 h-3 w-3" />{slide.badge}</Badge>}
-              <h1 className="font-heading text-4xl font-bold tracking-tight md:text-6xl lg:text-7xl">
-                <span className="text-primary">{slide.heading}</span>
-              </h1>
-              {slide.subheading && <p className={`mt-6 max-w-2xl text-lg text-muted-foreground ${mx}`}>{slide.subheading}</p>}
+              {slide.heading?.trim() && (
+                <h1 className="font-heading text-4xl font-bold tracking-tight md:text-6xl lg:text-7xl">
+                  <span className="text-primary">{slide.heading}</span>
+                </h1>
+              )}
+              {slide.subheading && <p className={`${slide.heading?.trim() ? "mt-6" : ""} max-w-2xl text-lg text-muted-foreground ${mx}`}>{slide.subheading}</p>}
               {(slide.primaryCta || slide.secondaryCta) && (
                 <div className={`mt-8 flex flex-wrap items-center gap-4 ${justify}`}>
                   {slide.primaryCta && <Button variant="default" size="lg" asChild><Link href={slide.primaryCta.href}>{slide.primaryCta.label}<ArrowRight className="ml-1 h-4 w-4" /></Link></Button>}

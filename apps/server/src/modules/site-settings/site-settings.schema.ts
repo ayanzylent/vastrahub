@@ -41,7 +41,7 @@ const Alignment = Type.Union([
 const HeroSlide = Type.Object({
   id: Type.String({ minLength: 1, maxLength: 64 }),
   enabled: Type.Boolean(),
-  heading: Type.String({ minLength: 1, maxLength: 160 }),
+  heading: Type.Optional(Type.String({ maxLength: 160 })),
   subheading: Type.Optional(Type.String({ maxLength: 400 })),
   badge: Type.Optional(Type.String({ maxLength: 60 })),
   image: Type.Optional(ResponsiveImage),

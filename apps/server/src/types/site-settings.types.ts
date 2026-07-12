@@ -31,7 +31,7 @@ export interface ResponsiveImage {
 export interface IHeroSlide {
   id: string;
   enabled: boolean;
-  heading: string;
+  heading?: string;
   subheading?: string;
   badge?: string;
   image?: ResponsiveImage;

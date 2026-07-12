@@ -35,7 +35,6 @@ export function HeroEditor({
     slides: [...value.slides, {
       id: crypto.randomUUID(),
       enabled: true,
-      heading: "New hero slide",
       alignment: "center",
     }],
   });
@@ -70,7 +69,7 @@ export function HeroEditor({
           <CardContent className="space-y-4">
             <FieldToggle id={`hero-slide-${slide.id}`} checked={slide.enabled} onChange={(enabled) => updateSlide(index, { enabled })} label="Show this slide" />
             <TextField label="Badge" value={slide.badge ?? ""} onChange={(badge) => updateSlide(index, { badge: badge || undefined })} placeholder="e.g. New Collection 2026" maxLength={60} />
-            <TextField label="Heading" value={slide.heading} onChange={(heading) => updateSlide(index, { heading })} required maxLength={160} />
+            <TextField label="Heading" value={slide.heading ?? ""} onChange={(heading) => updateSlide(index, { heading: heading || undefined })} maxLength={160} />
             <TextAreaField label="Subheading" value={slide.subheading ?? ""} onChange={(subheading) => updateSlide(index, { subheading: subheading || undefined })} maxLength={400} />
             <Segmented<BlockAlignment>
               label="Alignment"
