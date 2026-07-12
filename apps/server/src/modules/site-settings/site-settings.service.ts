@@ -22,6 +22,7 @@ import type {
 } from '../../types/index.js';
 import { hasResponsiveImage } from '../../lib/responsive-image.js';
 import { assertValidSettings } from './site-settings.validation.js';
+import { toSiteSettings } from './site-settings.normalize.js';
 
 const STOREFRONT_PRODUCT_CONSTRAINTS: Record<string, unknown> = {
   isActive: true,
@@ -42,19 +43,6 @@ function defaultSettingsPayload() {
     homepageBlocks: structuredClone(DEFAULT_HOMEPAGE_BLOCKS),
     announcementBar: structuredClone(DEFAULT_ANNOUNCEMENT_BAR),
     productPage: structuredClone(DEFAULT_PRODUCT_PAGE),
-  };
-}
-
-function toSiteSettings(doc: unknown): ISiteSettings {
-  const record = (doc && typeof doc === 'object' ? doc : {}) as Record<string, unknown>;
-  return {
-    schemaVersion: SITE_SETTINGS_SCHEMA_VERSION,
-    hero: (record.hero as IHeroConfig) ?? DEFAULT_HERO,
-    homepageBlocks: (record.homepageBlocks as IHomepageBlock[]) ?? DEFAULT_HOMEPAGE_BLOCKS,
-    announcementBar: (record.announcementBar as IAnnouncementBar) ?? DEFAULT_ANNOUNCEMENT_BAR,
-    productPage: (record.productPage as IProductPageConfig) ?? DEFAULT_PRODUCT_PAGE,
-    createdAt: record.createdAt as Date | undefined,
-    updatedAt: record.updatedAt as Date | undefined,
   };
 }
 
