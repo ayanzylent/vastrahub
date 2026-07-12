@@ -137,6 +137,9 @@ function normalizeHeroSlide(raw: unknown, index: number): IHeroSlide {
     subheading: typeof slide.subheading === 'string' ? slide.subheading : undefined,
     badge: typeof slide.badge === 'string' ? slide.badge : undefined,
     image: slide.image && typeof slide.image === 'object' ? slide.image : undefined,
+    imageHref: typeof slide.imageHref === 'string' && slide.imageHref.trim()
+      ? slide.imageHref.trim()
+      : undefined,
     alignment: BLOCK_ALIGNMENTS.has(slide.alignment as BlockAlignment)
       ? (slide.alignment as BlockAlignment)
       : fallback.alignment,

@@ -85,6 +85,16 @@ export function HeroEditor({
               <SectionLabel>Background image (per device)</SectionLabel>
               <ResponsiveImageField instanceId={slide.id} value={slide.image} onChange={(image) => updateSlide(index, { image })} />
             </div>
+            <TextField
+              label="Image link (optional)"
+              value={slide.imageHref ?? ""}
+              onChange={(imageHref) => updateSlide(index, { imageHref: imageHref || undefined })}
+              placeholder="/collections/sale or https://…"
+              maxLength={500}
+            />
+            <p className="text-xs text-muted-foreground -mt-2">
+              When set, clicking the slide background image navigates to this URL. Buttons remain clickable separately.
+            </p>
             <CtaFields label="Primary button" value={slide.primaryCta} onChange={(primaryCta) => updateSlide(index, { primaryCta })} />
             <CtaFields label="Secondary button" value={slide.secondaryCta} onChange={(secondaryCta) => updateSlide(index, { secondaryCta })} />
           </CardContent>

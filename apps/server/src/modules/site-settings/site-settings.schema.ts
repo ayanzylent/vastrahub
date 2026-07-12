@@ -47,6 +47,7 @@ const HeroSlide = Type.Object({
   subheading: Type.Optional(Type.String({ maxLength: 400 })),
   badge: Type.Optional(Type.String({ maxLength: 60 })),
   image: Type.Optional(ResponsiveImage),
+  imageHref: Type.Optional(Type.String({ maxLength: 500 })),
   alignment: Alignment,
   primaryCta: Type.Optional(Cta),
   secondaryCta: Type.Optional(Cta),

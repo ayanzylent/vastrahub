@@ -45,6 +45,7 @@ export function HeroSection({ hero }: { hero: IHeroConfig }) {
     >
       {slides.map((slide, index) => {
         const hasImage = hasResponsiveImage(slide.image);
+        const imageHref = slide.imageHref?.trim();
         const textAlign = slide.alignment === "left" ? "text-left items-start" : slide.alignment === "right" ? "text-right items-end" : "text-center items-center";
         const justify = slide.alignment === "left" ? "justify-start" : slide.alignment === "right" ? "justify-end" : "justify-center";
         const mx = slide.alignment === "center" ? "mx-auto" : "";
@@ -65,8 +66,16 @@ export function HeroSection({ hero }: { hero: IHeroConfig }) {
                 <div className="absolute -bottom-20 -right-20 h-[400px] w-[400px] rounded-full bg-chart-2/10 blur-3xl" />
               </div>
             )}
-            <div className={`mx-auto flex w-full max-w-7xl flex-col px-4 md:px-6 ${textAlign}`}>
-              {slide.badge && <Badge variant="default" className="mb-6 px-4 py-1.5 text-xs"><Sparkles className="mr-1 h-3 w-3" />{slide.badge}</Badge>}
+            {imageHref && (
+              <Link
+                href={imageHref}
+                className="absolute inset-0 z-0"
+                aria-label={slide.heading?.trim() || `View slide ${index + 1}`}
+                tabIndex={index === current ? 0 : -1}
+              />
+            )}
+            <div className={`relative z-10 mx-auto flex w-full max-w-7xl flex-col px-4 md:px-6 pointer-events-none ${textAlign}`}>
+              {slide.badge && <Badge variant="default" className="mb-6 px-4 py-1.5 text-xs pointer-events-auto"><Sparkles className="mr-1 h-3 w-3" />{slide.badge}</Badge>}
               {slide.heading?.trim() && (
                 <h1 className="font-heading text-4xl font-bold tracking-tight md:text-6xl lg:text-7xl">
                   <span className="text-primary">{slide.heading}</span>
@@ -74,7 +83,7 @@ export function HeroSection({ hero }: { hero: IHeroConfig }) {
               )}
               {slide.subheading && <p className={`${slide.heading?.trim() ? "mt-6" : ""} max-w-2xl text-lg text-muted-foreground ${mx}`}>{slide.subheading}</p>}
               {(slide.primaryCta || slide.secondaryCta) && (
-                <div className={`mt-8 flex flex-wrap items-center gap-4 ${justify}`}>
+                <div className={`mt-8 flex flex-wrap items-center gap-4 pointer-events-auto ${justify}`}>
                   {slide.primaryCta && <Button variant="default" size="lg" asChild><Link href={slide.primaryCta.href}>{slide.primaryCta.label}<ArrowRight className="ml-1 h-4 w-4" /></Link></Button>}
                   {slide.secondaryCta && <Button variant="outline" size="lg" asChild><Link href={slide.secondaryCta.href}>{slide.secondaryCta.label}</Link></Button>}
                 </div>

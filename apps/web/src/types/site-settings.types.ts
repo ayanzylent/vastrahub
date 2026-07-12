@@ -34,6 +34,8 @@ export interface IHeroSlide {
   subheading?: string;
   badge?: string;
   image?: ResponsiveImage;
+  /** Optional link when the slide background image is clicked. */
+  imageHref?: string;
   alignment: BlockAlignment;
   primaryCta?: ICta;
   secondaryCta?: ICta;
