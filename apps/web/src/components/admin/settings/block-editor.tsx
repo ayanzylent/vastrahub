@@ -213,7 +213,7 @@ function BannerEditor({
           Upload at least one image for any device — missing sizes fall back automatically (e.g.
           desktop-only art is used on tablet and mobile).
         </p>
-        <ResponsiveImageField value={c.image} onChange={(img) => set({ image: img })} />
+        <ResponsiveImageField instanceId={block.id} value={c.image} onChange={(img) => set({ image: img })} />
       </div>
       <TextField
         label="Link (optional)"

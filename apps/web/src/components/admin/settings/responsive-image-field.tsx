@@ -18,6 +18,9 @@ const SLOTS: Array<{ key: Viewport; label: string; hint: string; aspect: string 
 ];
 
 interface ResponsiveImageFieldProps {
+  /** Unique id for this instance — prevents DOM id collisions when multiple
+   *  ResponsiveImageField components are rendered on the same page. */
+  instanceId: string;
   value: ResponsiveImage | undefined;
   onChange: (next: ResponsiveImage) => void;
 }
@@ -27,7 +30,7 @@ interface ResponsiveImageFieldProps {
  * Desktop is the base; the storefront falls back to it when tablet/mobile are
  * empty. Reuses the R2 presigned-upload pipeline (context: "homepage").
  */
-export function ResponsiveImageField({ value, onChange }: ResponsiveImageFieldProps) {
+export function ResponsiveImageField({ instanceId, value, onChange }: ResponsiveImageFieldProps) {
   const image = value ?? {};
   const [uploading, setUploading] = useState<Viewport | null>(null);
 
@@ -76,7 +79,7 @@ export function ResponsiveImageField({ value, onChange }: ResponsiveImageFieldPr
     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
       {SLOTS.map((slot) => {
         const key = image[slot.key];
-        const inputId = `resp-img-${slot.key}`;
+        const inputId = `resp-img-${instanceId}-${slot.key}`;
         return (
           <div key={slot.key} className="space-y-2">
             <div className="flex items-baseline justify-between">

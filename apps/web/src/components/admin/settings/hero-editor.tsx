@@ -84,7 +84,7 @@ export function HeroEditor({
             />
             <div className="space-y-2">
               <SectionLabel>Background image (per device)</SectionLabel>
-              <ResponsiveImageField value={slide.image} onChange={(image) => updateSlide(index, { image })} />
+              <ResponsiveImageField instanceId={slide.id} value={slide.image} onChange={(image) => updateSlide(index, { image })} />
             </div>
             <CtaFields label="Primary button" value={slide.primaryCta} onChange={(primaryCta) => updateSlide(index, { primaryCta })} />
             <CtaFields label="Secondary button" value={slide.secondaryCta} onChange={(secondaryCta) => updateSlide(index, { secondaryCta })} />
