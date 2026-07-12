@@ -58,7 +58,7 @@ export function HeroSection({ hero }: { hero: IHeroConfig }) {
             {hasImage ? (
               <>
                 <ResponsivePicture image={slide.image} alt="" className="absolute inset-0 -z-10 block h-full w-full" imgClassName="h-full w-full object-cover" />
-                <div className="absolute inset-0 -z-10 bg-background/30" />
+                <div className="absolute inset-0 -z-10" />
               </>
             ) : (
               <div className="pointer-events-none absolute inset-0 -z-10">
