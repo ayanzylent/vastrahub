@@ -142,6 +142,24 @@ const ImageMosaicBlock = Type.Object({
   }),
 });
 
+const LogoMarqueeItem = Type.Object({
+  imageKey: Type.Optional(Type.String({ maxLength: 400 })),
+  imageKeyDark: Type.Optional(Type.String({ maxLength: 400 })),
+  href: Type.Optional(Type.String({ maxLength: 500 })),
+  alt: Type.Optional(Type.String({ maxLength: 200 })),
+});
+
+const LogoMarqueeBlock = Type.Object({
+  ...BlockBase,
+  type: Type.Literal('logoMarquee'),
+  config: Type.Object({
+    title: Type.Optional(Type.String({ maxLength: 120 })),
+    items: Type.Array(LogoMarqueeItem, {
+      maxItems: SITE_SETTINGS_LIMITS.MAX_LOGO_MARQUEE_ITEMS,
+    }),
+  }),
+});
+
 export const HomepageBlock = Type.Union([
   CategoryShowcaseBlock,
   CollectionShowcaseBlock,
@@ -149,6 +167,7 @@ export const HomepageBlock = Type.Union([
   VideoEmbedBlock,
   BannerBlock,
   ImageMosaicBlock,
+  LogoMarqueeBlock,
 ]);
 
 export const AnnouncementBar = Type.Object({

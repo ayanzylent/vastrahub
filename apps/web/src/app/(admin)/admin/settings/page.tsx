@@ -113,6 +113,14 @@ function validate(
         return "Enabled image mosaic blocks require an image on all 4 tiles.";
       }
     }
+    if (b.type === "logoMarquee" && b.enabled) {
+      const withLogo = (b.config?.items ?? []).filter(
+        (item) => typeof item.imageKey === "string" && item.imageKey.trim().length > 0,
+      );
+      if (withLogo.length < 2) {
+        return "Enabled logo marquee blocks require at least 2 logos.";
+      }
+    }
     if (b.type === "videoEmbed" && b.enabled) {
       for (const v of b.config.videos) {
         const url = v.url.trim();

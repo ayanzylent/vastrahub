@@ -5,6 +5,7 @@ import {
   Video,
   Image as ImageIcon,
   Images,
+  BadgeCheck,
   type LucideIcon,
 } from "lucide-react";
 import type { BlockType, IHomepageBlock } from "@/types";
@@ -24,6 +25,7 @@ export const BLOCK_TYPES: BlockType[] = [
   "videoEmbed",
   "banner",
   "imageMosaic",
+  "logoMarquee",
 ];
 
 export const BLOCK_META: Record<BlockType, BlockMeta> = {
@@ -62,6 +64,12 @@ export const BLOCK_META: Record<BlockType, BlockMeta> = {
     label: "Image mosaic",
     description: "4 promotional image tiles in a responsive layout",
     icon: Images,
+  },
+  logoMarquee: {
+    type: "logoMarquee",
+    label: "Logo marquee",
+    description: "Infinite scrolling trusted-by logos",
+    icon: BadgeCheck,
   },
 };
 
@@ -114,6 +122,12 @@ export function createBlock(type: BlockType): IHomepageBlock {
         ...base,
         type,
         config: { items: [{}, {}, {}, {}] },
+      };
+    case "logoMarquee":
+      return {
+        ...base,
+        type,
+        config: { title: "Trusted by", items: [] },
       };
   }
 }

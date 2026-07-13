@@ -49,6 +49,8 @@ export type {
   IBannerBlock,
   IImageMosaicItem,
   IImageMosaicBlock,
+  ILogoMarqueeItem,
+  ILogoMarqueeBlock,
   IHomepageBlock,
   BlockType,
   AnnouncementTone,

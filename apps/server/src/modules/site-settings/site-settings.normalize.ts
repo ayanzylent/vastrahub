@@ -9,6 +9,7 @@ import {
   DEFAULT_ANNOUNCEMENT_BAR,
   DEFAULT_PRODUCT_PAGE,
   SITE_SETTINGS_SCHEMA_VERSION,
+  SITE_SETTINGS_LIMITS,
 } from '../../constants/index.js';
 import type {
   IHeroConfig,
@@ -29,6 +30,8 @@ import type {
   IBannerConfig,
   IImageMosaicConfig,
   IImageMosaicItem,
+  ILogoMarqueeConfig,
+  ILogoMarqueeItem,
   VideoProvider,
 } from '../../types/index.js';
 
@@ -42,6 +45,7 @@ const BLOCK_TYPES = new Set<IHomepageBlock['type']>([
   'videoEmbed',
   'banner',
   'imageMosaic',
+  'logoMarquee',
 ]);
 
 const SHOWCASE_LAYOUTS = new Set<ShowcaseLayout>(['grid', 'carousel']);
@@ -83,6 +87,32 @@ function normalizeImageMosaicItems(raw: unknown): IImageMosaicItem[] {
     items.push(normalizeImageMosaicItem(source[i]));
   }
   return items;
+}
+
+function normalizeLogoMarqueeItem(raw: unknown): ILogoMarqueeItem {
+  const item = raw && typeof raw === 'object' ? (raw as Record<string, unknown>) : {};
+  const imageKey =
+    typeof item.imageKey === 'string' && item.imageKey.trim()
+      ? item.imageKey.trim()
+      : undefined;
+  const imageKeyDark =
+    typeof item.imageKeyDark === 'string' && item.imageKeyDark.trim()
+      ? item.imageKeyDark.trim()
+      : undefined;
+  return {
+    imageKey,
+    imageKeyDark,
+    href: normalizeOptionalString(item.href),
+    alt: normalizeOptionalString(item.alt),
+  };
+}
+
+function normalizeLogoMarqueeItems(raw: unknown): ILogoMarqueeItem[] {
+  if (!Array.isArray(raw)) return [];
+  return raw
+    .filter((item): item is Record<string, unknown> => !!item && typeof item === 'object')
+    .map(normalizeLogoMarqueeItem)
+    .slice(0, SITE_SETTINGS_LIMITS.MAX_LOGO_MARQUEE_ITEMS);
 }
 
 function normalizeHomepageBlock(block: IHomepageBlock): IHomepageBlock {
@@ -152,6 +182,13 @@ function normalizeHomepageBlock(block: IHomepageBlock): IHomepageBlock {
     case 'imageMosaic': {
       const config: IImageMosaicConfig = {
         items: normalizeImageMosaicItems(raw.items),
+      };
+      return { ...block, config };
+    }
+    case 'logoMarquee': {
+      const config: ILogoMarqueeConfig = {
+        title: normalizeOptionalString(raw.title),
+        items: normalizeLogoMarqueeItems(raw.items),
       };
       return { ...block, config };
     }

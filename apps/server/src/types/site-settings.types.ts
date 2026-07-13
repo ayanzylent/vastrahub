@@ -116,6 +116,21 @@ export interface IImageMosaicConfig {
   items: IImageMosaicItem[];
 }
 
+/** One logo in a trusted-by / logo marquee strip. */
+export interface ILogoMarqueeItem {
+  /** Logo for light backgrounds (R2 media key). */
+  imageKey?: string;
+  /** Optional logo for dark backgrounds; when absent, light logo is inverted. */
+  imageKeyDark?: string;
+  href?: string;
+  alt?: string;
+}
+
+export interface ILogoMarqueeConfig {
+  title?: string;
+  items: ILogoMarqueeItem[];
+}
+
 // ---------- Discriminated block union ----------
 
 interface IBlockBase {
@@ -149,6 +164,10 @@ export interface IImageMosaicBlock extends IBlockBase {
   type: 'imageMosaic';
   config: IImageMosaicConfig;
 }
+export interface ILogoMarqueeBlock extends IBlockBase {
+  type: 'logoMarquee';
+  config: ILogoMarqueeConfig;
+}
 
 export type IHomepageBlock =
   | ICategoryShowcaseBlock
@@ -156,7 +175,8 @@ export type IHomepageBlock =
   | IFeaturedProductsBlock
   | IVideoEmbedBlock
   | IBannerBlock
-  | IImageMosaicBlock;
+  | IImageMosaicBlock
+  | ILogoMarqueeBlock;
 
 export type BlockType = IHomepageBlock['type'];
 
@@ -228,7 +248,8 @@ export type IHydratedHomepageBlock =
   | (IFeaturedProductsBlock & { resolved: IProduct[] })
   | IVideoEmbedBlock
   | IBannerBlock
-  | IImageMosaicBlock;
+  | IImageMosaicBlock
+  | ILogoMarqueeBlock;
 
 export interface IHydratedSiteSettings {
   homepageBlocks: IHydratedHomepageBlock[];

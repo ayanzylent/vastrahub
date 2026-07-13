@@ -6,6 +6,7 @@ import { FeaturedProductsBlock } from "./blocks/featured-products-block";
 import { VideoEmbedBlock } from "./blocks/video-embed-block";
 import { BannerBlock } from "./blocks/banner-block";
 import { ImageMosaicBlock } from "./blocks/image-mosaic-block";
+import { LogoMarqueeBlock } from "./blocks/logo-marquee-block";
 import { HOME_BLOCK_LIST_CLASS } from "./blocks/home-block-section";
 
 /**
@@ -32,4 +33,5 @@ const BLOCK_RENDERERS = {
   videoEmbed: VideoEmbedBlock,
   banner: BannerBlock,
   imageMosaic: ImageMosaicBlock,
+  logoMarquee: LogoMarqueeBlock,
 } satisfies Record<BlockType, ComponentType<never>>;

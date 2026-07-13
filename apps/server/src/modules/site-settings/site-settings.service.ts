@@ -148,6 +148,7 @@ const BLOCK_HYDRATORS = {
   videoEmbed: async (block) => block as IHydratedHomepageBlock,
   banner: async (block) => block as IHydratedHomepageBlock,
   imageMosaic: async (block) => block as IHydratedHomepageBlock,
+  logoMarquee: async (block) => block as IHydratedHomepageBlock,
 } satisfies Record<BlockType, BlockHydrator>;
 
 export async function getHydratedStorefrontSettings() {
@@ -158,6 +159,12 @@ export async function getHydratedStorefrontSettings() {
     if (b.type === 'imageMosaic') {
       const items = b.config?.items ?? [];
       return items.length === 4 && items.every((item) => hasResponsiveImage(item.image));
+    }
+    if (b.type === 'logoMarquee') {
+      const withLogo = (b.config?.items ?? []).filter(
+        (item) => typeof item.imageKey === 'string' && item.imageKey.trim().length > 0,
+      );
+      return withLogo.length >= 2;
     }
     return true;
   });

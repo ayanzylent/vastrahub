@@ -14,11 +14,14 @@ import type {
   IBannerBlock,
   IImageMosaicBlock,
   IImageMosaicItem,
+  ILogoMarqueeBlock,
+  ILogoMarqueeItem,
   VideoProvider,
   IVideoEmbedItem,
   BlockType,
 } from "@/types";
 import { ResponsiveImageField } from "./responsive-image-field";
+import { LogoImageField } from "./logo-image-field";
 import { CategoryPicker, CollectionPicker, ProductPicker } from "./item-pickers";
 import { toEmbedSrc } from "@/lib/video-embed";
 import { SITE_SETTINGS_LIMITS } from "@/constants";
@@ -335,6 +338,112 @@ function ImageMosaicEditor({
   );
 }
 
+function LogoMarqueeEditor({
+  block,
+  onChange,
+}: {
+  block: ILogoMarqueeBlock;
+  onChange: (b: IHomepageBlock) => void;
+}) {
+  const c = blockConfig(block, { items: [] as ILogoMarqueeItem[] });
+  const set = (patch: Partial<ILogoMarqueeBlock["config"]>) =>
+    onChange({ ...block, config: { ...c, ...patch } });
+
+  function updateItem(index: number, patch: Partial<ILogoMarqueeItem>) {
+    set({ items: c.items.map((item, i) => (i === index ? { ...item, ...patch } : item)) });
+  }
+  function addItem() {
+    set({ items: [...c.items, {}] });
+  }
+  function removeItem(index: number) {
+    set({ items: c.items.filter((_, i) => i !== index) });
+  }
+
+  return (
+    <div className="space-y-4">
+      <TextField
+        label="Title"
+        value={c.title ?? ""}
+        onChange={(v) => set({ title: v || undefined })}
+        placeholder="Trusted by"
+        maxLength={120}
+      />
+
+      <div className="space-y-3">
+        <SectionLabel>Logos</SectionLabel>
+        <p className="text-xs text-muted-foreground">
+          Add at least 2 logos. Upload a dark-mode variant when the light logo would be hard to
+          see on dark backgrounds (black vs white marks).
+        </p>
+        {c.items.length === 0 && (
+          <p className="rounded-md border border-dashed border-border/60 py-6 text-center text-sm text-muted-foreground">
+            No logos yet.
+          </p>
+        )}
+        {c.items.map((item, i) => (
+          <div key={i} className="space-y-3 rounded-md border border-border/50 p-3">
+            <div className="flex items-center justify-between gap-2">
+              <SectionLabel>Logo {i + 1}</SectionLabel>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 text-destructive"
+                onClick={() => removeItem(i)}
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            </div>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <LogoImageField
+                instanceId={`${block.id}-${i}-light`}
+                value={item.imageKey}
+                onChange={(key) => updateItem(i, { imageKey: key })}
+                label="Light mode"
+                hint="Required"
+                required
+              />
+              <LogoImageField
+                instanceId={`${block.id}-${i}-dark`}
+                value={item.imageKeyDark}
+                onChange={(key) => updateItem(i, { imageKeyDark: key })}
+                label="Dark mode"
+                hint="Optional"
+                emptyHint="Falls back to inverted light logo"
+              />
+            </div>
+            <TextField
+              label="Link (optional)"
+              value={item.href ?? ""}
+              onChange={(v) => updateItem(i, { href: v || undefined })}
+              placeholder="/collections/partners or https://…"
+              maxLength={500}
+            />
+            <div className="space-y-2">
+              <Label>Alt text (optional)</Label>
+              <Input
+                value={item.alt ?? ""}
+                onChange={(e) => updateItem(i, { alt: e.target.value || undefined })}
+                placeholder="Describe the logo for accessibility"
+                maxLength={200}
+              />
+            </div>
+          </div>
+        ))}
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={addItem}
+          disabled={c.items.length >= SITE_SETTINGS_LIMITS.MAX_LOGO_MARQUEE_ITEMS}
+        >
+          <Plus className="mr-1.5 h-4 w-4" /> Add logo
+        </Button>
+      </div>
+    </div>
+  );
+}
+
 // ---------- Dispatcher ----------
 
 export function BlockEditor({
@@ -360,4 +469,5 @@ const BLOCK_EDITORS = {
   videoEmbed: VideoEmbedEditor,
   banner: BannerEditor,
   imageMosaic: ImageMosaicEditor,
+  logoMarquee: LogoMarqueeEditor,
 } satisfies Record<BlockType, ComponentType<never>>;

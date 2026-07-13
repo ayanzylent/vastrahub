@@ -95,6 +95,17 @@ export function validateHomepageBlocks(blocks: IHomepageBlock[]): void {
       }
     }
 
+    if (block.type === 'logoMarquee' && block.enabled) {
+      const withLogo = (block.config?.items ?? []).filter(
+        (item) => typeof item.imageKey === 'string' && item.imageKey.trim().length > 0,
+      );
+      if (withLogo.length < 2) {
+        throw new ValidationError(
+          'Enabled logo marquee blocks require at least 2 logos.',
+        );
+      }
+    }
+
     if (block.type === 'videoEmbed' && block.enabled) {
       for (const video of block.config.videos) {
         const url = video.url.trim();
