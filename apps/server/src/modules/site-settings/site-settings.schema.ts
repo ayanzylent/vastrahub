@@ -188,41 +188,29 @@ export const AnnouncementBar = Type.Object({
   ]),
 });
 
-const ProductInfoSection = Type.Object({
-  id: Type.String({ minLength: 1, maxLength: 64 }),
-  version: Type.Literal(1),
-  enabled: Type.Boolean(),
-  type: Type.Union([
-    Type.Literal('returns'),
-    Type.Literal('shipping'),
-    Type.Literal('seller'),
-    Type.Literal('help'),
-    Type.Literal('custom'),
-  ]),
-  icon: Type.Union([
-    Type.Literal('rotate'),
-    Type.Literal('truck'),
-    Type.Literal('store'),
-    Type.Literal('help'),
-    Type.Literal('info'),
-    Type.Literal('shield'),
-  ]),
-  title: Type.String({ minLength: 1, maxLength: 100 }),
-  content: Type.String({ minLength: 1, maxLength: 1200 }),
-  linkText: Type.Optional(Type.String({ maxLength: 60 })),
-  linkHref: Type.Optional(Type.String({ maxLength: 500 })),
+const ProductInfoBlock = Type.Object({
+  content: Type.Optional(Type.String({ maxLength: SITE_SETTINGS_LIMITS.MAX_PRODUCT_INFO_CONTENT })),
+  linkText: Type.Optional(Type.String({ maxLength: SITE_SETTINGS_LIMITS.MAX_PRODUCT_INFO_LINK_TEXT })),
+  linkHref: Type.Optional(Type.String({ maxLength: SITE_SETTINGS_LIMITS.MAX_PRODUCT_INFO_LINK_HREF })),
 });
 
 export const ProductPage = Type.Object({
-  version: Type.Literal(1),
+  version: Type.Literal(2),
   estimatedDelivery: Type.Object({
     enabled: Type.Boolean(),
     minDays: Type.Integer({ minimum: 0, maximum: 365 }),
     maxDays: Type.Integer({ minimum: 0, maximum: 365 }),
   }),
-  sections: Type.Array(ProductInfoSection, {
-    maxItems: SITE_SETTINGS_LIMITS.MAX_PRODUCT_INFO_SECTIONS,
+  badges: Type.Object({
+    easyReturn: Type.Boolean(),
+    easyReplacement: Type.Boolean(),
+    cod: Type.Boolean(),
+    freeDelivery: Type.Boolean(),
+    authentic: Type.Boolean(),
   }),
+  returnAndExchange: ProductInfoBlock,
+  shippingInformation: ProductInfoBlock,
+  sellerInformation: ProductInfoBlock,
 });
 
 // ---------- Request schemas ----------

@@ -89,18 +89,24 @@ function validate(
   if (productPage.estimatedDelivery.minDays > productPage.estimatedDelivery.maxDays) {
     return "Estimated delivery minimum days cannot exceed maximum days.";
   }
-  for (const section of productPage.sections) {
-    if (!section.enabled) continue;
-    if (!section.title.trim() || !section.content.trim()) {
-      return "Every enabled product information section needs a title and content.";
-    }
-    const sectionLinkErr = optionalLinkError(
-      section.linkText,
-      section.linkHref,
-      `Product section "${section.title.trim()}" link`,
-    );
-    if (sectionLinkErr) return sectionLinkErr;
-  }
+  const returnLinkErr = optionalLinkError(
+    productPage.returnAndExchange.linkText,
+    productPage.returnAndExchange.linkHref,
+    "Return and exchange link",
+  );
+  if (returnLinkErr) return returnLinkErr;
+  const shippingLinkErr = optionalLinkError(
+    productPage.shippingInformation.linkText,
+    productPage.shippingInformation.linkHref,
+    "Shipping information link",
+  );
+  if (shippingLinkErr) return shippingLinkErr;
+  const sellerLinkErr = optionalLinkError(
+    productPage.sellerInformation.linkText,
+    productPage.sellerInformation.linkHref,
+    "Seller information link",
+  );
+  if (sellerLinkErr) return sellerLinkErr;
   for (const b of blocks) {
     if (b.type === "banner" && b.enabled && !hasResponsiveImage(b.config?.image)) {
       return "Enabled image banners need at least one image (desktop, tablet, or mobile).";

@@ -67,13 +67,21 @@ export function validateProductPage(productPage: IProductPageConfig): void {
     throw new ValidationError('Estimated delivery minimum days cannot exceed maximum days');
   }
 
-  for (const section of productPage.sections) {
-    if (!section.enabled) continue;
-    if (!section.title.trim() || !section.content.trim()) {
-      throw new ValidationError('Every enabled product information section needs a title and content.');
-    }
-    validateOptionalLinkPair(section.linkText, section.linkHref, `Product section "${section.title.trim()}" link`);
-  }
+  validateOptionalLinkPair(
+    productPage.returnAndExchange.linkText,
+    productPage.returnAndExchange.linkHref,
+    'Return and exchange link',
+  );
+  validateOptionalLinkPair(
+    productPage.shippingInformation.linkText,
+    productPage.shippingInformation.linkHref,
+    'Shipping information link',
+  );
+  validateOptionalLinkPair(
+    productPage.sellerInformation.linkText,
+    productPage.sellerInformation.linkHref,
+    'Seller information link',
+  );
 }
 
 export function validateHomepageBlocks(blocks: IHomepageBlock[]): void {

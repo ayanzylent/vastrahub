@@ -197,31 +197,33 @@ export interface IAnnouncementBar {
 
 // ---------- Site settings ----------
 
-export type ProductInfoType = 'returns' | 'shipping' | 'seller' | 'help' | 'custom';
-export type ProductInfoIcon = 'rotate' | 'truck' | 'store' | 'help' | 'info' | 'shield';
-
 export interface IEstimatedDeliveryConfig {
   enabled: boolean;
   minDays: number;
   maxDays: number;
 }
 
-export interface IProductInfoSection {
-  id: string;
-  version: 1;
-  enabled: boolean;
-  type: ProductInfoType;
-  icon: ProductInfoIcon;
-  title: string;
-  content: string;
+export interface IProductPageBadges {
+  easyReturn: boolean;
+  easyReplacement: boolean;
+  cod: boolean;
+  freeDelivery: boolean;
+  authentic: boolean;
+}
+
+export interface IProductInfoBlock {
+  content?: string;
   linkText?: string;
   linkHref?: string;
 }
 
 export interface IProductPageConfig {
-  version: 1;
+  version: 2;
   estimatedDelivery: IEstimatedDeliveryConfig;
-  sections: IProductInfoSection[];
+  badges: IProductPageBadges;
+  returnAndExchange: IProductInfoBlock;
+  shippingInformation: IProductInfoBlock;
+  sellerInformation: IProductInfoBlock;
 }
 
 export interface ISiteSettings {

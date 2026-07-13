@@ -12,6 +12,8 @@
   /* === ANIMATIONS === */
   --animate-fade-in: fade-in 0.5s ease-out;
   --animate-logo-marquee: logo-marquee 50s linear infinite;
+  --animate-accordion-down: accordion-down 0.2s ease-out;
+  --animate-accordion-up: accordion-up 0.2s ease-out;
 }
 
 @keyframes fade-in {
@@ -35,6 +37,16 @@
 @keyframes ann-cursor-blink {
   0%, 100% { opacity: 1; }
   50% { opacity: 0; }
+}
+
+@keyframes accordion-down {
+  from { height: 0; }
+  to { height: var(--radix-accordion-content-height); }
+}
+
+@keyframes accordion-up {
+  from { height: var(--radix-accordion-content-height); }
+  to { height: 0; }
 }
 
 /* === ROSE / NEUTRAL THEME (preset b501U2Nvc · style vega) === */

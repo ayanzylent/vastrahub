@@ -17,6 +17,8 @@ import type {
   IHomepageBlock,
   IAnnouncementBar,
   IProductPageConfig,
+  IProductPageBadges,
+  IProductInfoBlock,
   IEstimatedDeliveryConfig,
   ISiteSettings,
   AnnouncementMode,
@@ -279,29 +281,70 @@ export function normalizeProductPage(raw: unknown): IProductPageConfig {
   const fallback = structuredClone(DEFAULT_PRODUCT_PAGE);
   if (!raw || typeof raw !== 'object') return fallback;
 
-  const page = raw as Partial<IProductPageConfig>;
-  const delivery: Partial<IEstimatedDeliveryConfig> =
+  const page = raw as Record<string, unknown>;
+  const deliveryRaw =
     page.estimatedDelivery && typeof page.estimatedDelivery === 'object'
-      ? page.estimatedDelivery
+      ? (page.estimatedDelivery as Partial<IEstimatedDeliveryConfig>)
+      : {};
+  const badgesRaw =
+    page.badges && typeof page.badges === 'object'
+      ? (page.badges as Partial<IProductPageBadges>)
       : {};
 
+  const normalizeInfoBlock = (value: unknown): IProductInfoBlock => {
+    if (!value || typeof value !== 'object') return {};
+    const block = value as Partial<IProductInfoBlock>;
+    const next: IProductInfoBlock = {};
+    if (typeof block.content === 'string' && block.content.trim()) {
+      next.content = block.content;
+    }
+    if (typeof block.linkText === 'string' && block.linkText.trim()) {
+      next.linkText = block.linkText;
+    }
+    if (typeof block.linkHref === 'string' && block.linkHref.trim()) {
+      next.linkHref = block.linkHref;
+    }
+    return next;
+  };
+
   return {
-    version: page.version === 1 ? 1 : fallback.version,
+    version: 2,
     estimatedDelivery: {
       enabled:
-        typeof delivery.enabled === 'boolean'
-          ? delivery.enabled
+        typeof deliveryRaw.enabled === 'boolean'
+          ? deliveryRaw.enabled
           : fallback.estimatedDelivery.enabled,
       minDays:
-        typeof delivery.minDays === 'number' && Number.isFinite(delivery.minDays)
-          ? delivery.minDays
+        typeof deliveryRaw.minDays === 'number' && Number.isFinite(deliveryRaw.minDays)
+          ? deliveryRaw.minDays
           : fallback.estimatedDelivery.minDays,
       maxDays:
-        typeof delivery.maxDays === 'number' && Number.isFinite(delivery.maxDays)
-          ? delivery.maxDays
+        typeof deliveryRaw.maxDays === 'number' && Number.isFinite(deliveryRaw.maxDays)
+          ? deliveryRaw.maxDays
           : fallback.estimatedDelivery.maxDays,
     },
-    sections: Array.isArray(page.sections) ? page.sections : fallback.sections,
+    badges: {
+      easyReturn:
+        typeof badgesRaw.easyReturn === 'boolean'
+          ? badgesRaw.easyReturn
+          : fallback.badges.easyReturn,
+      easyReplacement:
+        typeof badgesRaw.easyReplacement === 'boolean'
+          ? badgesRaw.easyReplacement
+          : fallback.badges.easyReplacement,
+      cod: typeof badgesRaw.cod === 'boolean' ? badgesRaw.cod : fallback.badges.cod,
+      freeDelivery:
+        typeof badgesRaw.freeDelivery === 'boolean'
+          ? badgesRaw.freeDelivery
+          : fallback.badges.freeDelivery,
+      authentic:
+        typeof badgesRaw.authentic === 'boolean'
+          ? badgesRaw.authentic
+          : fallback.badges.authentic,
+    },
+    returnAndExchange: normalizeInfoBlock(page.returnAndExchange),
+    shippingInformation: normalizeInfoBlock(page.shippingInformation),
+    sellerInformation: normalizeInfoBlock(page.sellerInformation),
   };
 }
 

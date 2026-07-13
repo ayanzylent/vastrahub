@@ -11,7 +11,9 @@ export const SITE_SETTINGS_LIMITS = {
   MAX_LOGO_MARQUEE_ITEMS: 24,
   MAX_HERO_SLIDES: 8,
   MAX_ANNOUNCEMENT_MESSAGES: 10,
-  MAX_PRODUCT_INFO_SECTIONS: 12,
+  MAX_PRODUCT_INFO_CONTENT: 1200,
+  MAX_PRODUCT_INFO_LINK_TEXT: 60,
+  MAX_PRODUCT_INFO_LINK_HREF: 500,
 } as const;
 
 /** Fresh defaults: only a single hero slide. Everything else starts empty/off. */
@@ -38,9 +40,18 @@ export const DEFAULT_ANNOUNCEMENT_BAR: IAnnouncementBar = {
 };
 
 export const DEFAULT_PRODUCT_PAGE: IProductPageConfig = {
-  version: 1,
+  version: 2,
   estimatedDelivery: { enabled: false, minDays: 3, maxDays: 7 },
-  sections: [],
+  badges: {
+    easyReturn: false,
+    easyReplacement: false,
+    cod: false,
+    freeDelivery: false,
+    authentic: false,
+  },
+  returnAndExchange: {},
+  shippingInformation: {},
+  sellerInformation: {},
 };
 
 export const DEFAULT_HOMEPAGE_BLOCKS: IHomepageBlock[] = [];

@@ -11,13 +11,17 @@ import {
   Star,
   Minus,
   Plus,
-  ChevronDown,
-  ChevronUp,
   ChevronRight,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn, formatPrice } from "@/lib/utils";
 import { getMediaUrl } from "@/lib/media";
@@ -25,9 +29,15 @@ import { api } from "@/lib/api";
 import { useCart } from "@/providers/CartProvider";
 import { useWishlist } from "@/providers/WishlistProvider";
 import { toast } from "sonner";
-import type { IProduct, ISku, ICategory, IMediaItem, IProductPageConfig } from "@/types";
+import type { IProduct, ISku, ICategory, IMediaItem, IProductInfoBlock, IProductPageConfig } from "@/types";
 import { DEFAULT_PRODUCT_PAGE } from "@/constants";
 import { ProductSettingsPanel } from "@/components/storefront/product/product-settings-panel";
+
+function hasInfoBlock(block: IProductInfoBlock): boolean {
+  const hasContent = !!block.content?.trim();
+  const hasLink = !!block.linkText?.trim() && !!block.linkHref?.trim();
+  return hasContent || hasLink;
+}
 
 /* ────────────────────────────────────────────────────────────────
    Types
@@ -118,7 +128,6 @@ export default function ProductDetailPage() {
   const [productPageSettings, setProductPageSettings] = useState<IProductPageConfig>(DEFAULT_PRODUCT_PAGE);
 
   /* ── UI state ── */
-  const [descriptionExpanded, setDescriptionExpanded] = useState(false);
   const [showStickyBar, setShowStickyBar] = useState(false);
   const ctaSectionRef = useRef<HTMLDivElement>(null);
 
@@ -399,7 +408,6 @@ export default function ProductDetailPage() {
      Description helper
      ──────────────────────────────────────────────────────────────── */
   const descriptionText = product.description || "";
-  const isLongDescription = descriptionText.length > 250;
 
   /* ────────────────────────────────────────────────────────────────
      Product details key-value pairs
@@ -415,6 +423,22 @@ export default function ProductDetailPage() {
   if (product.gstPercentage !== null && product.gstPercentage !== undefined)
     productDetails.push({ label: "GST", value: `${product.gstPercentage}%` });
   if (displaySku?.sku) productDetails.push({ label: "SKU", value: displaySku.sku });
+
+  const showDeliveryServices =
+    productPageSettings.estimatedDelivery.enabled ||
+    Object.values(productPageSettings.badges).some(Boolean);
+
+  const showReturnAndExchange = hasInfoBlock(productPageSettings.returnAndExchange);
+  const showShippingInformation = hasInfoBlock(productPageSettings.shippingInformation);
+  const showSellerInformation = hasInfoBlock(productPageSettings.sellerInformation);
+
+  const accordionItems: string[] = [];
+  if (productDetails.length > 0) accordionItems.push("details");
+  if (descriptionText) accordionItems.push("description");
+  if (showReturnAndExchange) accordionItems.push("return");
+  if (showShippingInformation) accordionItems.push("shipping");
+  if (showSellerInformation) accordionItems.push("seller");
+  const defaultAccordionValue = accordionItems[0];
 
   /* ────────────────────────────────────────────────────────────────
      Render — main
@@ -807,83 +831,135 @@ export default function ProductDetailPage() {
               </Button>
             </div>
 
-            <Separator />
-
-            {/* ── Delivery & Services ── */}
-            <div className="space-y-3">
-              <h3 className="text-sm font-semibold">Delivery & Services</h3>
-              <ProductSettingsPanel settings={productPageSettings} />
-            </div>
-
-            <Separator />
-
-            {/* ── Product Details (inline, no tabs) ── */}
-            {productDetails.length > 0 && (
-              <div className="space-y-3">
-                <h3 className="text-sm font-semibold">Product Details</h3>
-                <div className="space-y-0 rounded-lg border border-border/50 overflow-hidden">
-                  {productDetails.map(({ label, value }, i) => (
-                    <div
-                      key={label}
-                      className={cn(
-                        "flex items-start gap-4 px-3 py-2.5 text-sm",
-                        i % 2 === 0 ? "bg-muted/30" : "",
-                      )}
-                    >
-                      <span className="text-muted-foreground w-[130px] shrink-0 text-xs">
-                        {label}
-                      </span>
-                      <span className="text-xs font-medium flex-1 break-words">{value}</span>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Tags */}
-                {product.tags?.length > 0 && (
-                  <div className="flex flex-wrap gap-1.5 pt-1">
-                    {product.tags.map((tag) => (
-                      <Badge key={tag} variant="secondary" className="text-[10px]">
-                        {tag}
-                      </Badge>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* ── Description (inline with Read More) ── */}
-            {descriptionText && (
+            {showDeliveryServices && (
               <>
                 <Separator />
-                <div className="space-y-2">
-                  <h3 className="text-sm font-semibold">Description</h3>
-                  <div className="relative">
-                    <p
-                      className={cn(
-                        "text-sm text-muted-foreground whitespace-pre-wrap leading-relaxed",
-                        !descriptionExpanded && isLongDescription && "line-clamp-4",
-                      )}
-                    >
-                      {descriptionText}
-                    </p>
-                    {isLongDescription && (
-                      <button
-                        onClick={() => setDescriptionExpanded(!descriptionExpanded)}
-                        className="flex items-center gap-1 text-xs font-medium text-primary mt-1.5 hover:underline"
-                      >
-                        {descriptionExpanded ? (
-                          <>
-                            Read Less <ChevronUp className="h-3 w-3" />
-                          </>
-                        ) : (
-                          <>
-                            Read More <ChevronDown className="h-3 w-3" />
-                          </>
-                        )}
-                      </button>
-                    )}
-                  </div>
+                <div className="space-y-3">
+                  <h3 className="text-sm font-semibold">Delivery & Services</h3>
+                  <ProductSettingsPanel settings={productPageSettings} />
                 </div>
+              </>
+            )}
+
+            {accordionItems.length > 0 && (
+              <>
+                <Separator />
+                <Accordion
+                  type="single"
+                  collapsible
+                  defaultValue={defaultAccordionValue}
+                  className="w-full"
+                >
+                  {productDetails.length > 0 && (
+                    <AccordionItem value="details">
+                      <AccordionTrigger className="hover:no-underline">Product Details</AccordionTrigger>
+                      <AccordionContent>
+                        <div className="space-y-0 overflow-hidden rounded-lg border border-border/50">
+                          {productDetails.map(({ label, value }, i) => (
+                            <div
+                              key={label}
+                              className={cn(
+                                "flex items-start gap-4 px-3 py-2.5 text-sm",
+                                i % 2 === 0 ? "bg-muted/30" : "",
+                              )}
+                            >
+                              <span className="w-[130px] shrink-0 text-xs text-muted-foreground">
+                                {label}
+                              </span>
+                              <span className="flex-1 break-words text-xs font-medium">{value}</span>
+                            </div>
+                          ))}
+                        </div>
+                        {product.tags?.length > 0 && (
+                          <div className="flex flex-wrap gap-1.5 pt-3">
+                            {product.tags.map((tag) => (
+                              <Badge key={tag} variant="secondary" className="text-[10px]">
+                                {tag}
+                              </Badge>
+                            ))}
+                          </div>
+                        )}
+                      </AccordionContent>
+                    </AccordionItem>
+                  )}
+
+                  {descriptionText && (
+                    <AccordionItem value="description">
+                      <AccordionTrigger className="hover:no-underline">Description</AccordionTrigger>
+                      <AccordionContent>
+                        <p className="whitespace-pre-wrap text-sm leading-relaxed text-muted-foreground">
+                          {descriptionText}
+                        </p>
+                      </AccordionContent>
+                    </AccordionItem>
+                  )}
+
+                  {showReturnAndExchange && (
+                    <AccordionItem value="return">
+                      <AccordionTrigger className="hover:no-underline">Return and exchange</AccordionTrigger>
+                      <AccordionContent>
+                        {productPageSettings.returnAndExchange.content?.trim() && (
+                          <p className="whitespace-pre-wrap text-sm leading-relaxed text-muted-foreground">
+                            {productPageSettings.returnAndExchange.content}
+                          </p>
+                        )}
+                        {productPageSettings.returnAndExchange.linkHref &&
+                          productPageSettings.returnAndExchange.linkText && (
+                            <Link
+                              href={productPageSettings.returnAndExchange.linkHref}
+                              className="mt-2 inline-block text-sm font-medium text-primary hover:underline"
+                            >
+                              {productPageSettings.returnAndExchange.linkText}
+                            </Link>
+                          )}
+                      </AccordionContent>
+                    </AccordionItem>
+                  )}
+
+                  {showShippingInformation && (
+                    <AccordionItem value="shipping">
+                      <AccordionTrigger className="hover:no-underline">Shipping information</AccordionTrigger>
+                      <AccordionContent>
+                        {productPageSettings.shippingInformation.content?.trim() && (
+                          <p className="whitespace-pre-wrap text-sm leading-relaxed text-muted-foreground">
+                            {productPageSettings.shippingInformation.content}
+                          </p>
+                        )}
+                        {productPageSettings.shippingInformation.linkHref &&
+                          productPageSettings.shippingInformation.linkText && (
+                            <Link
+                              href={productPageSettings.shippingInformation.linkHref}
+                              className="mt-2 inline-block text-sm font-medium text-primary hover:underline"
+                            >
+                              {productPageSettings.shippingInformation.linkText}
+                            </Link>
+                          )}
+                      </AccordionContent>
+                    </AccordionItem>
+                  )}
+
+                  {showSellerInformation && (
+                    <AccordionItem value="seller">
+                      <AccordionTrigger className="hover:no-underline">Seller information</AccordionTrigger>
+                      <AccordionContent>
+                        {productPageSettings.sellerInformation.content?.trim() && (
+                          <p className="whitespace-pre-wrap text-sm leading-relaxed text-muted-foreground">
+                            {productPageSettings.sellerInformation.content}
+                          </p>
+                        )}
+                        {productPageSettings.sellerInformation.linkHref &&
+                          productPageSettings.sellerInformation.linkText && (
+                            <Link
+                              href={productPageSettings.sellerInformation.linkHref}
+                              className="mt-2 inline-block text-sm font-medium text-primary hover:underline"
+                            >
+                              {productPageSettings.sellerInformation.linkText}
+                            </Link>
+                          )}
+                      </AccordionContent>
+                    </AccordionItem>
+                  )}
+                </Accordion>
               </>
             )}
           </div>

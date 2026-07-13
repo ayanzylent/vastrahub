@@ -1,36 +1,92 @@
 "use client";
 
-import { ArrowDown, ArrowUp, Plus, Trash2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { SITE_SETTINGS_LIMITS } from "@/constants";
 import type {
-  IProductInfoSection,
+  IProductInfoBlock,
+  IProductPageBadges,
   IProductPageConfig,
-  ProductInfoIcon,
-  ProductInfoType,
 } from "@/types";
 import { FieldToggle } from "./field-toggle";
-import { selectCls, TextAreaField, TextField } from "./fields";
+import { TextAreaField, TextField } from "./fields";
 
-const TYPES: Array<{ value: ProductInfoType; label: string }> = [
-  { value: "returns", label: "Return & Exchange" },
-  { value: "shipping", label: "Shipping Information" },
-  { value: "seller", label: "Seller Information" },
-  { value: "help", label: "Need Help" },
-  { value: "custom", label: "Custom" },
+const BADGE_FIELDS: Array<{ key: keyof IProductPageBadges; label: string; desc: string }> = [
+  { key: "easyReturn", label: "Easy return", desc: "Show an Easy Return badge on the product page" },
+  { key: "easyReplacement", label: "Easy replacement", desc: "Show an Easy Replacement badge on the product page" },
+  { key: "cod", label: "Cash on delivery", desc: "Show a COD badge on the product page" },
+  { key: "freeDelivery", label: "Free delivery", desc: "Show a Free Delivery badge on the product page" },
+  { key: "authentic", label: "Authentic", desc: "Show an Authentic badge on the product page" },
 ];
 
-const ICONS: Array<{ value: ProductInfoIcon; label: string }> = [
-  { value: "rotate", label: "Return" },
-  { value: "truck", label: "Truck" },
-  { value: "store", label: "Store" },
-  { value: "help", label: "Help" },
-  { value: "info", label: "Information" },
-  { value: "shield", label: "Shield" },
+const INFO_BLOCKS: Array<{
+  key: "returnAndExchange" | "shippingInformation" | "sellerInformation";
+  title: string;
+  desc: string;
+}> = [
+  {
+    key: "returnAndExchange",
+    title: "Return and exchange",
+    desc: "Optional policy text and link shown in the product page accordion",
+  },
+  {
+    key: "shippingInformation",
+    title: "Shipping information",
+    desc: "Optional shipping details and link shown in the product page accordion",
+  },
+  {
+    key: "sellerInformation",
+    title: "Seller information",
+    desc: "Optional seller details and link shown in the product page accordion",
+  },
 ];
+
+function InfoBlockFields({
+  title,
+  desc,
+  value,
+  onChange,
+}: {
+  title: string;
+  desc: string;
+  value: IProductInfoBlock;
+  onChange: (value: IProductInfoBlock) => void;
+}) {
+  const set = (patch: Partial<IProductInfoBlock>) => onChange({ ...value, ...patch });
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-base">{title}</CardTitle>
+        <p className="text-sm text-muted-foreground">{desc}</p>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <TextAreaField
+          label="Content (optional)"
+          value={value.content ?? ""}
+          onChange={(content) => set({ content: content || undefined })}
+          rows={4}
+          maxLength={SITE_SETTINGS_LIMITS.MAX_PRODUCT_INFO_CONTENT}
+        />
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <TextField
+            label="Link text (optional)"
+            value={value.linkText ?? ""}
+            onChange={(linkText) => set({ linkText: linkText || undefined })}
+            maxLength={SITE_SETTINGS_LIMITS.MAX_PRODUCT_INFO_LINK_TEXT}
+          />
+          <TextField
+            label="Link URL (optional)"
+            value={value.linkHref ?? ""}
+            onChange={(linkHref) => set({ linkHref: linkHref || undefined })}
+            maxLength={SITE_SETTINGS_LIMITS.MAX_PRODUCT_INFO_LINK_HREF}
+          />
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
 
 export function ProductPageEditor({
   value,
@@ -40,27 +96,6 @@ export function ProductPageEditor({
   onChange: (value: IProductPageConfig) => void;
 }) {
   const set = (patch: Partial<IProductPageConfig>) => onChange({ ...value, ...patch });
-  const updateSection = (index: number, patch: Partial<IProductInfoSection>) => {
-    set({ sections: value.sections.map((section, i) => i === index ? { ...section, ...patch } : section) });
-  };
-  const moveSection = (index: number, delta: number) => {
-    const target = index + delta;
-    if (target < 0 || target >= value.sections.length) return;
-    const sections = [...value.sections];
-    [sections[index], sections[target]] = [sections[target], sections[index]];
-    set({ sections });
-  };
-  const addSection = () => set({
-    sections: [...value.sections, {
-      id: crypto.randomUUID(),
-      version: 1,
-      enabled: true,
-      type: "custom",
-      icon: "info",
-      title: "New information",
-      content: "Add information shown to customers.",
-    }],
-  });
 
   return (
     <div className="space-y-4">
@@ -111,50 +146,35 @@ export function ProductPageEditor({
         </CardContent>
       </Card>
 
-      <div className="flex items-center justify-between gap-3">
-        <div>
-          <h2 className="font-semibold">Product information sections</h2>
-          <p className="text-sm text-muted-foreground">Reorder and customize the information shown below the purchase buttons.</p>
-        </div>
-        <Button type="button" variant="outline" size="sm" onClick={addSection} disabled={value.sections.length >= SITE_SETTINGS_LIMITS.MAX_PRODUCT_INFO_SECTIONS}>
-          <Plus className="mr-1 h-4 w-4" /> Add section
-        </Button>
-      </div>
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">Trust badges</CardTitle>
+          <p className="text-sm text-muted-foreground">
+            Toggle which badges appear under delivery on the product page
+          </p>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {BADGE_FIELDS.map((field) => (
+            <FieldToggle
+              key={field.key}
+              id={`product-badge-${field.key}`}
+              checked={value.badges[field.key]}
+              onChange={(checked) => set({ badges: { ...value.badges, [field.key]: checked } })}
+              label={field.label}
+              desc={field.desc}
+            />
+          ))}
+        </CardContent>
+      </Card>
 
-      {value.sections.map((section, index) => (
-        <Card key={section.id}>
-          <CardHeader className="flex-row items-center justify-between gap-3">
-            <CardTitle className="text-base">{section.title || `Section ${index + 1}`}</CardTitle>
-            <div className="flex items-center gap-1">
-              <Button type="button" size="icon" variant="ghost" disabled={index === 0} onClick={() => moveSection(index, -1)} aria-label="Move section up"><ArrowUp className="h-4 w-4" /></Button>
-              <Button type="button" size="icon" variant="ghost" disabled={index === value.sections.length - 1} onClick={() => moveSection(index, 1)} aria-label="Move section down"><ArrowDown className="h-4 w-4" /></Button>
-              <Button type="button" size="icon" variant="ghost" onClick={() => set({ sections: value.sections.filter((_, i) => i !== index) })} aria-label="Remove section"><Trash2 className="h-4 w-4" /></Button>
-            </div>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <FieldToggle id={`product-info-${section.id}`} checked={section.enabled} onChange={(enabled) => updateSection(index, { enabled })} label="Show this section" />
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              <div className="space-y-2">
-                <Label>Section type</Label>
-                <select className={selectCls} value={section.type} onChange={(event) => updateSection(index, { type: event.target.value as ProductInfoType })}>
-                  {TYPES.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
-                </select>
-              </div>
-              <div className="space-y-2">
-                <Label>Icon</Label>
-                <select className={selectCls} value={section.icon} onChange={(event) => updateSection(index, { icon: event.target.value as ProductInfoIcon })}>
-                  {ICONS.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
-                </select>
-              </div>
-            </div>
-            <TextField label="Title" value={section.title} onChange={(title) => updateSection(index, { title })} maxLength={100} required />
-            <TextAreaField label="Content" value={section.content} onChange={(content) => updateSection(index, { content })} rows={4} maxLength={1200} />
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              <TextField label="Link text (optional)" value={section.linkText ?? ""} onChange={(linkText) => updateSection(index, { linkText: linkText || undefined })} maxLength={60} />
-              <TextField label="Link URL (optional)" value={section.linkHref ?? ""} onChange={(linkHref) => updateSection(index, { linkHref: linkHref || undefined })} maxLength={500} />
-            </div>
-          </CardContent>
-        </Card>
+      {INFO_BLOCKS.map((block) => (
+        <InfoBlockFields
+          key={block.key}
+          title={block.title}
+          desc={block.desc}
+          value={value[block.key]}
+          onChange={(next) => set({ [block.key]: next })}
+        />
       ))}
     </div>
   );
