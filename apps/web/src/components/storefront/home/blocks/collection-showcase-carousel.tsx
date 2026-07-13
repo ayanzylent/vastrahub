@@ -4,7 +4,7 @@ import { useRef } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { ICollection } from "@/types";
-import { CollectionCard } from "./collection-card";
+import { CollectionCard } from "@/components/storefront/collection-card";
 
 export function CollectionShowcaseCarousel({ collections }: { collections: ICollection[] }) {
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -14,7 +14,7 @@ export function CollectionShowcaseCarousel({ collections }: { collections: IColl
     if (!el) return;
     const card = el.querySelector<HTMLElement>("[data-carousel-card]");
     const gap = 16;
-    const step = (card?.offsetWidth ?? 320) + gap;
+    const step = (card?.offsetWidth ?? 160) + gap;
     el.scrollBy({ left: dir * step, behavior: "smooth" });
   }
 
@@ -29,13 +29,13 @@ export function CollectionShowcaseCarousel({ collections }: { collections: IColl
           <div
             key={col._id}
             data-carousel-card
-            className="w-full shrink-0 snap-start sm:w-[calc(50%-8px)] lg:w-[calc(33.333%-11px)]"
+            className="w-[calc(50%-8px)] shrink-0 snap-start sm:w-[calc(33.333%-11px)] md:w-[calc(25%-12px)] lg:w-[calc(16.666%-14px)]"
           >
             <CollectionCard col={col} />
           </div>
         ))}
       </div>
-      {collections.length > 1 && (
+      {collections.length > 2 && (
         <>
           <Button
             type="button"

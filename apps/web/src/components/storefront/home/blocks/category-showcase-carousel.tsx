@@ -4,7 +4,7 @@ import { useRef } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { ICategory } from "@/types";
-import { CategoryCard } from "./category-card";
+import { CategoryCard } from "@/components/storefront/category-card";
 
 export function CategoryShowcaseCarousel({ categories }: { categories: ICategory[] }) {
   const scrollRef = useRef<HTMLDivElement>(null);

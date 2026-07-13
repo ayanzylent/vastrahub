@@ -2,7 +2,7 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { ICollectionShowcaseBlock, ICollection } from "@/types";
-import { CollectionCard } from "./collection-card";
+import { CollectionCard } from "@/components/storefront/collection-card";
 import { CollectionShowcaseCarousel } from "./collection-showcase-carousel";
 import { HOME_BLOCK_HEADER_CLASS, HomeBlockSection } from "./home-block-section";
 
@@ -18,7 +18,7 @@ export function CollectionShowcaseBlock({
   const layout = c.layout ?? "grid";
 
   return (
-    <HomeBlockSection className="bg-card/50">
+    <HomeBlockSection>
       <div className={`flex items-center justify-between ${HOME_BLOCK_HEADER_CLASS}`}>
         <div>
           <h2 className="font-heading text-2xl md:text-3xl font-bold">
@@ -36,7 +36,7 @@ export function CollectionShowcaseBlock({
       {layout === "carousel" ? (
         <CollectionShowcaseCarousel collections={collections} />
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 md:gap-4">
           {collections.map((col) => (
             <CollectionCard key={col._id} col={col} />
           ))}
