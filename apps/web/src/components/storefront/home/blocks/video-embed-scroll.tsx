@@ -3,6 +3,7 @@
 import { useRef } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import type { VideoProvider } from "@/types";
 
 export interface VideoEmbedItem {
@@ -11,8 +12,14 @@ export interface VideoEmbedItem {
   embedSrc: string;
 }
 
+/** Mobile card width — wide enough to watch, narrow enough to peek the next item. */
+function mobileCardWidth(provider: VideoProvider) {
+  return provider === "youtube" ? "w-[85%]" : "w-[80%]";
+}
+
 export function VideoEmbedScroll({ items }: { items: VideoEmbedItem[] }) {
   const scrollRef = useRef<HTMLDivElement>(null);
+  const isMulti = items.length > 1;
 
   function scroll(dir: -1 | 1) {
     const el = scrollRef.current;
@@ -25,40 +32,56 @@ export function VideoEmbedScroll({ items }: { items: VideoEmbedItem[] }) {
 
   return (
     <div className="relative">
-      <div
-        ref={scrollRef}
-        className="flex gap-4 md:gap-5 overflow-x-auto scroll-smooth snap-x snap-mandatory pb-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-        aria-roledescription="carousel"
-      >
-        {items.map((item, i) => {
-          const aspect = item.provider === "youtube" ? "aspect-video" : "aspect-[4/5]";
-          return (
-            <div
-              key={i}
-              data-video-card
-              className="w-full shrink-0 snap-start sm:w-[calc(50%-8px)] lg:w-[calc(33.333%-11px)]"
-            >
-              <div className="space-y-2">
-                <div
-                  className={`relative overflow-hidden rounded-xl border border-border/50 bg-muted ${aspect}`}
-                >
-                  <iframe
-                    src={item.embedSrc}
-                    title={item.caption || "Embedded video"}
-                    className="absolute inset-0 h-full w-full"
-                    loading="lazy"
-                    allow="accelerometer; encrypted-media; picture-in-picture; fullscreen"
-                    referrerPolicy="strict-origin-when-cross-origin"
-                    allowFullScreen
-                  />
+      <div className={isMulti ? "-mx-4 md:-mx-6" : undefined}>
+        <div
+          ref={scrollRef}
+          className={cn(
+            "flex gap-4 md:gap-5 overflow-x-auto scroll-smooth snap-x snap-mandatory pb-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
+            isMulti && "px-4 md:px-6",
+          )}
+          aria-roledescription="carousel"
+        >
+          {items.map((item, i) => {
+            const aspect = item.provider === "youtube" ? "aspect-video" : "aspect-[4/5]";
+            return (
+              <div
+                key={i}
+                data-video-card
+                className={cn(
+                  "shrink-0 snap-start",
+                  isMulti
+                    ? cn(
+                        mobileCardWidth(item.provider),
+                        "sm:w-[calc(50%-8px)] lg:w-[calc(33.333%-11px)]",
+                      )
+                    : "w-full",
+                )}
+              >
+                <div className="space-y-2">
+                  <div
+                    className={`relative overflow-hidden rounded-xl border border-border/50 bg-muted ${aspect}`}
+                  >
+                    <iframe
+                      src={item.embedSrc}
+                      title={item.caption || "Embedded video"}
+                      className="absolute inset-0 h-full w-full"
+                      loading="lazy"
+                      allow="accelerometer; encrypted-media; picture-in-picture; fullscreen"
+                      referrerPolicy="strict-origin-when-cross-origin"
+                      allowFullScreen
+                    />
+                  </div>
+                  {item.caption && (
+                    <p className="text-sm text-muted-foreground">{item.caption}</p>
+                  )}
                 </div>
-                {item.caption && <p className="text-sm text-muted-foreground">{item.caption}</p>}
               </div>
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
       </div>
-      {items.length > 1 && (
+
+      {isMulti && (
         <>
           <Button
             type="button"
