@@ -147,6 +147,7 @@ const BLOCK_HYDRATORS = {
   }),
   videoEmbed: async (block) => block as IHydratedHomepageBlock,
   banner: async (block) => block as IHydratedHomepageBlock,
+  imageMosaic: async (block) => block as IHydratedHomepageBlock,
 } satisfies Record<BlockType, BlockHydrator>;
 
 export async function getHydratedStorefrontSettings() {
@@ -154,6 +155,10 @@ export async function getHydratedStorefrontSettings() {
   const enabled = settings.homepageBlocks.filter((b) => {
     if (!b.enabled) return false;
     if (b.type === 'banner') return hasResponsiveImage(b.config?.image);
+    if (b.type === 'imageMosaic') {
+      const items = b.config?.items ?? [];
+      return items.length === 4 && items.every((item) => hasResponsiveImage(item.image));
+    }
     return true;
   });
 

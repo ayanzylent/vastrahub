@@ -12,6 +12,8 @@ import type {
   IFeaturedProductsBlock,
   IVideoEmbedBlock,
   IBannerBlock,
+  IImageMosaicBlock,
+  IImageMosaicItem,
   VideoProvider,
   IVideoEmbedItem,
   BlockType,
@@ -257,6 +259,82 @@ function BannerEditor({
   );
 }
 
+const MOSAIC_SLOT_LABELS = [
+  "Tall left",
+  "Landscape top (middle / right)",
+  "Landscape bottom (middle / left)",
+  "Tall right",
+] as const;
+
+function ImageMosaicEditor({
+  block,
+  onChange,
+}: {
+  block: IImageMosaicBlock;
+  onChange: (b: IHomepageBlock) => void;
+}) {
+  const c = blockConfig(block, { items: [{}, {}, {}, {}] as IImageMosaicItem[] });
+  const items = [...(c.items ?? [])];
+  while (items.length < 4) items.push({});
+  const padded = items.slice(0, 4);
+
+  function setItem(index: number, patch: Partial<IImageMosaicItem>) {
+    const next = padded.map((item, i) => (i === index ? { ...item, ...patch } : item));
+    onChange({ ...block, config: { ...c, items: next } });
+  }
+
+  return (
+    <div className="space-y-6">
+      <p className="text-xs text-muted-foreground">
+        Upload all 4 tiles. Desktop shows tall | stacked landscapes | tall; tablet and mobile use
+        an interlocking 2-column layout.
+      </p>
+      {padded.map((item, index) => (
+        <div key={index} className="space-y-3 rounded-lg border border-border/60 p-3">
+          <SectionLabel>
+            Tile {index + 1} — {MOSAIC_SLOT_LABELS[index]}
+          </SectionLabel>
+          <ResponsiveImageField
+            instanceId={`${block.id}-${index}`}
+            value={item.image}
+            onChange={(img) => setItem(index, { image: img })}
+          />
+          <TextField
+            label="Title / label (optional)"
+            value={item.title ?? ""}
+            onChange={(v) => setItem(index, { title: v || undefined })}
+            placeholder="e.g. BESTSELLERS"
+            maxLength={80}
+          />
+          <TextField
+            label="Promo badge (optional)"
+            value={item.badge ?? ""}
+            onChange={(v) => setItem(index, { badge: v || undefined })}
+            placeholder="e.g. BUY 2 GET 1 FREE"
+            maxLength={60}
+          />
+          <TextField
+            label="Link (optional)"
+            value={item.href ?? ""}
+            onChange={(v) => setItem(index, { href: v || undefined })}
+            placeholder="/collections/sale or https://…"
+            maxLength={500}
+          />
+          <div className="space-y-2">
+            <Label>Alt text (optional)</Label>
+            <Input
+              value={item.alt ?? ""}
+              onChange={(e) => setItem(index, { alt: e.target.value || undefined })}
+              placeholder="Describe the image for accessibility"
+              maxLength={200}
+            />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 // ---------- Dispatcher ----------
 
 export function BlockEditor({
@@ -281,4 +359,5 @@ const BLOCK_EDITORS = {
   featuredProducts: FeaturedProductsEditor,
   videoEmbed: VideoEmbedEditor,
   banner: BannerEditor,
+  imageMosaic: ImageMosaicEditor,
 } satisfies Record<BlockType, ComponentType<never>>;

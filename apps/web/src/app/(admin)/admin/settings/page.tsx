@@ -105,6 +105,14 @@ function validate(
     if (b.type === "banner" && b.enabled && !hasResponsiveImage(b.config?.image)) {
       return "Enabled image banners need at least one image (desktop, tablet, or mobile).";
     }
+    if (b.type === "imageMosaic" && b.enabled) {
+      const items = b.config?.items ?? [];
+      const allFilled =
+        items.length === 4 && items.every((item) => hasResponsiveImage(item.image));
+      if (!allFilled) {
+        return "Enabled image mosaic blocks require an image on all 4 tiles.";
+      }
+    }
     if (b.type === "videoEmbed" && b.enabled) {
       for (const v of b.config.videos) {
         const url = v.url.trim();

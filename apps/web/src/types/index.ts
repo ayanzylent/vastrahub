@@ -47,6 +47,8 @@ export type {
   IFeaturedProductsBlock,
   IVideoEmbedBlock,
   IBannerBlock,
+  IImageMosaicItem,
+  IImageMosaicBlock,
   IHomepageBlock,
   BlockType,
   AnnouncementTone,

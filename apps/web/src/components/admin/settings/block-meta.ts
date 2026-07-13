@@ -4,6 +4,7 @@ import {
   Package,
   Video,
   Image as ImageIcon,
+  Images,
   type LucideIcon,
 } from "lucide-react";
 import type { BlockType, IHomepageBlock } from "@/types";
@@ -22,6 +23,7 @@ export const BLOCK_TYPES: BlockType[] = [
   "featuredProducts",
   "videoEmbed",
   "banner",
+  "imageMosaic",
 ];
 
 export const BLOCK_META: Record<BlockType, BlockMeta> = {
@@ -54,6 +56,12 @@ export const BLOCK_META: Record<BlockType, BlockMeta> = {
     label: "Image banner",
     description: "A full-width image banner (adaptive height)",
     icon: ImageIcon,
+  },
+  imageMosaic: {
+    type: "imageMosaic",
+    label: "Image mosaic",
+    description: "4 promotional image tiles in a responsive layout",
+    icon: Images,
   },
 };
 
@@ -100,6 +108,12 @@ export function createBlock(type: BlockType): IHomepageBlock {
         ...base,
         type,
         config: {},
+      };
+    case "imageMosaic":
+      return {
+        ...base,
+        type,
+        config: { items: [{}, {}, {}, {}] },
       };
   }
 }

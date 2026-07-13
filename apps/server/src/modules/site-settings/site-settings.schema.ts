@@ -126,12 +126,29 @@ const BannerBlock = Type.Object({
   }),
 });
 
+const ImageMosaicItem = Type.Object({
+  image: Type.Optional(ResponsiveImage),
+  title: Type.Optional(Type.String({ maxLength: 80 })),
+  badge: Type.Optional(Type.String({ maxLength: 60 })),
+  href: Type.Optional(Type.String({ maxLength: 500 })),
+  alt: Type.Optional(Type.String({ maxLength: 200 })),
+});
+
+const ImageMosaicBlock = Type.Object({
+  ...BlockBase,
+  type: Type.Literal('imageMosaic'),
+  config: Type.Object({
+    items: Type.Array(ImageMosaicItem, { minItems: 4, maxItems: 4 }),
+  }),
+});
+
 export const HomepageBlock = Type.Union([
   CategoryShowcaseBlock,
   CollectionShowcaseBlock,
   FeaturedProductsBlock,
   VideoEmbedBlock,
   BannerBlock,
+  ImageMosaicBlock,
 ]);
 
 export const AnnouncementBar = Type.Object({

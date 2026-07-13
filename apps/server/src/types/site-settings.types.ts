@@ -102,6 +102,20 @@ export interface IBannerConfig {
   alt?: string;
 }
 
+/** One tile in a 4-image promotional mosaic. */
+export interface IImageMosaicItem {
+  image?: ResponsiveImage;
+  title?: string;
+  badge?: string;
+  href?: string;
+  alt?: string;
+}
+
+export interface IImageMosaicConfig {
+  /** Always exactly 4 tiles (tall L, landscape top, landscape bottom, tall R). */
+  items: IImageMosaicItem[];
+}
+
 // ---------- Discriminated block union ----------
 
 interface IBlockBase {
@@ -131,13 +145,18 @@ export interface IBannerBlock extends IBlockBase {
   type: 'banner';
   config: IBannerConfig;
 }
+export interface IImageMosaicBlock extends IBlockBase {
+  type: 'imageMosaic';
+  config: IImageMosaicConfig;
+}
 
 export type IHomepageBlock =
   | ICategoryShowcaseBlock
   | ICollectionShowcaseBlock
   | IFeaturedProductsBlock
   | IVideoEmbedBlock
-  | IBannerBlock;
+  | IBannerBlock
+  | IImageMosaicBlock;
 
 export type BlockType = IHomepageBlock['type'];
 
@@ -208,7 +227,8 @@ export type IHydratedHomepageBlock =
   | (ICollectionShowcaseBlock & { resolved: ICollection[] })
   | (IFeaturedProductsBlock & { resolved: IProduct[] })
   | IVideoEmbedBlock
-  | IBannerBlock;
+  | IBannerBlock
+  | IImageMosaicBlock;
 
 export interface IHydratedSiteSettings {
   homepageBlocks: IHydratedHomepageBlock[];

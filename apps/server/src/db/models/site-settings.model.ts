@@ -37,6 +37,7 @@ const BLOCK_TYPES: BlockType[] = [
   'featuredProducts',
   'videoEmbed',
   'banner',
+  'imageMosaic',
 ];
 
 // ---------- Sub-schemas ----------

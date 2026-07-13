@@ -84,6 +84,17 @@ export function validateHomepageBlocks(blocks: IHomepageBlock[]): void {
       );
     }
 
+    if (block.type === 'imageMosaic' && block.enabled) {
+      const items = block.config?.items ?? [];
+      const allFilled =
+        items.length === 4 && items.every((item) => hasResponsiveImage(item.image));
+      if (!allFilled) {
+        throw new ValidationError(
+          'Enabled image mosaic blocks require an image on all 4 tiles.',
+        );
+      }
+    }
+
     if (block.type === 'videoEmbed' && block.enabled) {
       for (const video of block.config.videos) {
         const url = video.url.trim();

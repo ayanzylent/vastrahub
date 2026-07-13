@@ -5,6 +5,7 @@ import { CollectionShowcaseBlock } from "./blocks/collection-showcase-block";
 import { FeaturedProductsBlock } from "./blocks/featured-products-block";
 import { VideoEmbedBlock } from "./blocks/video-embed-block";
 import { BannerBlock } from "./blocks/banner-block";
+import { ImageMosaicBlock } from "./blocks/image-mosaic-block";
 import { HOME_BLOCK_LIST_CLASS } from "./blocks/home-block-section";
 
 /**
@@ -30,4 +31,5 @@ const BLOCK_RENDERERS = {
   featuredProducts: FeaturedProductsBlock,
   videoEmbed: VideoEmbedBlock,
   banner: BannerBlock,
+  imageMosaic: ImageMosaicBlock,
 } satisfies Record<BlockType, ComponentType<never>>;

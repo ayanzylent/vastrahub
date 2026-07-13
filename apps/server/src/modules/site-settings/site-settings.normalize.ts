@@ -27,6 +27,8 @@ import type {
   IFeaturedProductsConfig,
   IVideoEmbedConfig,
   IBannerConfig,
+  IImageMosaicConfig,
+  IImageMosaicItem,
   VideoProvider,
 } from '../../types/index.js';
 
@@ -39,11 +41,14 @@ const BLOCK_TYPES = new Set<IHomepageBlock['type']>([
   'featuredProducts',
   'videoEmbed',
   'banner',
+  'imageMosaic',
 ]);
 
 const SHOWCASE_LAYOUTS = new Set<ShowcaseLayout>(['grid', 'carousel']);
 
 const VIDEO_PROVIDERS = new Set<VideoProvider>(['instagram', 'facebook', 'youtube']);
+
+const IMAGE_MOSAIC_SLOT_COUNT = 4;
 
 function normalizeShowcaseLayout(raw: unknown): ShowcaseLayout {
   return SHOWCASE_LAYOUTS.has(raw as ShowcaseLayout) ? (raw as ShowcaseLayout) : 'grid';
@@ -55,6 +60,29 @@ function normalizeIdArray(raw: unknown): string[] {
 
 function normalizeOptionalString(raw: unknown): string | undefined {
   return typeof raw === 'string' ? raw : undefined;
+}
+
+function normalizeImageMosaicItem(raw: unknown): IImageMosaicItem {
+  const item = raw && typeof raw === 'object' ? (raw as Record<string, unknown>) : {};
+  return {
+    image:
+      item.image && typeof item.image === 'object'
+        ? (item.image as IImageMosaicItem['image'])
+        : undefined,
+    title: normalizeOptionalString(item.title),
+    badge: normalizeOptionalString(item.badge),
+    href: normalizeOptionalString(item.href),
+    alt: normalizeOptionalString(item.alt),
+  };
+}
+
+function normalizeImageMosaicItems(raw: unknown): IImageMosaicItem[] {
+  const source = Array.isArray(raw) ? raw : [];
+  const items: IImageMosaicItem[] = [];
+  for (let i = 0; i < IMAGE_MOSAIC_SLOT_COUNT; i++) {
+    items.push(normalizeImageMosaicItem(source[i]));
+  }
+  return items;
 }
 
 function normalizeHomepageBlock(block: IHomepageBlock): IHomepageBlock {
@@ -118,6 +146,12 @@ function normalizeHomepageBlock(block: IHomepageBlock): IHomepageBlock {
             : undefined,
         href: normalizeOptionalString(raw.href),
         alt: normalizeOptionalString(raw.alt),
+      };
+      return { ...block, config };
+    }
+    case 'imageMosaic': {
+      const config: IImageMosaicConfig = {
+        items: normalizeImageMosaicItems(raw.items),
       };
       return { ...block, config };
     }
