@@ -9,6 +9,9 @@ export const BRAND_CONFIG = {
   RECENT_SEARCH_KEY: 'vastrahub_recent_searches'
 } as const;
 
+export const FACEBOOK = 'https://facebook.com/AnanyaDesignerOfficial'
+export const INSTAGRAM = 'https://instagram.com/saree.by.ananyadesigner'
+
 /** Display / tel: link format */
 export const PHONE_NUMBER = "+91 9641472617";
 
