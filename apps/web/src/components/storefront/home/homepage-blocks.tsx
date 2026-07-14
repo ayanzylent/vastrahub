@@ -29,7 +29,7 @@ function BlocksSkeleton() {
 /**
  * The dynamic part of the homepage (below the hero): category / collection /
  * featured-product showcases, videos and banners. Fetched on the client so the
- * blocks stay fresh while the ISR-cached hero renders instantly.
+ * blocks stay fresh while the cached hero renders instantly.
  */
 export function HomepageBlocks() {
   const [data, setData] = useState<IHydratedSiteSettings | null>(null);

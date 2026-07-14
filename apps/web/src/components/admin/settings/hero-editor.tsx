@@ -11,7 +11,7 @@ import { FieldToggle } from "./field-toggle";
 
 /**
  * Editor for the singleton hero. The hero is not a block — it's fixed at the
- * top of the homepage and served by its own ISR-cached storefront endpoint.
+ * top of the homepage and served by its own cacheable storefront endpoint.
  */
 export function HeroEditor({
   value,

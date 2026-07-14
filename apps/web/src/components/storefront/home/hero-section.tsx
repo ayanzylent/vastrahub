@@ -10,7 +10,7 @@ import { hasResponsiveImage } from "@/lib/responsive-image";
 import { ResponsivePicture } from "./responsive-picture";
 
 /**
- * Singleton hero. Rendered server-side (ISR) at the very top of the homepage —
+ * Singleton hero. Rendered server-side at the very top of the homepage —
  * fed by its own `/storefront/hero` endpoint for fast, cacheable first paint.
  */
 export function HeroSection({ hero }: { hero: IHeroConfig }) {
