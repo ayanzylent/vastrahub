@@ -6,20 +6,14 @@ import {
   ShoppingCart,
   Package,
   Users,
-  TrendingUp,
   AlertTriangle,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { StatusBadge } from "@/components/common/status-badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import { RevenueChart } from "@/components/admin/dashboard/revenue-chart";
 import { api } from "@/lib/api";
 import { formatPrice } from "@/lib/utils";
-
-interface RevenueByMonth {
-  month: string;
-  year: number;
-  totalPaise: number;
-}
 
 interface DashboardStats {
   totalProducts: number;
@@ -27,7 +21,11 @@ interface DashboardStats {
   totalRevenuePaise: number;
   totalCustomers: number;
   lowStockCount: number;
-  revenueByMonth: RevenueByMonth[];
+  revenueByMonth: {
+    month: string;
+    year: number;
+    totalPaise: number;
+  }[];
 }
 
 interface RecentOrder {
@@ -71,9 +69,6 @@ export default function AdminDashboardPage() {
         { title: "Customers", value: stats.totalCustomers.toLocaleString(), icon: Users },
       ]
     : [];
-
-  const revenueByMonth = stats?.revenueByMonth ?? [];
-  const maxRevenue = Math.max(...revenueByMonth.map((m) => m.totalPaise), 0);
 
   return (
     <div className="space-y-8">
@@ -134,45 +129,7 @@ export default function AdminDashboardPage() {
 
       {/* ─── Revenue Chart + Recent Orders ─── */}
       <div className="grid gap-4 lg:grid-cols-7">
-        <Card className="lg:col-span-4">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <TrendingUp className="h-4 w-4 text-primary" />
-              Revenue Overview
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {loading ? (
-              <Skeleton className="h-[300px] w-full" />
-            ) : (
-              <div className="flex items-end justify-between gap-2 h-[300px] border-b border-l border-border/40 p-4">
-                {revenueByMonth.map((entry) => {
-                  const heightPct =
-                    maxRevenue > 0 ? Math.max((entry.totalPaise / maxRevenue) * 100, entry.totalPaise > 0 ? 4 : 0) : 0;
-                  return (
-                    <div
-                      key={`${entry.year}-${entry.month}`}
-                      className="flex-1 flex flex-col items-center gap-2 h-full justify-end"
-                      title={`${entry.month} ${entry.year}: ${formatPrice(entry.totalPaise)}`}
-                    >
-                      <div
-                        className={
-                          entry.totalPaise > 0
-                            ? "w-full rounded-t bg-linear-to-t from-primary/60 to-primary/30 transition-all hover:from-primary hover:to-primary/70"
-                            : "w-full rounded-t bg-muted/40"
-                        }
-                        style={{ height: `${heightPct}%`, minHeight: entry.totalPaise > 0 ? undefined : 2 }}
-                      />
-                      <span className="text-[10px] text-muted-foreground">
-                        {entry.month.charAt(0)}
-                      </span>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-          </CardContent>
-        </Card>
+        <RevenueChart data={stats?.revenueByMonth ?? []} loading={loading} />
 
         {/* Recent Orders */}
         <Card className="lg:col-span-3">
