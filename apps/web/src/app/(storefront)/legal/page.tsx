@@ -3,7 +3,7 @@ import Link from "next/link";
 import { BRAND_CONFIG } from "@/constants";
 
 export const metadata: Metadata = {
-  title: `Legal & Policies | ${BRAND_CONFIG.NAME}`,
+  title: "Legal & Policies",
   description:
     `Read ${BRAND_CONFIG.NAME}'s Terms & Conditions, Privacy Policy, Return & Refund Policy, and Shipping Policy.`,
 };

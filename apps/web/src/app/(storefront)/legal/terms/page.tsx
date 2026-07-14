@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { BRAND_CONFIG } from "@/constants";
 
 export const metadata: Metadata = {
-  title: `Terms & Conditions | ${BRAND_CONFIG.NAME}`,
+  title: "Terms & Conditions",
   description:
     `Read ${BRAND_CONFIG.NAME}'s Terms & Conditions covering product information, order confirmation, pricing, intellectual property, and cancellation policy.`,
 };

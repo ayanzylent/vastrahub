@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { BRAND_CONFIG } from "@/constants";
 
 export const metadata: Metadata = {
-  title: `Privacy Policy | ${BRAND_CONFIG.NAME}`,
+  title: "Privacy Policy",
   description:
     `Understand how ${BRAND_CONFIG.NAME} collects, uses, and protects your personal data, including payment security and your rights.`,
 };

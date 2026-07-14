@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { BRAND_CONFIG } from "@/constants";
 
 export const metadata: Metadata = {
-  title: `Shipping Policy | ${BRAND_CONFIG.NAME}`,
+  title: "Shipping Policy",
   description:
     `${BRAND_CONFIG.NAME}'s shipping policy — delivery timeframes for India and international orders, shipping charges, and delay disclaimers.`,
 };

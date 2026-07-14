@@ -1,4 +1,11 @@
+import type { Metadata } from "next";
 import { Logo } from "@/components/common/logo";
+import { NO_INDEX_METADATA } from "@/lib/seo";
+
+export const metadata: Metadata = {
+  ...NO_INDEX_METADATA,
+  title: "Sign in",
+};
 
 export default function AuthLayout({
   children,

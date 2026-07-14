@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { BRAND_CONFIG } from "@/constants";
 
 export const metadata: Metadata = {
-  title: `Return, Refund & Exchange Policy | ${BRAND_CONFIG.NAME}`,
+  title: "Return, Refund & Exchange Policy",
   description:
     `Learn about ${BRAND_CONFIG.NAME}'s return, exchange, and refund policy — including exchange window, conditions, damaged goods, and refund timelines.`,
 };
