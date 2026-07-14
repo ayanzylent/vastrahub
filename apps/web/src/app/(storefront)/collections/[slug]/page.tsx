@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
+import { JsonLd } from "@/components/common/json-ld";
 import { CollectionPageClient } from "@/components/storefront/catalog/collection-page-client";
 import { BRAND_CONFIG } from "@/constants";
 import { getMediaUrl } from "@/lib/media";
 import { buildPageMetadata } from "@/lib/seo";
 import { fetchStorefrontCollectionBySlug } from "@/lib/storefront-fetch";
+import { buildBreadcrumbJsonLd } from "@/lib/structured-data";
 import type { ICollection } from "@/types";
 
 interface CollectionRouteParams {
@@ -53,6 +55,20 @@ export default async function CollectionPage({
 }) {
   const { slug } = await params;
   const res = await fetchStorefrontCollectionBySlug<ICollection>(slug);
+  const collection = res?.data ?? null;
 
-  return <CollectionPageClient slug={slug} initialCollection={res?.data ?? null} />;
+  return (
+    <>
+      {collection && (
+        <JsonLd
+          data={buildBreadcrumbJsonLd([
+            { name: "Home", path: "/" },
+            { name: "Collections", path: "/collections" },
+            { name: collection.name, path: `/collections/${collection.slug}` },
+          ])}
+        />
+      )}
+      <CollectionPageClient slug={slug} initialCollection={collection} />
+    </>
+  );
 }

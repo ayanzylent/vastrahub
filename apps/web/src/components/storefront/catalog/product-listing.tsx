@@ -224,7 +224,12 @@ export function ProductListing({
 
               {!loading && totalPages > 1 && (
                 <div className="mt-10">
-                  <Pagination page={page} totalPages={totalPages} onPageChange={handlePageChange} />
+                  <Pagination
+                    page={page}
+                    totalPages={totalPages}
+                    onPageChange={handlePageChange}
+                    hrefForPage={listing.hrefForPage}
+                  />
                 </div>
               )}
             </div>

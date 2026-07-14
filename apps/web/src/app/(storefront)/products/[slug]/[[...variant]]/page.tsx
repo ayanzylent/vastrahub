@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
+import { JsonLd } from "@/components/common/json-ld";
 import { ProductPage } from "@/components/storefront/product/product-page";
 import { BRAND_CONFIG, DEFAULT_PRODUCT_PAGE } from "@/constants";
 import { getProductCoverImageUrl, type ProductDetailData } from "@/lib/product-seo";
@@ -8,6 +9,10 @@ import {
   fetchProductPageSettings,
   fetchStorefrontProductBySlug,
 } from "@/lib/storefront-fetch";
+import {
+  buildBreadcrumbJsonLd,
+  buildProductJsonLd,
+} from "@/lib/structured-data";
 import type { IProductPageConfig } from "@/types";
 
 interface ProductRouteParams {
@@ -72,10 +77,23 @@ export default async function ProductDetailPage({
     notFound();
   }
 
+  const product = productRes.data;
+  const breadcrumbItems = [
+    { name: "Home", path: "/" },
+    ...(product.category
+      ? [{ name: product.category.name, path: `/categories/${product.category.slug}` }]
+      : []),
+    { name: product.name, path: `/products/${product.slug}` },
+  ];
+
   return (
-    <ProductPage
-      initialProduct={productRes.data}
-      initialSettings={settingsRes?.data ?? DEFAULT_PRODUCT_PAGE}
-    />
+    <>
+      <JsonLd data={buildProductJsonLd(product)} />
+      <JsonLd data={buildBreadcrumbJsonLd(breadcrumbItems)} />
+      <ProductPage
+        initialProduct={product}
+        initialSettings={settingsRes?.data ?? DEFAULT_PRODUCT_PAGE}
+      />
+    </>
   );
 }

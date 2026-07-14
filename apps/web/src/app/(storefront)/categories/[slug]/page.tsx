@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
+import { JsonLd } from "@/components/common/json-ld";
 import { CategoryPageClient } from "@/components/storefront/catalog/category-page-client";
 import { BRAND_CONFIG } from "@/constants";
 import { getMediaUrl } from "@/lib/media";
 import { buildPageMetadata } from "@/lib/seo";
 import { fetchStorefrontCategoryBySlug } from "@/lib/storefront-fetch";
+import { buildBreadcrumbJsonLd } from "@/lib/structured-data";
 import type { ICategory } from "@/types";
 
 interface CategoryRouteParams {
@@ -51,6 +53,20 @@ export default async function CategoryPage({
 }) {
   const { slug } = await params;
   const res = await fetchStorefrontCategoryBySlug<ICategory>(slug);
+  const category = res?.data ?? null;
 
-  return <CategoryPageClient slug={slug} initialCategory={res?.data ?? null} />;
+  return (
+    <>
+      {category && (
+        <JsonLd
+          data={buildBreadcrumbJsonLd([
+            { name: "Home", path: "/" },
+            { name: "Categories", path: "/categories" },
+            { name: category.name, path: `/categories/${category.slug}` },
+          ])}
+        />
+      )}
+      <CategoryPageClient slug={slug} initialCategory={category} />
+    </>
+  );
 }

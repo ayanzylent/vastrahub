@@ -1,9 +1,12 @@
 import type { Metadata } from "next";
-import type { IHeroConfig } from "@/types";
+import type { IHeroConfig, IHydratedSiteSettings } from "@/types";
 import { BRAND_CONFIG, DEFAULT_HERO } from "@/constants";
+import { JsonLd } from "@/components/common/json-ld";
 import { HeroSection } from "@/components/storefront/home/hero-section";
-import { HomepageBlocks } from "@/components/storefront/home/homepage-blocks";
+import { BlockRenderer } from "@/components/storefront/home/block-renderer";
 import { buildPageMetadata } from "@/lib/seo";
+import { fetchStorefrontSiteSettings } from "@/lib/storefront-fetch";
+import { buildOrganizationJsonLd, buildWebSiteJsonLd } from "@/lib/structured-data";
 
 export const metadata: Metadata = buildPageMetadata({
   title: BRAND_CONFIG.META_TITLE,
@@ -31,12 +34,19 @@ async function getHero(): Promise<IHeroConfig> {
 }
 
 export default async function HomePage() {
-  const hero = await getHero();
+  const [hero, settingsRes] = await Promise.all([
+    getHero(),
+    fetchStorefrontSiteSettings<IHydratedSiteSettings>(),
+  ]);
+
+  const blocks = settingsRes?.data?.homepageBlocks ?? [];
 
   return (
     <div className="flex flex-col">
+      <JsonLd data={buildOrganizationJsonLd()} />
+      <JsonLd data={buildWebSiteJsonLd()} />
       <HeroSection hero={hero} />
-      <HomepageBlocks />
+      <BlockRenderer blocks={blocks} />
     </div>
   );
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { parseColorFilterParam } from "@/lib/color-filters";
 import type { ProductCardProduct } from "@/components/storefront/catalog/product-card";
 
@@ -38,6 +38,8 @@ export function useProductListing({
   fetchPage,
 }: UseProductListingOptions) {
   const searchParams = useSearchParams();
+  const pathname = usePathname();
+  const router = useRouter();
 
   const [products, setProducts] = useState<ProductWithSkus[]>([]);
   const [loading, setLoading] = useState(true);
@@ -53,6 +55,72 @@ export function useProductListing({
   );
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
   const search = includeSearch ? searchParams.get("search") || "" : "";
+
+  const syncUrl = useCallback(
+    (next: {
+      page?: number;
+      sortBy?: string;
+      minPrice?: string;
+      maxPrice?: string;
+      inStockOnly?: boolean;
+      selectedColors?: string[];
+    }) => {
+      const params = new URLSearchParams(searchParams.toString());
+      const nextPage = next.page ?? page;
+      const nextSort = next.sortBy ?? sortBy;
+      const nextMin = next.minPrice ?? minPrice;
+      const nextMax = next.maxPrice ?? maxPrice;
+      const nextStock = next.inStockOnly ?? inStockOnly;
+      const nextColors = next.selectedColors ?? selectedColors;
+
+      if (nextPage <= 1) params.delete("page");
+      else params.set("page", String(nextPage));
+
+      if (!nextSort || nextSort === defaultSort) params.delete("sortBy");
+      else params.set("sortBy", nextSort);
+
+      if (nextMin) params.set("minPrice", nextMin);
+      else params.delete("minPrice");
+
+      if (nextMax) params.set("maxPrice", nextMax);
+      else params.delete("maxPrice");
+
+      if (nextStock) params.set("inStock", "true");
+      else params.delete("inStock");
+
+      if (nextColors.length > 0) params.set("tags", nextColors.join(","));
+      else {
+        params.delete("tags");
+        params.delete("colors");
+      }
+
+      const qs = params.toString();
+      router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+    },
+    [
+      searchParams,
+      page,
+      sortBy,
+      minPrice,
+      maxPrice,
+      inStockOnly,
+      selectedColors,
+      defaultSort,
+      pathname,
+      router,
+    ],
+  );
+
+  const hrefForPage = useCallback(
+    (targetPage: number) => {
+      const params = new URLSearchParams(searchParams.toString());
+      if (targetPage <= 1) params.delete("page");
+      else params.set("page", String(targetPage));
+      const qs = params.toString();
+      return qs ? `${pathname}?${qs}` : pathname;
+    },
+    [pathname, searchParams],
+  );
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -95,12 +163,14 @@ export function useProductListing({
 
   function handlePageChange(newPage: number) {
     setPage(newPage);
+    syncUrl({ page: newPage });
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
   function handleSort(value: string) {
     setSortBy(value);
     setPage(1);
+    syncUrl({ sortBy: value, page: 1 });
   }
 
   function handleApplyFilters(min: string, max: string, stock: boolean, colors: string[]) {
@@ -110,6 +180,13 @@ export function useProductListing({
     setSelectedColors(colors);
     setPage(1);
     setMobileFilterOpen(false);
+    syncUrl({
+      minPrice: min,
+      maxPrice: max,
+      inStockOnly: stock,
+      selectedColors: colors,
+      page: 1,
+    });
   }
 
   function handleClearFilters() {
@@ -118,22 +195,33 @@ export function useProductListing({
     setInStockOnly(false);
     setSelectedColors([]);
     setPage(1);
+    syncUrl({
+      minPrice: "",
+      maxPrice: "",
+      inStockOnly: false,
+      selectedColors: [],
+      page: 1,
+    });
   }
 
   function removeColor(color: string) {
-    setSelectedColors((prev) => prev.filter((c) => c !== color));
+    const next = selectedColors.filter((c) => c !== color);
+    setSelectedColors(next);
     setPage(1);
+    syncUrl({ selectedColors: next, page: 1 });
   }
 
   function clearPrice() {
     setMinPrice("");
     setMaxPrice("");
     setPage(1);
+    syncUrl({ minPrice: "", maxPrice: "", page: 1 });
   }
 
   function clearInStock() {
     setInStockOnly(false);
     setPage(1);
+    syncUrl({ inStockOnly: false, page: 1 });
   }
 
   return {
@@ -150,6 +238,7 @@ export function useProductListing({
     mobileFilterOpen,
     setMobileFilterOpen,
     search,
+    hrefForPage,
     handlePageChange,
     handleSort,
     handleApplyFilters,
