@@ -7,7 +7,6 @@ import {
   Package,
   Users,
   TrendingUp,
-  ArrowUpRight,
   AlertTriangle,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -16,12 +15,19 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { api } from "@/lib/api";
 import { formatPrice } from "@/lib/utils";
 
+interface RevenueByMonth {
+  month: string;
+  year: number;
+  totalPaise: number;
+}
+
 interface DashboardStats {
   totalProducts: number;
   totalOrders: number;
   totalRevenuePaise: number;
   totalCustomers: number;
   lowStockCount: number;
+  revenueByMonth: RevenueByMonth[];
 }
 
 interface RecentOrder {
@@ -32,13 +38,6 @@ interface RecentOrder {
   status: string;
   createdAt: string;
 }
-
-const iconMap = {
-  totalRevenuePaise: DollarSign,
-  totalOrders: ShoppingCart,
-  totalProducts: Package,
-  totalCustomers: Users,
-};
 
 export default function AdminDashboardPage() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
@@ -72,6 +71,9 @@ export default function AdminDashboardPage() {
         { title: "Customers", value: stats.totalCustomers.toLocaleString(), icon: Users },
       ]
     : [];
+
+  const revenueByMonth = stats?.revenueByMonth ?? [];
+  const maxRevenue = Math.max(...revenueByMonth.map((m) => m.totalPaise), 0);
 
   return (
     <div className="space-y-8">
@@ -130,9 +132,8 @@ export default function AdminDashboardPage() {
         </Card>
       )}
 
-      {/* ─── Charts Placeholder + Recent Orders ─── */}
+      {/* ─── Revenue Chart + Recent Orders ─── */}
       <div className="grid gap-4 lg:grid-cols-7">
-        {/* Revenue Chart Placeholder */}
         <Card className="lg:col-span-4">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -141,19 +142,35 @@ export default function AdminDashboardPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="flex items-end justify-between gap-2 h-[300px] border-b border-l border-border/40 p-4">
-              {Array.from({ length: 12 }).map((_, i) => (
-                <div key={i} className="flex-1 flex flex-col items-center gap-2">
-                  <div
-                    className="w-full rounded-t bg-gradient-to-t from-primary/60 to-primary/30 transition-all hover:from-primary hover:to-primary/70"
-                    style={{ height: `${30 + Math.random() * 70}%` }}
-                  />
-                  <span className="text-[10px] text-muted-foreground">
-                    {["J", "F", "M", "A", "M", "J", "J", "A", "S", "O", "N", "D"][i]}
-                  </span>
-                </div>
-              ))}
-            </div>
+            {loading ? (
+              <Skeleton className="h-[300px] w-full" />
+            ) : (
+              <div className="flex items-end justify-between gap-2 h-[300px] border-b border-l border-border/40 p-4">
+                {revenueByMonth.map((entry) => {
+                  const heightPct =
+                    maxRevenue > 0 ? Math.max((entry.totalPaise / maxRevenue) * 100, entry.totalPaise > 0 ? 4 : 0) : 0;
+                  return (
+                    <div
+                      key={`${entry.year}-${entry.month}`}
+                      className="flex-1 flex flex-col items-center gap-2 h-full justify-end"
+                      title={`${entry.month} ${entry.year}: ${formatPrice(entry.totalPaise)}`}
+                    >
+                      <div
+                        className={
+                          entry.totalPaise > 0
+                            ? "w-full rounded-t bg-linear-to-t from-primary/60 to-primary/30 transition-all hover:from-primary hover:to-primary/70"
+                            : "w-full rounded-t bg-muted/40"
+                        }
+                        style={{ height: `${heightPct}%`, minHeight: entry.totalPaise > 0 ? undefined : 2 }}
+                      />
+                      <span className="text-[10px] text-muted-foreground">
+                        {entry.month.charAt(0)}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </CardContent>
         </Card>
 
