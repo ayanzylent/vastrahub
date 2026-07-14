@@ -29,6 +29,7 @@ type ProductQuery = {
   maxPricePaise?: string;
   inStock?: string;
   search?: string;
+  tags?: string;
   sortBy?: service.StorefrontProductOpts['sortBy'];
 };
 
@@ -40,6 +41,9 @@ function parseProductOpts(q: ProductQuery, defaultLimit?: number): service.Store
     maxPricePaise: parseNumber(q.maxPricePaise),
     inStock: q.inStock === 'true',
     search: q.search,
+    tags: q.tags
+      ? q.tags.split(',').map((t) => t.trim()).filter(Boolean)
+      : undefined,
     sortBy: q.sortBy,
   };
 }

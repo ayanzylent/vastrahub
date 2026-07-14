@@ -112,6 +112,7 @@ export const CollectionProductsQuery = Type.Object({
   maxPricePaise: Type.Optional(Type.String()),
   inStock: Type.Optional(Type.String()),
   search: Type.Optional(Type.String()),
+  tags: Type.Optional(Type.String({ description: 'Comma-separated tags (e.g. color labels)' })),
   sortBy: Type.Optional(SortByEnum),
 });
 export type CollectionProductsQueryType = Static<typeof CollectionProductsQuery>;

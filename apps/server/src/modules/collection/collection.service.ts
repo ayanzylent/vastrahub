@@ -57,6 +57,7 @@ export interface StorefrontProductOpts {
   maxPricePaise?: number;
   inStock?: boolean;
   search?: string;
+  tags?: string[];
   sortBy?: 'price_asc' | 'price_desc' | 'newest' | 'rating';
 }
 
@@ -194,7 +195,7 @@ function sortByToMongo(sortBy?: string): Record<string, 1 | -1> | null {
 }
 
 function buildUserFilter(opts: StorefrontProductOpts): Record<string, unknown> {
-  const { minPricePaise, maxPricePaise, inStock, search } = opts;
+  const { minPricePaise, maxPricePaise, inStock, search, tags } = opts;
   const filter: Record<string, unknown> = {};
 
   if (minPricePaise !== undefined || maxPricePaise !== undefined) {
@@ -205,6 +206,9 @@ function buildUserFilter(opts: StorefrontProductOpts): Record<string, unknown> {
   }
   if (inStock === true) {
     filter.totalStock = { $gt: 0 };
+  }
+  if (tags && tags.length > 0) {
+    filter.tags = { $in: tags };
   }
   if (search) {
     filter.$or = [

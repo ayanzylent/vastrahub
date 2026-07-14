@@ -19,6 +19,7 @@ import { ProductCard, type ProductCardProduct } from "@/components/shared/produc
 import { Pagination } from "@/components/shared/pagination";
 import { FilterSidebar } from "@/components/shared/filter-sidebar";
 import { api } from "@/lib/api";
+import { parseColorFilterParam } from "@/lib/color-filters";
 import type { ICategory, PaginatedResponse } from "@/types";
 
 interface ProductWithSkus extends ProductCardProduct {
@@ -48,6 +49,9 @@ export default function CategoryPage() {
   const [minPrice, setMinPrice] = useState(searchParams.get("minPrice") || "");
   const [maxPrice, setMaxPrice] = useState(searchParams.get("maxPrice") || "");
   const [inStockOnly, setInStockOnly] = useState(searchParams.get("inStock") === "true");
+  const [selectedColors, setSelectedColors] = useState<string[]>(() =>
+    parseColorFilterParam(searchParams.get("colors") || searchParams.get("tags")),
+  );
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
 
   const categoryName =
@@ -67,6 +71,7 @@ export default function CategoryPage() {
       if (minPrice) qs.set("minPricePaise", String(Number(minPrice) * 100));
       if (maxPrice) qs.set("maxPricePaise", String(Number(maxPrice) * 100));
       if (inStockOnly) qs.set("inStock", "true");
+      if (selectedColors.length > 0) qs.set("tags", selectedColors.join(","));
 
 
       const res = await api.get<PaginatedResponse<ProductWithSkus>>(`/api/v1/storefront/products?${qs.toString()}`);
@@ -83,7 +88,7 @@ export default function CategoryPage() {
     } finally {
       setLoading(false);
     }
-  }, [page, sortBy, slug, minPrice, maxPrice, inStockOnly]);
+  }, [page, sortBy, slug, minPrice, maxPrice, inStockOnly, selectedColors]);
 
   useEffect(() => {
     if (slug) {
@@ -116,10 +121,11 @@ export default function CategoryPage() {
     setPage(1);
   }
 
-  function handleApplyFilters(min: string, max: string, stock: boolean) {
+  function handleApplyFilters(min: string, max: string, stock: boolean, colors: string[]) {
     setMinPrice(min);
     setMaxPrice(max);
     setInStockOnly(stock);
+    setSelectedColors(colors);
     setPage(1);
     setMobileFilterOpen(false);
   }
@@ -128,6 +134,12 @@ export default function CategoryPage() {
     setMinPrice("");
     setMaxPrice("");
     setInStockOnly(false);
+    setSelectedColors([]);
+    setPage(1);
+  }
+
+  function removeColor(color: string) {
+    setSelectedColors((prev) => prev.filter((c) => c !== color));
     setPage(1);
   }
 
@@ -177,6 +189,7 @@ export default function CategoryPage() {
                   minPrice={minPrice}
                   maxPrice={maxPrice}
                   inStockOnly={inStockOnly}
+                  selectedColors={selectedColors}
                   onApply={handleApplyFilters}
                   onClear={handleClearFilters}
                 />
@@ -231,7 +244,7 @@ export default function CategoryPage() {
               </div>
 
               {/* Active filters */}
-              {(minPrice || maxPrice || inStockOnly) && (
+              {(minPrice || maxPrice || inStockOnly || selectedColors.length > 0) && (
                 <div className="mb-4 flex flex-wrap gap-2">
                   {(minPrice || maxPrice) && (
                     <Badge variant="secondary" className="gap-1">
@@ -245,6 +258,18 @@ export default function CategoryPage() {
                       </button>
                     </Badge>
                   )}
+                  {selectedColors.map((color) => (
+                    <Badge key={color} variant="secondary" className="gap-1">
+                      {color}
+                      <button
+                        type="button"
+                        onClick={() => removeColor(color)}
+                        className="ml-1 rounded-full p-0.5 hover:bg-black/10 dark:hover:bg-white/10 transition-colors text-muted-foreground hover:text-foreground"
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
+                    </Badge>
+                  ))}
                   {inStockOnly && (
                     <Badge variant="secondary" className="gap-1">
                       In Stock
@@ -327,6 +352,7 @@ export default function CategoryPage() {
               minPrice={minPrice}
               maxPrice={maxPrice}
               inStockOnly={inStockOnly}
+              selectedColors={selectedColors}
               onApply={handleApplyFilters}
               onClear={handleClearFilters}
               isMobile={true}
