@@ -6,9 +6,6 @@ import {
   LayoutDashboard,
   Package,
   ShoppingCart,
-  Users,
-  Ticket,
-  Star,
   Settings,
   FolderTree,
   LayoutGrid,
@@ -76,9 +73,6 @@ const navGroups: NavGroup[] = [
     label: "Sales",
     items: [
       { label: "Orders", href: "/admin/orders", icon: ShoppingCart },
-      { label: "Customers", href: "/admin/customers", icon: Users },
-      { label: "Coupons", href: "/admin/coupons", icon: Ticket },
-      { label: "Reviews", href: "/admin/reviews", icon: Star },
     ],
   },
   {
