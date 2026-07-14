@@ -1,6 +1,16 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Home } from "lucide-react";
+import { BRAND_CONFIG } from "@/constants";
+import { buildPageMetadata } from "@/lib/seo";
+
+export const metadata: Metadata = buildPageMetadata({
+  title: "Page Not Found",
+  description: `The page you're looking for doesn't exist on ${BRAND_CONFIG.NAME}.`,
+  path: "/404",
+  noIndex: true,
+});
 
 export default function NotFound() {
   return (

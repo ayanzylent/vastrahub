@@ -57,7 +57,12 @@ export function HeroSection({ hero }: { hero: IHeroConfig }) {
           >
             {hasImage ? (
               <>
-                <ResponsivePicture image={slide.image} alt="" className="absolute inset-0 -z-10 block h-full w-full" imgClassName="h-full w-full object-cover" />
+                <ResponsivePicture
+                  image={slide.image}
+                  alt={slide.heading?.trim() || slide.subheading?.trim() || `Hero slide ${index + 1}`}
+                  className="absolute inset-0 -z-10 block h-full w-full"
+                  imgClassName="h-full w-full object-cover"
+                />
                 <div className="absolute inset-0 -z-10" />
               </>
             ) : (
@@ -77,9 +82,15 @@ export function HeroSection({ hero }: { hero: IHeroConfig }) {
             <div className={`relative z-10 mx-auto flex w-full max-w-7xl flex-col px-4 md:px-6 pointer-events-none ${textAlign}`}>
               {slide.badge && <Badge variant="default" className="mb-6 px-4 py-1.5 text-xs pointer-events-auto"><Sparkles className="mr-1 h-3 w-3" />{slide.badge}</Badge>}
               {slide.heading?.trim() && (
-                <h1 className="font-heading text-4xl font-bold tracking-tight md:text-6xl lg:text-7xl">
-                  <span className="text-primary">{slide.heading}</span>
-                </h1>
+                index === current ? (
+                  <h1 className="font-heading text-4xl font-bold tracking-tight md:text-6xl lg:text-7xl">
+                    <span className="text-primary">{slide.heading}</span>
+                  </h1>
+                ) : (
+                  <p className="font-heading text-4xl font-bold tracking-tight md:text-6xl lg:text-7xl">
+                    <span className="text-primary">{slide.heading}</span>
+                  </p>
+                )
               )}
               {slide.subheading && <p className={`${slide.heading?.trim() ? "mt-6" : ""} max-w-2xl text-lg text-muted-foreground ${mx}`}>{slide.subheading}</p>}
               {(slide.primaryCta || slide.secondaryCta) && (
