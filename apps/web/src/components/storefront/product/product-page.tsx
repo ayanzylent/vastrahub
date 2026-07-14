@@ -21,12 +21,13 @@ import { api } from "@/lib/api";
 import { useCart } from "@/providers/CartProvider";
 import { useWishlist } from "@/providers/WishlistProvider";
 import { toast } from "sonner";
-import type { IProduct, ISku, ICategory, IProductPageConfig } from "@/types";
+import type { ISku, IProductPageConfig } from "@/types";
 import { BRAND_CONFIG, DEFAULT_PRODUCT_PAGE, buildWhatsAppUrl } from "@/constants";
 import { ProductSettingsPanel } from "@/components/storefront/product/product-settings-panel";
 import { ProductGallery } from "@/components/storefront/product/product-gallery";
 import { ProductVariantPicker } from "@/components/storefront/product/product-variant-picker";
 import { ProductInfoAccordion } from "@/components/storefront/product/product-info-accordion";
+import type { ProductDetailData } from "@/lib/product-seo";
 
 /* ────────────────────────────────────────────────────────────────
    Types
@@ -37,25 +38,7 @@ interface SlugApiResponse {
   statusCode: number;
   redirect?: boolean;
   newSlug?: string;
-  data?: IProduct & {
-    category?: ICategory;
-    skus?: ISku[];
-    sisterProducts?: Array<{
-      _id: string;
-      name: string;
-      slug: string;
-      variantMedia?: Array<{
-        isCoverGroup?: boolean;
-        media?: Array<{ type: string; url: string; alt?: string; thumbnailUrl?: string }>;
-      }>;
-      basePricePaise?: number;
-      baseMrpPaise?: number;
-      minPricePaise?: number;
-      maxPricePaise?: number;
-      minMrpPaise?: number;
-      maxMrpPaise?: number;
-    }>;
-  };
+  data?: ProductDetailData;
 }
 
 
@@ -64,13 +47,7 @@ interface SlugApiResponse {
    ──────────────────────────────────────────────────────────────── */
 
 function getSisterCoverImage(
-  sister: SlugApiResponse["data"] extends infer T
-    ? T extends { sisterProducts?: infer S }
-      ? S extends Array<infer I>
-        ? I
-        : never
-      : never
-    : never,
+  sister: NonNullable<ProductDetailData["sisterProducts"]>[number],
 ): string | null {
   if (!sister.variantMedia?.length) return null;
   const coverGroup =
@@ -98,7 +75,16 @@ function WhatsAppIcon({ className }: { className?: string }) {
    Main Component
    ──────────────────────────────────────────────────────────────── */
 
-export function ProductPage() {
+interface ProductPageProps {
+  /** Server-fetched product so crawlers see real HTML on first paint. */
+  initialProduct?: ProductDetailData | null;
+  initialSettings?: IProductPageConfig;
+}
+
+export function ProductPage({
+  initialProduct = null,
+  initialSettings,
+}: ProductPageProps) {
   const params = useParams();
   const router = useRouter();
   const { addItem } = useCart();
@@ -108,13 +94,15 @@ export function ProductPage() {
   const variantParam = (params.variant as string[] | undefined)?.[0];
 
   /* ── Core state ── */
-  const [product, setProduct] = useState<SlugApiResponse["data"] | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [product, setProduct] = useState<ProductDetailData | null>(initialProduct);
+  const [loading, setLoading] = useState(!initialProduct);
   const [selectedSize, setSelectedSize] = useState<string>("");
   const [selectedSku, setSelectedSku] = useState<ISku | null>(null);
   const [quantity, setQuantity] = useState(1);
   const [addingToCart, setAddingToCart] = useState(false);
-  const [productPageSettings, setProductPageSettings] = useState<IProductPageConfig>(DEFAULT_PRODUCT_PAGE);
+  const [productPageSettings, setProductPageSettings] = useState<IProductPageConfig>(
+    initialSettings ?? DEFAULT_PRODUCT_PAGE,
+  );
 
   /* ── UI state ── */
   const [showStickyBar, setShowStickyBar] = useState(false);
@@ -125,7 +113,10 @@ export function ProductPage() {
      ──────────────────────────────────────────────────────────────── */
   useEffect(() => {
     async function fetchProduct() {
-      setLoading(true);
+      // Keep SSR content visible; only show skeleton when we have nothing yet.
+      if (!initialProduct || initialProduct.slug !== slug) {
+        setLoading(true);
+      }
       try {
         const [res, settingsRes] = await Promise.all([
           api.get<SlugApiResponse>(`/api/v1/storefront/products/${slug}`),
@@ -140,16 +131,18 @@ export function ProductPage() {
           }
           if (body.data) {
             setProduct(body.data);
+          } else if (!initialProduct || initialProduct.slug !== slug) {
+            setProduct(null);
           }
         }
       } catch {
-        // fallback
+        // Keep SSR product if client refresh fails.
       } finally {
         setLoading(false);
       }
     }
     fetchProduct();
-  }, [slug, router, variantParam]);
+  }, [slug, router, variantParam, initialProduct]);
 
   /* ────────────────────────────────────────────────────────────────
      Sticky bar visibility — show when CTA buttons scroll out of view
@@ -333,7 +326,7 @@ export function ProductPage() {
   if (!product) {
     return (
       <div className="mx-auto max-w-7xl px-4 md:px-6 py-20 text-center">
-        <h2 className="font-heading text-2xl font-bold">Product not found</h2>
+        <h1 className="font-heading text-2xl font-bold">Product not found</h1>
         <p className="mt-2 text-muted-foreground">This product may have been removed.</p>
         <Button variant="default" asChild className="mt-6">
           <Link href="/">Back to Home</Link>

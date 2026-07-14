@@ -1,7 +1,16 @@
+import type { Metadata } from "next";
 import type { IHeroConfig } from "@/types";
-import { DEFAULT_HERO } from "@/constants";
+import { BRAND_CONFIG, DEFAULT_HERO } from "@/constants";
 import { HeroSection } from "@/components/storefront/home/hero-section";
 import { HomepageBlocks } from "@/components/storefront/home/homepage-blocks";
+import { buildPageMetadata } from "@/lib/seo";
+
+export const metadata: Metadata = buildPageMetadata({
+  title: BRAND_CONFIG.META_TITLE,
+  description: BRAND_CONFIG.META_DESCRIPTION,
+  path: "/",
+  absoluteTitle: true,
+});
 
 /**
  * Fetch the hero directly from the backend (absolute URL, no cookies) so it works
@@ -27,7 +36,6 @@ export default async function HomePage() {
   return (
     <div className="flex flex-col">
       <HeroSection hero={hero} />
-      {/* Dynamic, admin-curated blocks (client-fetched) */}
       <HomepageBlocks />
     </div>
   );
