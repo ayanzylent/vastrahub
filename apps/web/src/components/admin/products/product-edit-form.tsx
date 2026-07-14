@@ -31,6 +31,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { DeleteConfirmationDialog } from "@/components/common/delete-confirmation-dialog";
 import { SkuFormSheet } from "@/components/admin/products/sku-form-sheet";
 import { api } from "@/lib/api";
+import { canonicalColorTag } from "@/lib/color-filters";
 import { formatPrice } from "@/lib/utils";
 import { toast } from "sonner";
 import { getMediaUrl } from "@/lib/media";
@@ -812,8 +813,11 @@ export function ProductEditForm() {
                     onKeyDown={(e) => {
                       if (e.key === "Enter") {
                         e.preventDefault();
-                        const t = tagInput.trim();
-                        if (t && !tags.includes(t)) setTags([...tags, t]);
+                        const raw = tagInput.trim();
+                        const t = canonicalColorTag(raw) ?? raw;
+                        if (t && !tags.some((existing) => existing.toLowerCase() === t.toLowerCase())) {
+                          setTags([...tags, t]);
+                        }
                         setTagInput("");
                       }
                     }}
@@ -823,8 +827,11 @@ export function ProductEditForm() {
                     type="button"
                     variant="outline"
                     onClick={() => {
-                      const t = tagInput.trim();
-                      if (t && !tags.includes(t)) setTags([...tags, t]);
+                      const raw = tagInput.trim();
+                      const t = canonicalColorTag(raw) ?? raw;
+                      if (t && !tags.some((existing) => existing.toLowerCase() === t.toLowerCase())) {
+                        setTags([...tags, t]);
+                      }
                       setTagInput("");
                     }}
                   >

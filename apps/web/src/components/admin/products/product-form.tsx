@@ -21,6 +21,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { api } from "@/lib/api";
+import { canonicalColorTag } from "@/lib/color-filters";
 import { toast } from "sonner";
 import { getMediaUrl } from "@/lib/media";
 import type { ICategory, IVariantOption } from "@/types";
@@ -185,8 +186,9 @@ export function ProductForm() {
   // ── Tag helpers ───────────────────────────────────────────────────────────
 
   function addTag() {
-    const t = tagInput.trim();
-    if (t && !tags.includes(t)) {
+    const raw = tagInput.trim();
+    const t = canonicalColorTag(raw) ?? raw;
+    if (t && !tags.some((existing) => existing.toLowerCase() === t.toLowerCase())) {
       setTags([...tags, t]);
     }
     setTagInput("");

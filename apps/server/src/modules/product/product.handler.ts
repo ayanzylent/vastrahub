@@ -119,7 +119,9 @@ export async function storefrontList(request: FastifyRequest, reply: FastifyRepl
     minPricePaise: q.minPricePaise ? parseInt(q.minPricePaise, 10) : undefined,
     maxPricePaise: q.maxPricePaise ? parseInt(q.maxPricePaise, 10) : undefined,
     brands: q.brands ? q.brands.split(',') : undefined,
-    tags: q.tags ? q.tags.split(',') : undefined,
+    tags: q.tags
+      ? q.tags.split(',').map((t) => t.trim()).filter(Boolean)
+      : undefined,
     inStock: q.inStock === 'true' ? true : undefined,
     search: q.search,
     sortBy: q.sortBy as service.StorefrontListOpts['sortBy'],

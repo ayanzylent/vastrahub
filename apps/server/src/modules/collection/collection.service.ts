@@ -13,6 +13,7 @@ import mongoose from 'mongoose';
 import { Collection, Product } from '../../db/models/index.js';
 import type { ICollectionDocument, ICollectionRule } from '../../db/models/index.js';
 import { NotFoundError, ValidationError } from '../../lib/errors.js';
+import { caseInsensitiveTagsIn } from '../../lib/mongo-filter.js';
 import { APP_CONFIG } from '../../constants/index.js';
 import slugify from 'slugify';
 
@@ -208,7 +209,10 @@ function buildUserFilter(opts: StorefrontProductOpts): Record<string, unknown> {
     filter.totalStock = { $gt: 0 };
   }
   if (tags && tags.length > 0) {
-    filter.tags = { $in: tags };
+    const tagPatterns = caseInsensitiveTagsIn(tags);
+    if (tagPatterns.length > 0) {
+      filter.tags = { $in: tagPatterns };
+    }
   }
   if (search) {
     filter.$or = [

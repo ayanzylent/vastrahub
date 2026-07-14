@@ -1,4 +1,4 @@
-/** Fixed color filter palette. Labels are also the product tag values (exact match). */
+/** Fixed color filter palette. Labels match product tags case-insensitively. */
 export const COLOR_FILTER_OPTIONS = [
   { label: "Red", hex: "#DC2626" },
   { label: "Pink", hex: "#EC4899" },
@@ -18,7 +18,15 @@ export const COLOR_FILTER_OPTIONS = [
 
 export type ColorFilterLabel = (typeof COLOR_FILTER_OPTIONS)[number]["label"];
 
-const COLOR_LABEL_SET = new Set<string>(COLOR_FILTER_OPTIONS.map((c) => c.label));
+const COLOR_LABEL_BY_LOWER = new Map<string, ColorFilterLabel>(
+  COLOR_FILTER_OPTIONS.map((c) => [c.label.toLowerCase(), c.label]),
+);
+
+/** Map a free-form tag to a palette label when it matches (case-insensitive). */
+export function canonicalColorTag(raw: string): ColorFilterLabel | null {
+  const key = raw.trim().toLowerCase();
+  return key ? (COLOR_LABEL_BY_LOWER.get(key) ?? null) : null;
+}
 
 /** Parse `colors` or `tags` query param into known palette labels only. */
 export function parseColorFilterParam(raw: string | null): string[] {
@@ -26,8 +34,8 @@ export function parseColorFilterParam(raw: string | null): string[] {
   const seen = new Set<string>();
   const result: string[] = [];
   for (const part of raw.split(",")) {
-    const label = part.trim();
-    if (label && COLOR_LABEL_SET.has(label) && !seen.has(label)) {
+    const label = canonicalColorTag(part);
+    if (label && !seen.has(label)) {
       seen.add(label);
       result.push(label);
     }
