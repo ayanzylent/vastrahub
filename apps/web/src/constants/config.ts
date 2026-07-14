@@ -8,3 +8,14 @@ export const BRAND_CONFIG = {
   GUEST_ID_KEY: 'vastrahub_guest_id',
   RECENT_SEARCH_KEY: 'vastrahub_recent_searches'
 } as const;
+
+/** Display / tel: link format */
+export const PHONE_NUMBER = "+91 9641472617";
+
+/** Digits only, for wa.me links */
+export const PHONE_NUMBER_E164 = "919641472617";
+
+export function buildWhatsAppUrl(message = ""): string {
+  const base = `https://wa.me/${PHONE_NUMBER_E164}`;
+  return message ? `${base}?text=${encodeURIComponent(message)}` : base;
+}
