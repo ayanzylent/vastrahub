@@ -1,7 +1,7 @@
 "use client";
 
 import { useParams } from "next/navigation";
-import { CollectionForm } from "@/components/admin/collection-form";
+import { CollectionForm } from "@/components/admin/collections/collection-form";
 
 export default function EditCollectionPage() {
   const params = useParams();

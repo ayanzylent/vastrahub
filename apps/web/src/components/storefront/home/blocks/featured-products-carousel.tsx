@@ -3,7 +3,7 @@
 import { useRef } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { ProductCard, type ProductCardProduct } from "@/components/shared/product-card";
+import { ProductCard, type ProductCardProduct } from "@/components/storefront/catalog/product-card";
 import type { IProduct } from "@/types";
 
 export function FeaturedProductsCarousel({ products }: { products: IProduct[] }) {

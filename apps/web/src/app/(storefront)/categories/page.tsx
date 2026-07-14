@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { LayoutGrid } from "lucide-react";
-import { CategoryCard } from "@/components/storefront/category-card";
+import { CategoryCard } from "@/components/storefront/catalog/category-card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { api } from "@/lib/api";
 import type { ICategory } from "@/types";

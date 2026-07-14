@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { PasswordInput } from "@/components/shared/password-input";
+import { PasswordInput } from "@/components/common/password-input";
 import { Label } from "@/components/ui/label";
 
 const MIN_PASSWORD_LENGTH = 8;

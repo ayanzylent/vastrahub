@@ -7,9 +7,9 @@ import { Plus, Pencil, Trash2, LayoutGrid, Eye, Sparkles, Hand, Star } from "luc
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { StatusBadge } from "@/components/shared/status-badge";
+import { StatusBadge } from "@/components/common/status-badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { DeleteConfirmationDialog } from "@/components/shared/delete-confirmation-dialog";
+import { DeleteConfirmationDialog } from "@/components/common/delete-confirmation-dialog";
 import { api } from "@/lib/api";
 import { toast } from "sonner";
 import { getMediaUrl } from "@/lib/media";

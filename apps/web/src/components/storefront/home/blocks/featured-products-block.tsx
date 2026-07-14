@@ -1,4 +1,4 @@
-import { ProductCard, type ProductCardProduct } from "@/components/shared/product-card";
+import { ProductCard, type ProductCardProduct } from "@/components/storefront/catalog/product-card";
 import type { IFeaturedProductsBlock, IProduct } from "@/types";
 import { FeaturedProductsCarousel } from "./featured-products-carousel";
 import { HOME_BLOCK_HEADER_CLASS, HomeBlockSection } from "./home-block-section";

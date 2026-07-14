@@ -4,7 +4,7 @@ import { useRef } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { ICollection } from "@/types";
-import { CollectionCard } from "@/components/storefront/collection-card";
+import { CollectionCard } from "@/components/storefront/catalog/collection-card";
 
 export function CollectionShowcaseCarousel({ collections }: { collections: ICollection[] }) {
   const scrollRef = useRef<HTMLDivElement>(null);

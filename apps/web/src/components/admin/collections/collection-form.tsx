@@ -29,8 +29,8 @@ import type {
 import {
   CollectionProductPicker,
   type PickerProduct,
-} from "@/components/admin/collection-product-picker";
-import { CollectionRuleBuilder } from "@/components/admin/collection-rule-builder";
+} from "@/components/admin/collections/collection-product-picker";
+import { CollectionRuleBuilder } from "@/components/admin/collections/collection-rule-builder";
 
 type MediaField = "image" | "bannerImage";
 

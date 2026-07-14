@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { Home, ShoppingBag, Tag, Heart, LogIn, User, LayoutGrid } from "lucide-react";
-import { Logo } from "@/components/shared/logo";
+import { Logo } from "@/components/common/logo";
 import {
   Sheet,
   SheetContent,

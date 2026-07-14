@@ -34,7 +34,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { OrderStatusBadge } from "@/components/account/order-status-badge";
+import { OrderStatusBadge } from "@/components/storefront/account/order-status-badge";
 
 const CANCELLABLE: OrderStatus[] = [
   OrderStatus.PENDING,

@@ -9,6 +9,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import type { BlockType, IHomepageBlock } from "@/types";
+import { HOMEPAGE_BLOCK_TYPES } from "@/constants";
 
 export interface BlockMeta {
   type: BlockType;
@@ -18,15 +19,7 @@ export interface BlockMeta {
 }
 
 /** Display order in the "Add block" menu. */
-export const BLOCK_TYPES: BlockType[] = [
-  "categoryShowcase",
-  "collectionShowcase",
-  "featuredProducts",
-  "videoEmbed",
-  "banner",
-  "imageMosaic",
-  "logoMarquee",
-];
+export const BLOCK_TYPES: BlockType[] = HOMEPAGE_BLOCK_TYPES;
 
 export const BLOCK_META: Record<BlockType, BlockMeta> = {
   categoryShowcase: {

@@ -7,7 +7,7 @@ import { Plus, Search, MoreHorizontal, Eye, Pencil, Trash2, Loader2 } from "luci
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { StatusBadge } from "@/components/shared/status-badge";
+import { StatusBadge } from "@/components/common/status-badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   DropdownMenu,
@@ -15,8 +15,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { DeleteConfirmationDialog } from "@/components/shared/delete-confirmation-dialog";
-import { Pagination } from "@/components/shared/pagination";
+import { DeleteConfirmationDialog } from "@/components/common/delete-confirmation-dialog";
+import { Pagination } from "@/components/common/pagination";
 import { api } from "@/lib/api";
 import { formatPrice } from "@/lib/utils";
 import { getMediaUrl } from "@/lib/media";

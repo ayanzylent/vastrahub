@@ -1,4 +1,4 @@
-import { CollectionForm } from "@/components/admin/collection-form";
+import { CollectionForm } from "@/components/admin/collections/collection-form";
 
 export default function NewCollectionPage() {
   return <CollectionForm />;

@@ -10,19 +10,21 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import type { IProductPageBadges, IProductPageConfig } from "@/types";
+import { PRODUCT_PAGE_BADGE_FIELDS } from "@/constants";
 import { formatDeliveryRange } from "@/lib/delivery-date";
 
-const BADGE_META: Array<{
-  key: keyof IProductPageBadges;
-  label: string;
-  Icon: LucideIcon;
-}> = [
-  { key: "easyReturn", label: "Easy Return", Icon: RotateCcw },
-  { key: "easyReplacement", label: "Easy Replacement", Icon: RefreshCw },
-  { key: "cod", label: "Cash on Delivery", Icon: Banknote },
-  { key: "freeDelivery", label: "Free Delivery", Icon: Truck },
-  { key: "authentic", label: "Authentic", Icon: ShieldCheck },
-];
+const BADGE_ICONS: Record<keyof IProductPageBadges, LucideIcon> = {
+  easyReturn: RotateCcw,
+  easyReplacement: RefreshCw,
+  cod: Banknote,
+  freeDelivery: Truck,
+  authentic: ShieldCheck,
+};
+
+const BADGE_META = PRODUCT_PAGE_BADGE_FIELDS.map((field) => ({
+  ...field,
+  Icon: BADGE_ICONS[field.key],
+}));
 
 export function ProductSettingsPanel({ settings }: { settings: IProductPageConfig }) {
   const activeBadges = BADGE_META.filter((badge) => settings.badges[badge.key]);

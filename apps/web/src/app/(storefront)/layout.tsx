@@ -1,6 +1,6 @@
-import { Header } from "@/components/layout/header";
-import { Footer } from "@/components/layout/footer";
-import { AnnouncementBar } from "@/components/storefront/home/announcement-bar";
+import { Header } from "@/components/storefront/layout/header";
+import { Footer } from "@/components/storefront/layout/footer";
+import { AnnouncementBar } from "@/components/storefront/layout/announcement-bar";
 
 export default function StorefrontLayout({
   children,

@@ -2,7 +2,7 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { ICategoryShowcaseBlock, ICategory } from "@/types";
-import { CategoryCard } from "@/components/storefront/category-card";
+import { CategoryCard } from "@/components/storefront/catalog/category-card";
 import { CategoryShowcaseCarousel } from "./category-showcase-carousel";
 import { HOME_BLOCK_HEADER_CLASS, HomeBlockSection } from "./home-block-section";
 

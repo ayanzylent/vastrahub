@@ -21,7 +21,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { StatusBadge, type StatusTone } from "@/components/shared/status-badge";
+import { StatusBadge, type StatusTone } from "@/components/common/status-badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Dialog,

@@ -1,5 +1,5 @@
 import { cookies } from "next/headers";
-import { AdminLayoutClient } from "@/components/layout/admin-layout-client";
+import { AdminLayoutClient } from "@/components/admin/layout/admin-layout-client";
 
 /**
  * Force dynamic rendering for all admin pages.

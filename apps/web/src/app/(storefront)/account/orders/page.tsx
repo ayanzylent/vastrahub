@@ -12,7 +12,7 @@ import { ShoppingBag, ChevronRight, Loader2 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { OrderStatusBadge } from "@/components/account/order-status-badge";
+import { OrderStatusBadge } from "@/components/storefront/account/order-status-badge";
 
 function formatDate(value?: string | Date): string {
   if (!value) return "";

@@ -3,22 +3,15 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { SITE_SETTINGS_LIMITS } from "@/constants";
+import { SITE_SETTINGS_LIMITS, PRODUCT_PAGE_BADGE_FIELDS } from "@/constants";
 import type {
   IProductInfoBlock,
-  IProductPageBadges,
   IProductPageConfig,
 } from "@/types";
 import { FieldToggle } from "./field-toggle";
 import { TextAreaField, TextField } from "./fields";
 
-const BADGE_FIELDS: Array<{ key: keyof IProductPageBadges; label: string; desc: string }> = [
-  { key: "easyReturn", label: "Easy return", desc: "Show an Easy Return badge on the product page" },
-  { key: "easyReplacement", label: "Easy replacement", desc: "Show an Easy Replacement badge on the product page" },
-  { key: "cod", label: "Cash on delivery", desc: "Show a COD badge on the product page" },
-  { key: "freeDelivery", label: "Free delivery", desc: "Show a Free Delivery badge on the product page" },
-  { key: "authentic", label: "Authentic", desc: "Show an Authentic badge on the product page" },
-];
+const BADGE_FIELDS = PRODUCT_PAGE_BADGE_FIELDS;
 
 const INFO_BLOCKS: Array<{
   key: "returnAndExchange" | "shippingInformation" | "sellerInformation";

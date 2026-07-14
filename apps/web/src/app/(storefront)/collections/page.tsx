@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { LayoutGrid } from "lucide-react";
-import { CollectionCard } from "@/components/storefront/collection-card";
+import { CollectionCard } from "@/components/storefront/catalog/collection-card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { api } from "@/lib/api";
 import type { ICollection } from "@/types";

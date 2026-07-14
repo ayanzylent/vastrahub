@@ -3,8 +3,8 @@
 import { useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { useSession } from '@/lib/auth-client';
-import { AdminSidebar } from '@/components/layout/admin-sidebar';
-import { AdminTopbar } from '@/components/layout/admin-topbar';
+import { AdminSidebar } from '@/components/admin/layout/admin-sidebar';
+import { AdminTopbar } from '@/components/admin/layout/admin-topbar';
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ShieldAlert } from 'lucide-react';

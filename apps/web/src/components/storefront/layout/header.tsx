@@ -4,9 +4,9 @@ import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Search, ShoppingBag, User, Menu, LogOut, Heart, Settings, MapPin, Lock } from "lucide-react";
-import { Logo } from "@/components/shared/logo";
-import { ThemeToggle } from "@/components/shared/theme-toggle";
-import { CartDrawer } from "@/components/shared/cart-drawer";
+import { Logo } from "@/components/common/logo";
+import { ThemeToggle } from "@/components/common/theme-toggle";
+import { CartDrawer } from "@/components/storefront/layout/cart-drawer";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -18,8 +18,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { MobileNav } from "@/components/layout/mobile-nav";
-import { SearchDialog } from "@/components/layout/search-dialog";
+import { MobileNav } from "@/components/storefront/layout/mobile-nav";
+import { SearchDialog } from "@/components/storefront/layout/search-dialog";
 import { useSession, signOut } from "@/lib/auth-client";
 import { useCart } from "@/providers/CartProvider";
 import { toast } from "sonner";
