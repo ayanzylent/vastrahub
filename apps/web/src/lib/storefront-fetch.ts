@@ -1,6 +1,9 @@
 /**
  * Server-side fetch helpers for storefront SEO (sitemap, generateMetadata, SSR).
  * Uses absolute backend URL so it works even when the browser API is proxied.
+ *
+ * Caching map (TTLs, what is NOT cached, how to debug stale content):
+ * @see ../../STOREFRONT-CACHE.md
  */
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
