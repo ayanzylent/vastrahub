@@ -1,7 +1,17 @@
 "use client";
 
 import Link from "next/link";
-import { Home, ShoppingBag, Tag, Heart, LogIn, User, LayoutGrid } from "lucide-react";
+import {
+  Home,
+  ShoppingBag,
+  Tag,
+  Heart,
+  LogIn,
+  User,
+  LayoutGrid,
+  MapPin,
+  Lock,
+} from "lucide-react";
 import { Logo } from "@/components/common/logo";
 import {
   Sheet,
@@ -10,23 +20,38 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { Separator } from "@/components/ui/separator";
+import { useSession } from "@/lib/auth-client";
 
 interface MobileNavProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
-const mobileLinks = [
+const baseLinks = [
   { label: "Home", href: "/", icon: Home },
   { label: "Categories", href: "/categories", icon: Tag },
   { label: "Collections", href: "/collections", icon: LayoutGrid },
-  { label: "New Arrivals", href: "/shop?sortBy=newest", icon: ShoppingBag },
-  { label: "Wishlist", href: "/account/wishlist", icon: Heart },
+  { label: "Shop", href: "/shop", icon: ShoppingBag },
+];
+
+const accountLinks = [
   { label: "Profile", href: "/account/profile", icon: User },
-  { label: "Sign In", href: "/login", icon: LogIn },
+  { label: "My Orders", href: "/account/orders", icon: ShoppingBag },
+  { label: "Wishlist", href: "/account/wishlist", icon: Heart },
+  { label: "Addresses", href: "/account/addresses", icon: MapPin },
+  { label: "Security", href: "/account/security", icon: Lock },
 ];
 
 export function MobileNav({ open, onOpenChange }: MobileNavProps) {
+  const { data: sessionData } = useSession();
+  const user = sessionData?.user;
+
+  const authLinks = user
+    ? accountLinks
+    : [{ label: "Sign In", href: "/login", icon: LogIn }];
+
+  const mobileLinks = [...baseLinks, ...authLinks];
+
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent side="left" className="w-[300px] p-0">

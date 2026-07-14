@@ -5,7 +5,6 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Search, ShoppingBag, User, Menu, LogOut, Heart, Settings, MapPin, Lock } from "lucide-react";
 import { Logo } from "@/components/common/logo";
-import { ThemeToggle } from "@/components/common/theme-toggle";
 import { CartDrawer } from "@/components/storefront/layout/cart-drawer";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -28,7 +27,7 @@ const navLinks = [
   { label: "Home", href: "/" },
   { label: "Categories", href: "/categories" },
   { label: "Collections", href: "/collections" },
-  { label: "New Arrivals", href: "/shop?sortBy=newest" },
+  { label: "Shop", href: "/shop" },
 ];
 
 export function Header() {
@@ -103,8 +102,6 @@ export function Header() {
 
           {/* Actions */}
           <div className="flex items-center gap-1">
-            <ThemeToggle />
-
             {/* Search (Mobile Trigger) */}
             <Button
               variant="ghost"
