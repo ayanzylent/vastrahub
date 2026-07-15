@@ -14,6 +14,17 @@ import { resolveOrderInventoryOnFailure } from '../inventory/inventory.service.j
 
 // ---------- Helpers ----------
 
+/** Payment must be settled before customer or admin may cancel. */
+const FINAL_PAYMENT_STATUSES = new Set(['captured', 'authorized']);
+
+function assertPaymentFinalForCancel(payment: IPaymentDocument | null): void {
+  if (!payment || !FINAL_PAYMENT_STATUSES.has(payment.status)) {
+    throw new ValidationError(
+      'Cannot cancel order until payment is completed. Unpaid orders expire or fail automatically.',
+    );
+  }
+}
+
 /** Alphanumeric charset for order number generation (A-Z, 0-9 — no special chars). */
 const ORDER_NUM_CHARSET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
 
@@ -122,8 +133,8 @@ export async function getUserOrderById(userId: string, orderId: string) {
 }
 
 /**
- * Cancel an order (customer). Only allowed from pending, confirmed, or processing.
- * Restores stock for each item and marks payment if captured.
+ * Cancel an order (customer). Only after payment is final (captured / COD authorized).
+ * Allowed from confirmed or processing. Restores stock; marks captured payment refunded.
  */
 export async function cancelOrder(userId: string, orderId: string, reason?: string) {
   if (!mongoose.Types.ObjectId.isValid(orderId)) {
@@ -139,12 +150,17 @@ export async function cancelOrder(userId: string, orderId: string, reason?: stri
     throw new NotFoundError('Order not found');
   }
 
-  const cancellableStatuses: string[] = ['pending', 'confirmed', 'processing'];
+  const cancellableStatuses: string[] = ['confirmed', 'processing'];
   if (!cancellableStatuses.includes(order.status)) {
     throw new ValidationError(
-      `Cannot cancel order with status "${order.status}". Only pending, confirmed, or processing orders can be cancelled.`,
+      `Cannot cancel order with status "${order.status}". Only confirmed or processing orders can be cancelled.`,
     );
   }
+
+  const payment = order.paymentId
+    ? (await Payment.findById(order.paymentId) as IPaymentDocument | null)
+    : null;
+  assertPaymentFinalForCancel(payment);
 
   order.status = 'cancelled';
 
@@ -159,13 +175,10 @@ export async function cancelOrder(userId: string, orderId: string, reason?: stri
   // reserved → release; committed → restore sold; none → legacy stock++; released → no-op
   await resolveOrderInventoryOnFailure(order);
 
-  // If payment was captured, update payment status
-  if (order.paymentId) {
-    const payment = await Payment.findById(order.paymentId) as IPaymentDocument | null;
-    if (payment && payment.status === 'captured') {
-      payment.status = 'refunded';
-      await payment.save();
-    }
+  // If payment was captured, update payment status (DB record; gateway refund is manual)
+  if (payment && payment.status === 'captured') {
+    payment.status = 'refunded';
+    await payment.save();
   }
 
   await order.save();
@@ -316,6 +329,14 @@ export async function updateOrderStatus(
     throw new ValidationError(
       `Invalid status transition from "${oldStatus}" to "${newStatus}"`,
     );
+  }
+
+  // Cancel only after payment is final (same rule as customer cancel).
+  if (newStatus === 'cancelled') {
+    const payment = order.paymentId
+      ? (await Payment.findById(order.paymentId) as IPaymentDocument | null)
+      : null;
+    assertPaymentFinalForCancel(payment);
   }
 
   order.status = newStatus;

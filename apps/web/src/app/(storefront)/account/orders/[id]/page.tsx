@@ -36,8 +36,8 @@ import {
 } from "@/components/ui/dialog";
 import { OrderStatusBadge } from "@/components/storefront/account/order-status-badge";
 
+// Cancel only after payment is final (confirmed/processing). Unpaid pending cannot cancel.
 const CANCELLABLE: OrderStatus[] = [
-  OrderStatus.PENDING,
   OrderStatus.CONFIRMED,
   OrderStatus.PROCESSING,
 ];

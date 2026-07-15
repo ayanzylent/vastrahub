@@ -15,6 +15,7 @@ import { generateOrderNumber, validateOrderPricing } from '../order/order.servic
 import {
   reserveOrderInventory,
   commitOrderInventoryDirect,
+  resolveOrderInventoryOnFailure,
 } from '../inventory/inventory.service.js';
 // import { validateAndPreviewCoupon } from '../coupon/coupon.service.js';
 
@@ -279,17 +280,8 @@ export async function createOrder(userId: string, input: CreateOrderInput) {
   } else
   */
   if (input.paymentMethod === 'icici') {
-    // Redirect (hosted-page) flow: ask ICICI to initiate the sale and hand us
-    // the URL to send the buyer to.
-    const iciciSale = await initiateIciciSale(totalPaise, orderNumber);
-    iciciOrderId = iciciSale.merchantTxnNo;
-    iciciRedirectURI = iciciSale.redirectURI;
-    payment.gatewayOrderId = iciciOrderId;
-    payment.webhookEvents.push({
-      eventType: 'icici.initiated',
-      payload: iciciSale.raw,
-      receivedAt: new Date(),
-    });
+    // Pre-assign gateway id; initiateSale runs only after order/payment/stock commit.
+    payment.gatewayOrderId = `ICICI${orderNumber}`;
   } else if (input.paymentMethod === 'cod') {
     // Assign a unique gatewayOrderId so the compound unique index
     // (gatewayOrderId + gatewayName) doesn't collide on null for every COD order.
@@ -349,6 +341,36 @@ export async function createOrder(userId: string, input: CreateOrderInput) {
     throw err;
   } finally {
     await session.endSession();
+  }
+
+  // Initiate ICICI only after durable order + reservation exist (avoids orphan sessions).
+  if (input.paymentMethod === 'icici') {
+    try {
+      const iciciSale = await initiateIciciSale(totalPaise, orderNumber);
+      iciciOrderId = iciciSale.merchantTxnNo;
+      iciciRedirectURI = iciciSale.redirectURI;
+      payment.gatewayOrderId = iciciOrderId;
+      payment.webhookEvents.push({
+        eventType: 'icici.initiated',
+        payload: iciciSale.raw,
+        receivedAt: new Date(),
+      });
+      await payment.save();
+    } catch (err) {
+      order.status = 'failed';
+      order.statusHistory.push({
+        status: 'failed',
+        changedAt: new Date(),
+        changedBy: 'system',
+        note: 'ICICI initiate failed after order create',
+      });
+      payment.status = 'failed';
+      payment.failedAt = new Date();
+      payment.failureReason = 'ICICI initiateSale failed';
+      await resolveOrderInventoryOnFailure(order);
+      await Promise.all([order.save(), payment.save()]);
+      throw err;
+    }
   }
 
   // 14. Increment coupon usage — DISABLED (coupon module not complete)
@@ -549,15 +571,8 @@ export async function createBuyNowOrder(userId: string, input: BuyNowInput) {
   } else
   */
   if (input.paymentMethod === 'icici') {
-    const iciciSale = await initiateIciciSale(totalPaise, orderNumber);
-    iciciOrderId = iciciSale.merchantTxnNo;
-    iciciRedirectURI = iciciSale.redirectURI;
-    payment.gatewayOrderId = iciciOrderId;
-    payment.webhookEvents.push({
-      eventType: 'icici.initiated',
-      payload: iciciSale.raw,
-      receivedAt: new Date(),
-    });
+    // Pre-assign gateway id; initiateSale runs only after order/payment/stock commit.
+    payment.gatewayOrderId = `ICICI${orderNumber}`;
   } else if (input.paymentMethod === 'cod') {
     // Assign a unique gatewayOrderId so the compound unique index
     // (gatewayOrderId + gatewayName) doesn't collide on null for every COD order.
@@ -614,6 +629,36 @@ export async function createBuyNowOrder(userId: string, input: BuyNowInput) {
     throw err;
   } finally {
     await session.endSession();
+  }
+
+  // Initiate ICICI only after durable order + reservation exist (avoids orphan sessions).
+  if (input.paymentMethod === 'icici') {
+    try {
+      const iciciSale = await initiateIciciSale(totalPaise, orderNumber);
+      iciciOrderId = iciciSale.merchantTxnNo;
+      iciciRedirectURI = iciciSale.redirectURI;
+      payment.gatewayOrderId = iciciOrderId;
+      payment.webhookEvents.push({
+        eventType: 'icici.initiated',
+        payload: iciciSale.raw,
+        receivedAt: new Date(),
+      });
+      await payment.save();
+    } catch (err) {
+      order.status = 'failed';
+      order.statusHistory.push({
+        status: 'failed',
+        changedAt: new Date(),
+        changedBy: 'system',
+        note: 'ICICI initiate failed after order create',
+      });
+      payment.status = 'failed';
+      payment.failedAt = new Date();
+      payment.failureReason = 'ICICI initiateSale failed';
+      await resolveOrderInventoryOnFailure(order);
+      await Promise.all([order.save(), payment.save()]);
+      throw err;
+    }
   }
 
   // 12. Increment coupon usage — DISABLED (coupon module not complete)

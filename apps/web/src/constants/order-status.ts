@@ -17,7 +17,8 @@ export type OrderStatusType = (typeof OrderStatus)[keyof typeof OrderStatus];
  * Key = current status, Value = array of allowed next statuses.
  */
 export const ORDER_STATUS_TRANSITIONS: Record<OrderStatusType, OrderStatusType[]> = {
-  [OrderStatus.PENDING]: [OrderStatus.CONFIRMED, OrderStatus.FAILED, OrderStatus.CANCELLED],
+  // Unpaid pending cannot be cancelled — payment must be final first.
+  [OrderStatus.PENDING]: [OrderStatus.CONFIRMED, OrderStatus.FAILED],
   [OrderStatus.CONFIRMED]: [OrderStatus.PROCESSING, OrderStatus.CANCELLED],
   [OrderStatus.PROCESSING]: [OrderStatus.SHIPPED, OrderStatus.CANCELLED],
   [OrderStatus.SHIPPED]: [OrderStatus.DELIVERED],
