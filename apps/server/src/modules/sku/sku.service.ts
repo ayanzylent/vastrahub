@@ -42,10 +42,13 @@ export interface UpdateSkuInput extends Partial<CreateSkuInput> {
  * called explicitly after bulk operations (e.g., cascade soft-delete) where the
  * Mongoose hook doesn't fire.
  */
-export async function recalculateProductAggregates(productId: mongoose.Types.ObjectId | string) {
+export async function recalculateProductAggregates(
+  productId: mongoose.Types.ObjectId | string,
+  session?: mongoose.ClientSession | null,
+) {
   const pid = typeof productId === 'string' ? new mongoose.Types.ObjectId(productId) : productId;
 
-  const aggregation = await Sku.aggregate([
+  const aggregationQuery = Sku.aggregate([
     {
       $match: {
         productId: pid,
@@ -78,6 +81,12 @@ export async function recalculateProductAggregates(productId: mongoose.Types.Obj
     },
   ]);
 
+  if (session) {
+    aggregationQuery.session(session);
+  }
+
+  const aggregation = await aggregationQuery;
+
   const stats = aggregation[0]?.stats[0] || {
     minPrice: 0,
     maxPrice: 0,
@@ -105,6 +114,7 @@ export async function recalculateProductAggregates(productId: mongoose.Types.Obj
         skuCount: stats.count,
       },
     },
+    { session: session ?? undefined },
   );
 }
 

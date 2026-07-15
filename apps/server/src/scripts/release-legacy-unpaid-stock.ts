@@ -30,6 +30,7 @@ import type { IOrderDocument, IPaymentDocument } from '../db/models/index.js';
 import { connectDatabase, disconnectDatabase } from '../config/database.js';
 import { getConfig } from '../config/env.js';
 import { APP_CONFIG } from '../constants/config.js';
+import { recalculateProductAggregates } from '../modules/sku/sku.service.js';
 
 function parseArgs(argv: string[]) {
   const apply = argv.includes('--apply');
@@ -135,11 +136,14 @@ async function run() {
       }
 
       for (const item of claimed.items) {
-        await Sku.updateOne(
+        const updated = await Sku.findOneAndUpdate(
           { _id: item.skuId },
           { $inc: { stockQuantity: item.quantity } },
-          { session },
+          { new: true, session },
         );
+        if (updated) {
+          await recalculateProductAggregates(updated.productId, session);
+        }
       }
 
       if (row.paymentId) {

@@ -13,8 +13,21 @@ import { Order, Sku } from '../../db/models/index.js';
 import type { IOrderDocument, InventoryHold } from '../../db/models/index.js';
 import { APP_CONFIG } from '../../constants/config.js';
 import { ValidationError } from '../../lib/errors.js';
+import { recalculateProductAggregates } from '../sku/sku.service.js';
 
 type SkuId = Types.ObjectId | string;
+
+/**
+ * Inventory stock mutations use findOneAndUpdate/$inc (no document.save),
+ * so the Sku post-save hook never refreshes Product.totalStock.
+ * Recalculate after any stockQuantity change.
+ */
+async function syncProductTotalStock(
+  productId: Types.ObjectId,
+  session?: ClientSession | null,
+): Promise<void> {
+  await recalculateProductAggregates(productId, session);
+}
 
 function reservationExpiryDate(from = new Date()): Date {
   return new Date(from.getTime() + APP_CONFIG.STOCK_RESERVATION_TIMEOUT_MINS * 60_000);
@@ -76,6 +89,8 @@ export async function commitSkuStock(
       `Cannot commit stock for SKU ${String(skuId)}: reservation missing or insufficient`,
     );
   }
+
+  await syncProductTotalStock(updated.productId, session);
 }
 
 /**
@@ -101,6 +116,8 @@ export async function commitSkuStockDirect(
   if (!updated) {
     throw new ValidationError(`Insufficient available stock for SKU ${String(skuId)}`);
   }
+
+  await syncProductTotalStock(updated.productId, session);
 }
 
 /**
@@ -112,11 +129,15 @@ async function forceDecrementSkuStock(
   quantity: number,
   session?: ClientSession | null,
 ): Promise<void> {
-  await Sku.updateOne(
+  const updated = await Sku.findOneAndUpdate(
     { _id: skuId },
     { $inc: { stockQuantity: -quantity } },
-    { session: session ?? undefined },
+    { new: true, session: session ?? undefined },
   );
+
+  if (updated) {
+    await syncProductTotalStock(updated.productId, session);
+  }
 }
 
 /**
@@ -229,11 +250,15 @@ export async function restoreSoldSkuStock(
   quantity: number,
   session?: ClientSession | null,
 ): Promise<void> {
-  await Sku.updateOne(
+  const updated = await Sku.findOneAndUpdate(
     { _id: skuId },
     { $inc: { stockQuantity: quantity } },
-    { session: session ?? undefined },
+    { new: true, session: session ?? undefined },
   );
+
+  if (updated) {
+    await syncProductTotalStock(updated.productId, session);
+  }
 }
 
 /**
@@ -244,12 +269,21 @@ export async function restoreLegacyDecrementedStock(
   order: IOrderDocument,
   session?: ClientSession | null,
 ): Promise<void> {
+  const productIds = new Set<string>();
+
   for (const item of order.items) {
-    await Sku.updateOne(
+    const updated = await Sku.findOneAndUpdate(
       { _id: item.skuId },
       { $inc: { stockQuantity: item.quantity } },
-      { session: session ?? undefined },
+      { new: true, session: session ?? undefined },
     );
+    if (updated) {
+      productIds.add(String(updated.productId));
+    }
+  }
+
+  for (const productId of productIds) {
+    await syncProductTotalStock(new mongoose.Types.ObjectId(productId), session);
   }
 }
 
