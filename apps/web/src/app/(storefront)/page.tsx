@@ -6,6 +6,7 @@ import { HeroSection } from "@/components/storefront/home/hero-section";
 import { BlockRenderer } from "@/components/storefront/home/block-renderer";
 import { buildPageMetadata } from "@/lib/seo";
 import { fetchStorefrontSiteSettings } from "@/lib/storefront-fetch";
+import { getServerApiBase, STOREFRONT_HERO_TAG } from "@/lib/server-api";
 import { buildOrganizationJsonLd, buildWebSiteJsonLd } from "@/lib/structured-data";
 
 export const metadata: Metadata = buildPageMetadata({
@@ -19,13 +20,17 @@ export const metadata: Metadata = buildPageMetadata({
  * Fetch the hero directly from the backend (absolute URL, no cookies) so it works
  * in a server component even when the browser-facing API is proxied. Falls back
  * to defaults if the backend is unreachable (e.g. during a build with no server).
- * Cached with `force-cache` until on-demand revalidation (e.g. revalidatePath("/") from admin).
+ * Cached indefinitely with tag `storefront-hero` until on-demand revalidation
+ * (`revalidateTag` from admin save). No periodic TTL — bust only when hero changes.
  * @see ../../../STOREFRONT-CACHE.md
  */
 async function getHero(): Promise<IHeroConfig> {
-  const base = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
+  const base = await getServerApiBase();
   try {
-    const res = await fetch(`${base}/api/v1/storefront/hero`, { cache: "force-cache" });
+    const res = await fetch(`${base}/api/v1/storefront/hero`, {
+      cache: "force-cache",
+      next: { tags: [STOREFRONT_HERO_TAG] },
+    });
     if (!res.ok) return DEFAULT_HERO;
     const json = (await res.json()) as { data?: IHeroConfig };
     return json.data ?? DEFAULT_HERO;

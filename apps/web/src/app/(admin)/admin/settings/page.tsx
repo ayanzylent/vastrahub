@@ -217,9 +217,13 @@ export default function AdminSettingsPage() {
       });
       if (res.success) {
         toast.success("Settings saved");
-        const revalidated = await revalidateHome().catch(() => ({ ok: false }));
+        const revalidated = await revalidateHome().catch(() => ({ ok: false as const }));
         if (!revalidated.ok) {
-          toast.warning("Saved, but the homepage hero may take up to a minute to refresh.");
+          toast.warning(
+            "Saved to the database, but the homepage cache was not cleared. The storefront may show the old hero until the next deploy.",
+          );
+        } else {
+          router.refresh();
         }
       } else {
         toast.error(res.error || "Failed to save settings");
@@ -241,9 +245,13 @@ export default function AdminSettingsPage() {
         setAnnouncement(res.data.announcementBar ?? DEFAULT_ANNOUNCEMENT_BAR);
         setProductPage(res.data.productPage ?? DEFAULT_PRODUCT_PAGE);
         toast.success("Reset to defaults");
-        const revalidated = await revalidateHome().catch(() => ({ ok: false }));
+        const revalidated = await revalidateHome().catch(() => ({ ok: false as const }));
         if (!revalidated.ok) {
-          toast.warning("Reset saved, but the homepage hero may take up to a minute to refresh.");
+          toast.warning(
+            "Reset saved, but the homepage cache was not cleared. The storefront may show the old hero until the next deploy.",
+          );
+        } else {
+          router.refresh();
         }
         setResetOpen(false);
       } else {

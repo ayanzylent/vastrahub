@@ -6,11 +6,14 @@
  * @see ../../STOREFRONT-CACHE.md
  */
 
+import { STOREFRONT_SITE_SETTINGS_TAG } from "@/lib/server-api";
+
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
 
 interface FetchJsonOptions {
   revalidate?: number | false;
   cache?: RequestCache;
+  tags?: string[];
 }
 
 async function fetchJson<T>(path: string, options: FetchJsonOptions = {}): Promise<T | null> {
@@ -18,8 +21,13 @@ async function fetchJson<T>(path: string, options: FetchJsonOptions = {}): Promi
   try {
     const res = await fetch(url, {
       ...(options.cache
-        ? { cache: options.cache }
-        : { next: { revalidate: options.revalidate ?? 3600 } }),
+        ? { cache: options.cache, ...(options.tags ? { next: { tags: options.tags } } : {}) }
+        : {
+            next: {
+              revalidate: options.revalidate ?? 3600,
+              ...(options.tags ? { tags: options.tags } : {}),
+            },
+          }),
     });
     if (!res.ok) return null;
     return (await res.json()) as T;
@@ -124,6 +132,7 @@ export async function fetchStorefrontCollectionBySlug<T>(slug: string) {
 export async function fetchStorefrontSiteSettings<T>() {
   return fetchJson<{ success?: boolean; data?: T }>("/api/v1/storefront/site-settings", {
     revalidate: 300,
+    tags: [STOREFRONT_SITE_SETTINGS_TAG],
   });
 }
 
