@@ -41,6 +41,8 @@ export interface IciciInitiateResult {
 export interface IciciStatusResult {
   outcome: IciciOutcome;
   gatewayPaymentId?: string;
+  /** Paid amount in paise when the gateway payload includes `amount`. */
+  amountPaise?: number;
   raw: Record<string, unknown>;
 }
 
@@ -149,6 +151,22 @@ export function verifyIciciHash(fields: Record<string, unknown>): boolean {
 // ─── Outcome mapping ─────────────────────────────────────────────────
 
 /**
+ * Parse ICICI Numeric(9,2) `amount` (e.g. "100.00") into integer paise.
+ * Returns undefined when the field is absent or not a finite non-negative number.
+ */
+export function parseIciciAmountPaise(fields: Record<string, unknown>): number | undefined {
+  const raw = fields.amount ?? fields.txnAmount ?? fields.transactionAmount;
+  if (raw === undefined || raw === null || String(raw).trim() === '') {
+    return undefined;
+  }
+  const rupees = Number(raw);
+  if (!Number.isFinite(rupees) || rupees < 0) {
+    return undefined;
+  }
+  return Math.round(rupees * 100);
+}
+
+/**
  * Normalise an ICICI response (callback, webhook, or status query) into a
  * payment outcome.
  *
@@ -159,6 +177,7 @@ export function mapIciciOutcome(fields: Record<string, unknown>): IciciStatusRes
   const txnStatus = String(fields.txnStatus ?? '').toUpperCase();
   const responseCode = String(fields.responseCode ?? fields.returnCode ?? '').trim();
   const gatewayPaymentId = pickIciciPaymentId(fields);
+  const amountPaise = parseIciciAmountPaise(fields);
 
   let outcome: IciciOutcome;
   if (txnStatus) {
@@ -172,7 +191,12 @@ export function mapIciciOutcome(fields: Record<string, unknown>): IciciStatusRes
     outcome = 'pending';
   }
 
-  return { outcome, gatewayPaymentId, raw: fields };
+  return {
+    outcome,
+    gatewayPaymentId,
+    ...(amountPaise !== undefined ? { amountPaise } : {}),
+    raw: fields,
+  };
 }
 
 /** Extract the gateway payment/transaction id from a response under any of its known keys. */

@@ -10,14 +10,44 @@ import { verifyPaymentSignature, verifyWebhookSignature } from '../../lib/razorp
 import {
   verifyIciciHash,
   mapIciciOutcome,
-  pickIciciPaymentId,
+  parseIciciAmountPaise,
   queryIciciTransactionStatus,
   type IciciOutcome,
+  type IciciStatusResult,
 } from '../../lib/icici.js';
 import {
   commitOrderInventory,
   resolveOrderInventoryOnFailure,
 } from '../inventory/inventory.service.js';
+
+const ICICI_AMOUNT_MISMATCH_REASON = 'Gateway amount mismatch';
+
+/**
+ * When the gateway reports paid but omits `amount`, poll STATUS once to try
+ * obtain it before reconcile (callback / webhook only — reconcile stays pure).
+ */
+async function enrichIciciPaidAmount(
+  merchantTxnNo: string,
+  mapped: IciciStatusResult,
+): Promise<IciciStatusResult> {
+  if (mapped.outcome !== 'paid' || mapped.amountPaise !== undefined) {
+    return mapped;
+  }
+  try {
+    const status = await queryIciciTransactionStatus(merchantTxnNo);
+    if (status.amountPaise === undefined) {
+      return mapped;
+    }
+    return {
+      ...mapped,
+      amountPaise: status.amountPaise,
+      gatewayPaymentId: mapped.gatewayPaymentId ?? status.gatewayPaymentId,
+      raw: { ...mapped.raw, ...status.raw },
+    };
+  } catch {
+    return mapped;
+  }
+}
 
 /**
  * Atomically confirm order inventory + persist order + persist payment capture.
@@ -136,7 +166,7 @@ export interface IciciReconcileResult {
  */
 export async function reconcileIciciPayment(
   merchantTxnNo: string,
-  result: { outcome: IciciOutcome; gatewayPaymentId?: string },
+  result: { outcome: IciciOutcome; gatewayPaymentId?: string; amountPaise?: number },
   source: 'callback' | 'webhook' | 'status',
   rawEvent?: Record<string, unknown>,
 ): Promise<IciciReconcileResult> {
@@ -190,6 +220,50 @@ export async function reconcileIciciPayment(
   }
 
   if (result.outcome === 'paid') {
+    const expectedPaise = payment.amountPaise;
+    const gatewayAmountPaise =
+      result.amountPaise ?? (rawEvent ? parseIciciAmountPaise(rawEvent) : undefined);
+    const internalMismatch = !!order && order.pricing.totalPaise !== expectedPaise;
+    const gatewayMismatch =
+      gatewayAmountPaise !== undefined && gatewayAmountPaise !== expectedPaise;
+    // Payment Advice may omit amount; only capture unverified when order total matches.
+    const cannotVerifyWithoutOrder =
+      gatewayAmountPaise === undefined && !order;
+
+    if (internalMismatch || gatewayMismatch || cannotVerifyWithoutOrder) {
+      // Keep timeout-failed payments revivable; only stamp mismatch on open payments.
+      if (payment.status === 'created') {
+        payment.failureReason = ICICI_AMOUNT_MISMATCH_REASON;
+      }
+      payment.webhookEvents.push({
+        eventType: `icici.${source}.amount_mismatch`,
+        payload: {
+          expectedPaise,
+          orderTotalPaise: order?.pricing.totalPaise,
+          gatewayAmountPaise: gatewayAmountPaise ?? null,
+        },
+        receivedAt: new Date(),
+      });
+      await payment.save();
+      return {
+        outcome: 'pending',
+        orderId: order?._id as mongoose.Types.ObjectId | undefined,
+        orderNumber: order?.orderNumber,
+        paymentStatus: payment.status,
+      };
+    }
+
+    if (gatewayAmountPaise === undefined) {
+      payment.webhookEvents.push({
+        eventType: `icici.${source}.amount_unverified`,
+        payload: {
+          expectedPaise,
+          orderTotalPaise: order!.pricing.totalPaise,
+        },
+        receivedAt: new Date(),
+      });
+    }
+
     payment.status = 'captured';
     payment.paidAt = new Date();
     payment.set('failedAt', undefined);
@@ -258,9 +332,9 @@ export async function reconcileIciciPayment(
 /**
  * Handle the browser return callback POSTed by ICICI to our returnURL.
  *
- * Verifies the secureHash, then reconciles. If the gateway reports the payment
- * as still "pending", we actively poll the Command API status endpoint once so
- * the buyer's redirect resolves to a definitive state where possible.
+ * Verifies the secureHash, then reconciles. If the gateway reports paid without
+ * an amount, or still "pending", we poll the Command API once so the buyer's
+ * redirect resolves to a definitive state where possible.
  *
  * @returns the merchantTxnNo (for building the frontend redirect) and outcome.
  */
@@ -274,12 +348,12 @@ export async function handleIciciCallback(fields: Record<string, unknown>) {
     throw new ValidationError('Missing merchantTxnNo in ICICI callback');
   }
 
-  let mapped = mapIciciOutcome(fields);
+  let mapped = await enrichIciciPaidAmount(merchantTxnNo, mapIciciOutcome(fields));
   let reconciled = await reconcileIciciPayment(
     merchantTxnNo,
     mapped,
     'callback',
-    fields,
+    mapped.raw,
   );
 
   // If still unresolved, ask the gateway directly before sending the user on.
@@ -449,12 +523,12 @@ export async function handleIciciWebhook(fields: Record<string, unknown>) {
     return { received: true };
   }
 
-  const mapped = mapIciciOutcome(fields);
+  const mapped = await enrichIciciPaidAmount(merchantTxnNo, mapIciciOutcome(fields));
   await reconcileIciciPayment(
     merchantTxnNo,
-    { outcome: mapped.outcome, gatewayPaymentId: pickIciciPaymentId(fields) },
+    mapped,
     'webhook',
-    fields,
+    mapped.raw,
   );
 
   return { received: true };
