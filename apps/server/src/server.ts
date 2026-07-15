@@ -15,15 +15,15 @@ async function main(): Promise<void> {
     const port = app.config.PORT;
     const host = '0.0.0.0';
 
-    await app.listen({ port, host });
-    app.log.info(`🚀server running at http://localhost:${port}`);
-
     const stopExpiryJob = startExpireInventoryHoldsJob(app.log);
 
     app.addHook('onClose', async () => {
       stopExpiryJob();
       stopExpireInventoryHoldsJob();
     });
+
+    await app.listen({ port, host });
+    app.log.info(`🚀server running at http://localhost:${port}`);
   } catch (err) {
     console.error('❌ Failed to start server:', err);
     process.exit(1);
