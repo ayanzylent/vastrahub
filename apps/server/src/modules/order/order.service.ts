@@ -335,6 +335,12 @@ export async function updateOrderStatus(
     order.shipping!.deliveredAt = new Date();
   }
 
+  // reserved → release; committed → restore sold; none → legacy stock++; released → no-op
+  // Payment status is left unchanged — admin refunds manually and updates payment separately.
+  if (newStatus === 'cancelled') {
+    await resolveOrderInventoryOnFailure(order);
+  }
+
   // Add to status history
   order.statusHistory.push({
     status: newStatus,
