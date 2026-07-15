@@ -89,7 +89,11 @@ export function ProductVariantPicker({
           <div className="flex flex-wrap gap-2">
             {sizeOption.values.map((size) => {
               const sku = findSku(currentVariantGroup?.variantValue, size.value);
-              const outOfStock = sku && sku.stockQuantity === 0;
+              const available =
+                sku != null
+                  ? Math.max(0, (sku.stockQuantity ?? 0) - (sku.reservedQuantity ?? 0))
+                  : 0;
+              const outOfStock = sku != null && available === 0;
               const isSelected = selectedSize === size.value;
 
               return (

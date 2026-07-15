@@ -12,6 +12,10 @@ import { initiateIciciSale } from '../../lib/icici.js';
 import { getConfig } from '../../config/env.js';
 import { getCart, clearCart } from '../cart/cart.service.js';
 import { generateOrderNumber, validateOrderPricing } from '../order/order.service.js';
+import {
+  reserveOrderInventory,
+  commitOrderInventoryDirect,
+} from '../inventory/inventory.service.js';
 // import { validateAndPreviewCoupon } from '../coupon/coupon.service.js';
 
 /**
@@ -300,25 +304,18 @@ export async function createOrder(userId: string, input: CreateOrderInput) {
     payment.status = 'authorized';
   }
 
-  // 13. Atomic: decrement stock + save order/payment inside a transaction.
-  //     If any step fails (e.g. insufficient stock on SKU #3, save validation
-  //     error), the entire transaction rolls back — no stock leaks.
+  // 13. Atomic: reserve (ICICI) or commit (COD) stock + save order/payment.
+  //     If any step fails, the entire transaction rolls back — no stock leaks.
   //     NOTE: Requires MongoDB replica set.
   const session = await mongoose.startSession();
   try {
     session.startTransaction();
 
-    for (const item of validation.items) {
-      const updatedSku = await Sku.findOneAndUpdate(
-        { _id: item.skuId, stockQuantity: { $gte: item.quantity } },
-        { $inc: { stockQuantity: -item.quantity } },
-        { new: true, session },
-      );
-      if (!updatedSku) {
-        throw new ValidationError(
-          `Insufficient stock for SKU ${item.currentSku.sku} during checkout`,
-        );
-      }
+    if (input.paymentMethod === 'cod') {
+      await commitOrderInventoryDirect(order, session);
+    } else {
+      // ICICI (and any future prepaid): hold via reservedQuantity until capture.
+      await reserveOrderInventory(order, session);
     }
 
     await Promise.all([order.save({ session }), payment.save({ session })]);
@@ -578,19 +575,16 @@ export async function createBuyNowOrder(userId: string, input: BuyNowInput) {
   // Validate pricing before opening a transaction (pure in-memory check).
   validateOrderPricing(order.pricing);
 
-  // 11. Atomic: decrement stock + save order/payment inside a transaction.
+  // 11. Atomic: reserve (ICICI) or commit (COD) stock + save order/payment.
   //     NOTE: Requires MongoDB replica set.
   const session = await mongoose.startSession();
   try {
     session.startTransaction();
 
-    const updatedSku = await Sku.findOneAndUpdate(
-      { _id: sku._id, stockQuantity: { $gte: input.quantity } },
-      { $inc: { stockQuantity: -input.quantity } },
-      { new: true, session },
-    );
-    if (!updatedSku) {
-      throw new ValidationError(`Insufficient stock for SKU ${sku.sku} during checkout`);
+    if (input.paymentMethod === 'cod') {
+      await commitOrderInventoryDirect(order, session);
+    } else {
+      await reserveOrderInventory(order, session);
     }
 
     await Promise.all([order.save({ session }), payment.save({ session })]);

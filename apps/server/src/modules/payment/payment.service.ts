@@ -3,7 +3,7 @@
  */
 
 import mongoose from 'mongoose';
-import { Order, Payment, Sku } from '../../db/models/index.js';
+import { Order, Payment } from '../../db/models/index.js';
 import type { IOrderDocument, IPaymentDocument } from '../../db/models/index.js';
 import { NotFoundError, ValidationError } from '../../lib/errors.js';
 import { verifyPaymentSignature, verifyWebhookSignature } from '../../lib/razorpay.js';
@@ -14,6 +14,47 @@ import {
   queryIciciTransactionStatus,
   type IciciOutcome,
 } from '../../lib/icici.js';
+import {
+  commitOrderInventory,
+  resolveOrderInventoryOnFailure,
+} from '../inventory/inventory.service.js';
+
+/**
+ * Atomically confirm order inventory + persist order + persist payment capture.
+ * If inventory commit or either save fails, the transaction aborts and payment
+ * is not left captured without a confirmed order.
+ */
+async function capturePaymentWithOrderConfirm(opts: {
+  payment: IPaymentDocument;
+  order: IOrderDocument | null;
+  shouldConfirmOrder: boolean;
+  confirmNote: string;
+}): Promise<void> {
+  const session = await mongoose.startSession();
+  try {
+    session.startTransaction();
+
+    if (opts.shouldConfirmOrder && opts.order) {
+      opts.order.status = 'confirmed';
+      opts.order.statusHistory.push({
+        status: 'confirmed',
+        changedAt: new Date(),
+        changedBy: 'system',
+        note: opts.confirmNote,
+      });
+      await commitOrderInventory(opts.order, session);
+      await opts.order.save({ session });
+    }
+
+    await opts.payment.save({ session });
+    await session.commitTransaction();
+  } catch (err) {
+    await session.abortTransaction();
+    throw err;
+  } finally {
+    await session.endSession();
+  }
+}
 
 interface VerifyRazorpayInput {
   razorpayOrderId: string;
@@ -45,25 +86,21 @@ export async function verifyRazorpayPayment(input: VerifyRazorpayInput) {
     return { success: true, orderId: order._id, orderNumber: order.orderNumber };
   }
 
-  // Update payment
   payment.gatewayPaymentId = input.razorpayPaymentId;
   payment.gatewaySignature = input.razorpaySignature;
   payment.status = 'captured';
   payment.paidAt = new Date();
-  await payment.save();
 
-  // Update order
   const order = await Order.findById(payment.orderId) as IOrderDocument | null;
-  if (order) {
-    order.status = 'confirmed';
-    order.statusHistory.push({
-      status: 'confirmed',
-      changedAt: new Date(),
-      changedBy: 'system',
-      note: 'Payment captured successfully',
-    });
-    await order.save();
-  }
+  const shouldConfirm =
+    !!order && (order.status === 'pending' || order.status === 'failed');
+
+  await capturePaymentWithOrderConfirm({
+    payment,
+    order,
+    shouldConfirmOrder: shouldConfirm,
+    confirmNote: 'Payment captured successfully',
+  });
 
   return {
     success: true,
@@ -126,11 +163,26 @@ export async function reconcileIciciPayment(
 
   const order = await Order.findById(payment.orderId) as IOrderDocument | null;
 
-  // Terminal states are immutable — record the event and return current state.
-  if (payment.status === 'captured' || payment.status === 'failed') {
+  const isTimeoutFailedPayment =
+    payment.status === 'failed' &&
+    payment.failureReason === 'Stock reservation timed out';
+
+  // Terminal states are immutable — except timeout-failed payments may be
+  // revived when the gateway later reports paid (pay-after-expire).
+  if (payment.status === 'captured') {
     if (payment.isModified()) await payment.save();
     return {
-      outcome: payment.status === 'captured' ? 'paid' : 'failed',
+      outcome: 'paid',
+      orderId: order?._id as mongoose.Types.ObjectId | undefined,
+      orderNumber: order?.orderNumber,
+      paymentStatus: payment.status,
+    };
+  }
+
+  if (payment.status === 'failed' && !(isTimeoutFailedPayment && result.outcome === 'paid')) {
+    if (payment.isModified()) await payment.save();
+    return {
+      outcome: 'failed',
       orderId: order?._id as mongoose.Types.ObjectId | undefined,
       orderNumber: order?.orderNumber,
       paymentStatus: payment.status,
@@ -140,18 +192,34 @@ export async function reconcileIciciPayment(
   if (result.outcome === 'paid') {
     payment.status = 'captured';
     payment.paidAt = new Date();
+    payment.set('failedAt', undefined);
+    payment.set('failureReason', undefined);
     if (result.gatewayPaymentId) payment.gatewayPaymentId = result.gatewayPaymentId;
 
-    if (order && order.status === 'pending') {
-      order.status = 'confirmed';
-      order.statusHistory.push({
-        status: 'confirmed',
-        changedAt: new Date(),
-        changedBy: 'system',
-        note: `Payment captured via ICICI (${source})`,
-      });
-      await order.save();
-    }
+    // Confirm pending, or revive orders failed only by reservation expiry.
+    const shouldConfirm = !!(
+      order &&
+      (order.status === 'pending' ||
+        (order.status === 'failed' &&
+          (order.inventoryHold === 'released' ||
+            order.inventoryHold === 'committed' ||
+            order.inventoryHold === 'reserved' ||
+            isTimeoutFailedPayment)))
+    );
+
+    await capturePaymentWithOrderConfirm({
+      payment,
+      order,
+      shouldConfirmOrder: shouldConfirm,
+      confirmNote: isTimeoutFailedPayment
+        ? `Payment captured via ICICI (${source}) after reservation timeout`
+        : `Payment captured via ICICI (${source})`,
+    });
+
+    await Payment.updateOne(
+      { _id: payment._id },
+      { $unset: { failedAt: 1, failureReason: 1 } },
+    );
   } else if (result.outcome === 'failed') {
     payment.status = 'failed';
     payment.failedAt = new Date();
@@ -166,16 +234,21 @@ export async function reconcileIciciPayment(
         changedBy: 'system',
         note: `Payment failed via ICICI (${source})`,
       });
-      await restoreOrderStock(order);
+      // Release reservation, or legacy stockQuantity++ when inventoryHold is none.
+      await resolveOrderInventoryOnFailure(order);
       await order.save();
     }
+    await payment.save();
+  } else {
+    // outcome === 'pending' → leave payment in 'created'; no order transition.
+    // Still persist any webhookEvents appended above.
+    await payment.save();
   }
-  // outcome === 'pending' → leave payment in 'created'; no order transition.
-
-  await payment.save();
 
   return {
-    outcome: result.outcome,
+    outcome: result.outcome === 'paid' && payment.status === 'captured'
+      ? 'paid'
+      : result.outcome,
     orderId: order?._id as mongoose.Types.ObjectId | undefined,
     orderNumber: order?.orderNumber,
     paymentStatus: payment.status,
@@ -302,19 +375,17 @@ export async function handleWebhook(rawBody: string, signature: string) {
       payment.status = 'captured';
       payment.gatewayPaymentId = paymentEntity.id;
       payment.paidAt = new Date();
-      await payment.save();
 
       const order = await Order.findById(payment.orderId) as IOrderDocument | null;
-      if (order && order.status === 'pending') {
-        order.status = 'confirmed';
-        order.statusHistory.push({
-          status: 'confirmed',
-          changedAt: new Date(),
-          changedBy: 'system',
-          note: 'Payment captured via webhook',
-        });
-        await order.save();
-      }
+      const shouldConfirm =
+        !!order && (order.status === 'pending' || order.status === 'failed');
+
+      await capturePaymentWithOrderConfirm({
+        payment,
+        order,
+        shouldConfirmOrder: shouldConfirm,
+        confirmNote: 'Payment captured via webhook',
+      });
     }
   } else if (eventType === 'payment.failed') {
     if (payment.status !== 'failed') {
@@ -333,13 +404,8 @@ export async function handleWebhook(rawBody: string, signature: string) {
           note: `Payment failed: ${payment.failureReason}`,
         });
 
-        // Restore stock
-        for (const item of order.items) {
-          await Sku.updateOne(
-            { _id: item.skuId },
-            { $inc: { stockQuantity: item.quantity } }
-          );
-        }
+        // Restore / release inventory based on hold state.
+        await resolveOrderInventoryOnFailure(order);
 
         await order.save();
       }
@@ -392,16 +458,6 @@ export async function handleIciciWebhook(fields: Record<string, unknown>) {
   );
 
   return { received: true };
-}
-
-/** Restore stock for every item on an order (used when a payment fails). */
-async function restoreOrderStock(order: IOrderDocument): Promise<void> {
-  for (const item of order.items) {
-    await Sku.updateOne(
-      { _id: item.skuId },
-      { $inc: { stockQuantity: item.quantity } },
-    );
-  }
 }
 
 /**

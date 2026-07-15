@@ -66,6 +66,9 @@ export interface IShippingInfo {
   deliveredAt?: Date;
 }
 
+/** Inventory hold lifecycle for an order (Shopify-style reservation). */
+export type InventoryHold = 'none' | 'reserved' | 'committed' | 'released';
+
 export interface IOrderDocument extends Document {
   orderNumber: string;
   userId: Types.ObjectId;
@@ -81,6 +84,10 @@ export interface IOrderDocument extends Document {
   customerNotes?: string;
   adminNotes?: string;
   idempotencyKey?: string;
+  /** Prepaid: reserved until pay/fail/timeout. COD: committed at create. */
+  inventoryHold: InventoryHold;
+  inventoryHoldExpiresAt?: Date;
+  inventoryHoldUpdatedAt?: Date;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -228,6 +235,14 @@ const orderSchema = new Schema<IOrderDocument>(
       type: String,
       sparse: true,
     },
+    inventoryHold: {
+      type: String,
+      required: true,
+      default: 'none',
+      enum: ['none', 'reserved', 'committed', 'released'],
+    },
+    inventoryHoldExpiresAt: { type: Date },
+    inventoryHoldUpdatedAt: { type: Date },
   },
   {
     timestamps: true,
@@ -243,6 +258,7 @@ orderSchema.index({ idempotencyKey: 1 }, { unique: true, sparse: true });
 orderSchema.index({ 'items.productId': 1 });
 orderSchema.index({ paymentId: 1 }, { sparse: true });
 orderSchema.index({ createdAt: -1 });
+orderSchema.index({ inventoryHold: 1, inventoryHoldExpiresAt: 1 });
 
 // ---------- Export ----------
 

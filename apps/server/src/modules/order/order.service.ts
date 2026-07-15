@@ -6,10 +6,11 @@
 
 import crypto from 'node:crypto';
 import mongoose from 'mongoose';
-import { Order, Payment, Sku } from '../../db/models/index.js';
+import { Order, Payment } from '../../db/models/index.js';
 import type { IOrderDocument, IPaymentDocument } from '../../db/models/index.js';
 import { NotFoundError, ValidationError } from '../../lib/errors.js';
 import { isValidOrderTransition, type OrderStatusType, APP_CONFIG } from '../../constants/index.js';
+import { resolveOrderInventoryOnFailure } from '../inventory/inventory.service.js';
 
 // ---------- Helpers ----------
 
@@ -155,13 +156,8 @@ export async function cancelOrder(userId: string, orderId: string, reason?: stri
     note: reason ?? 'Cancelled by customer',
   });
 
-  // Restore stock for each item
-  for (const item of order.items) {
-    await Sku.updateOne(
-      { _id: item.skuId },
-      { $inc: { stockQuantity: item.quantity } },
-    );
-  }
+  // reserved → release; committed → restore sold; none → legacy stock++; released → no-op
+  await resolveOrderInventoryOnFailure(order);
 
   // If payment was captured, update payment status
   if (order.paymentId) {

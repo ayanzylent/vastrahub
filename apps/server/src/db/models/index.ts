@@ -41,6 +41,7 @@ export type {
   IShippingAddress,
   IStatusHistoryEntry,
   IShippingInfo,
+  InventoryHold,
 } from './order.model.js';
 
 export { Payment } from './payment.model.js';
