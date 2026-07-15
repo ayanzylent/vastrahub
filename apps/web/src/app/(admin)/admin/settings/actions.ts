@@ -36,8 +36,14 @@ export async function revalidateHome(): Promise<RevalidateHomeResult> {
     return { ok: false, reason: "auth_unreachable" };
   }
 
-  revalidateTag(STOREFRONT_HERO_TAG);
-  revalidateTag(STOREFRONT_SITE_SETTINGS_TAG);
+  // Next.js 15.5+ requires a second profile argument; `{ expire: 0 }` expires immediately.
+  const expireTag = revalidateTag as (
+    tag: string,
+    profile: { expire: number },
+  ) => ReturnType<typeof revalidateTag>;
+
+  expireTag(STOREFRONT_HERO_TAG, { expire: 0 });
+  expireTag(STOREFRONT_SITE_SETTINGS_TAG, { expire: 0 });
   revalidatePath("/");
   return { ok: true };
 }

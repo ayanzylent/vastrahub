@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { ThemeProvider } from "next-themes";
 import { inter, outfit } from "@/lib/fonts";
 import { Toaster } from "@/components/ui/sonner";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import { AppProviders } from "@/providers/AppProviders";
 import { BRAND_CONFIG } from "@/constants";
 import { getSiteUrl } from "@/lib/seo";
@@ -47,9 +48,11 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <AppProviders>
-            {children}
-          </AppProviders>
+          <TooltipProvider delayDuration={0}>
+            <AppProviders>
+              {children}
+            </AppProviders>
+          </TooltipProvider>
           <Toaster position="top-right" richColors />
         </ThemeProvider>
       </body>
