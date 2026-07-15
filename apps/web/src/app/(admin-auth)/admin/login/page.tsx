@@ -9,6 +9,11 @@ import { PasswordInput } from "@/components/common/password-input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { signIn } from "@/lib/auth-client";
+import {
+  getAuthErrorMessage,
+  PASSWORD_MAX_LENGTH,
+  validatePassword,
+} from "@/lib/auth-policy";
 import { toast } from "sonner";
 import { Loader2, ShieldCheck, Lock, ArrowLeft } from "lucide-react";
 import { api } from "@/lib/api";
@@ -32,11 +37,17 @@ function AdminLoginForm() {
       return;
     }
 
+    const passwordError = validatePassword(password);
+    if (passwordError) {
+      setError(passwordError);
+      return;
+    }
+
     setLoading(true);
     try {
       const res = await signIn.email({ email, password });
       if (res.error) {
-        setError(res.error.message || "Invalid credentials");
+        setError(getAuthErrorMessage(res.error, "Invalid credentials"));
         setLoading(false);
         return;
       }
@@ -150,6 +161,7 @@ function AdminLoginForm() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   disabled={loading}
+                  maxLength={PASSWORD_MAX_LENGTH}
                   className="bg-muted/50 border-primary/10 focus:border-primary/30 focus:ring-primary/20"
                 />
               </div>

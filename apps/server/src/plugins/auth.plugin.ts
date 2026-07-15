@@ -9,6 +9,11 @@ import { betterAuth } from 'better-auth';
 import { mongodbAdapter } from 'better-auth/adapters/mongodb';
 import mongoose from 'mongoose';
 import { getConfig } from '../config/env.js';
+import {
+  AUTH_RATE_LIMIT,
+  PASSWORD_MAX_LENGTH,
+  PASSWORD_MIN_LENGTH,
+} from '../constants/auth.js';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 let _auth: any = null;
@@ -39,6 +44,18 @@ export default fp(
       trustedOrigins: config.BETTER_AUTH_TRUSTED_ORIGINS.split(',').map((o) => o.trim()),
       emailAndPassword: {
         enabled: true,
+        minPasswordLength: PASSWORD_MIN_LENGTH,
+        maxPasswordLength: PASSWORD_MAX_LENGTH,
+      },
+      rateLimit: {
+        enabled: true,
+        window: 60,
+        max: 100,
+        customRules: {
+          '/sign-in/email': AUTH_RATE_LIMIT.SIGN_IN,
+          '/sign-up/email': AUTH_RATE_LIMIT.SIGN_UP,
+          '/change-password': AUTH_RATE_LIMIT.CHANGE_PASSWORD,
+        },
       },
       // Cross-origin cookie config for Vercel ↔ Render (different origins).
       // Currently uses SameSite=None (works on Chrome/Firefox/Edge, NOT Safari).
@@ -58,6 +75,9 @@ export default fp(
       // This sets Domain=.vastrahub.com on cookies so both subdomains share them,
       // and SameSite=Lax works with Safari since they're no longer third-party cookies.
       advanced: {
+        ipAddress: {
+          ipAddressHeaders: ['x-forwarded-for', 'x-real-ip', 'cf-connecting-ip'],
+        },
         defaultCookieAttributes: {
           sameSite: config.NODE_ENV === 'production' ? 'none' : 'lax',
           secure: config.NODE_ENV === 'production',

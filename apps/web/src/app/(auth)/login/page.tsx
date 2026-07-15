@@ -10,6 +10,11 @@ import { PasswordInput } from "@/components/common/password-input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { signIn } from "@/lib/auth-client";
+import {
+  getAuthErrorMessage,
+  PASSWORD_MAX_LENGTH,
+  validatePassword,
+} from "@/lib/auth-policy";
 import { useCart } from "@/providers/CartProvider";
 
 import { toast } from "sonner";
@@ -35,11 +40,17 @@ function LoginForm() {
       return;
     }
 
+    const passwordError = validatePassword(password);
+    if (passwordError) {
+      setError(passwordError);
+      return;
+    }
+
     setLoading(true);
     try {
       const res = await signIn.email({ email, password });
       if (res.error) {
-        setError(res.error.message || "Invalid credentials");
+        setError(getAuthErrorMessage(res.error, "Invalid credentials"));
         setLoading(false);
         return;
       }
@@ -100,6 +111,7 @@ function LoginForm() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               disabled={loading}
+              maxLength={PASSWORD_MAX_LENGTH}
             />
           </div>
 

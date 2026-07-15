@@ -9,6 +9,12 @@ import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/common/password-input";
 import { Label } from "@/components/ui/label";
 import { signUp } from "@/lib/auth-client";
+import {
+  getAuthErrorMessage,
+  PASSWORD_MAX_LENGTH,
+  PASSWORD_MIN_LENGTH,
+  validatePassword,
+} from "@/lib/auth-policy";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 import { BRAND_CONFIG } from "@/constants";
@@ -29,8 +35,9 @@ export default function SignupPage() {
       setError("Name, email, and password are required");
       return;
     }
-    if (password.length < 8) {
-      setError("Password must be at least 8 characters");
+    const passwordError = validatePassword(password);
+    if (passwordError) {
+      setError(passwordError);
       return;
     }
 
@@ -38,7 +45,7 @@ export default function SignupPage() {
     try {
       const res = await signUp.email({ name, email, password });
       if (res.error) {
-        setError(res.error.message || "Signup failed");
+        setError(getAuthErrorMessage(res.error, "Signup failed"));
         setLoading(false);
         return;
       }
@@ -93,10 +100,11 @@ export default function SignupPage() {
             <Label htmlFor="password">Password</Label>
             <PasswordInput
               id="password"
-              placeholder="Min. 8 characters"
+              placeholder={`${PASSWORD_MIN_LENGTH}–${PASSWORD_MAX_LENGTH} characters`}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               disabled={loading}
+              maxLength={PASSWORD_MAX_LENGTH}
             />
           </div>
 

@@ -2,6 +2,12 @@
 
 import { useState } from "react";
 import { authClient } from "@/lib/auth-client";
+import {
+  getAuthErrorMessage,
+  PASSWORD_MAX_LENGTH,
+  PASSWORD_MIN_LENGTH,
+  validatePassword,
+} from "@/lib/auth-policy";
 import { toast } from "sonner";
 import { Loader2, Lock } from "lucide-react";
 import {
@@ -15,8 +21,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/common/password-input";
 import { Label } from "@/components/ui/label";
-
-const MIN_PASSWORD_LENGTH = 8;
 
 export default function SecurityPage() {
   const [currentPassword, setCurrentPassword] = useState("");
@@ -39,8 +43,9 @@ export default function SecurityPage() {
       toast.error("Please fill in all fields");
       return;
     }
-    if (newPassword.length < MIN_PASSWORD_LENGTH) {
-      toast.error(`New password must be at least ${MIN_PASSWORD_LENGTH} characters`);
+    const newPasswordError = validatePassword(newPassword);
+    if (newPasswordError) {
+      toast.error(newPasswordError);
       return;
     }
     if (newPassword !== confirmPassword) {
@@ -61,7 +66,7 @@ export default function SecurityPage() {
       });
 
       if (error) {
-        toast.error(error.message || "Failed to change password");
+        toast.error(getAuthErrorMessage(error, "Failed to change password"));
       } else {
         toast.success(
           revokeOtherSessions
@@ -106,6 +111,7 @@ export default function SecurityPage() {
                 value={currentPassword}
                 onChange={(e) => setCurrentPassword(e.target.value)}
                 disabled={saving}
+                maxLength={PASSWORD_MAX_LENGTH}
                 required
               />
             </div>
@@ -117,8 +123,9 @@ export default function SecurityPage() {
                 autoComplete="new-password"
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
-                placeholder={`At least ${MIN_PASSWORD_LENGTH} characters`}
+                placeholder={`${PASSWORD_MIN_LENGTH}–${PASSWORD_MAX_LENGTH} characters`}
                 disabled={saving}
+                maxLength={PASSWORD_MAX_LENGTH}
                 required
               />
             </div>
@@ -131,6 +138,7 @@ export default function SecurityPage() {
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 disabled={saving}
+                maxLength={PASSWORD_MAX_LENGTH}
                 required
               />
             </div>
