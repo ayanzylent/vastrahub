@@ -95,6 +95,7 @@ export default fp(
             type: 'string',
             defaultValue: 'customer',
             required: false,
+            input: false, // reject role from client payloads
           },
         },
       },

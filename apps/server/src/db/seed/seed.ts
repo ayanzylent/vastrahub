@@ -7,9 +7,9 @@ import { betterAuth } from 'better-auth';
 import { mongodbAdapter } from 'better-auth/adapters/mongodb';
 
 if (!process.env.MONGODB_URI || !process.env.BETTER_AUTH_SECRET) {
-  throw new Error('MONGODB_URI or BETTER_AUTH_SECRET missing')
+  throw new Error('MONGODB_URI or BETTER_AUTH_SECRET missing');
 }
-const MONGODB_URI = process.env.MONGODB_URI
+const MONGODB_URI = process.env.MONGODB_URI;
 
 async function seed(): Promise<void> {
   console.log('🌱 Starting seed...');
@@ -41,6 +41,7 @@ async function seed(): Promise<void> {
           type: 'string',
           defaultValue: 'customer',
           required: false,
+          input: false, // reject role from client payloads
         },
       },
     },
@@ -49,24 +50,45 @@ async function seed(): Promise<void> {
   try {
     // ===== SUPERADMIN USER =====
     console.log('\n👤 Seeding superadmin user...');
-    const usersCollection = mongoose.connection.collection('user');
 
-    const superadminEmail = 'superadmin@vastrahub.com';
-    const existingSuperadmin = await usersCollection.findOne({ email: superadminEmail });
+    const superadminEmail = process.env.SUPERADMIN_EMAIL?.trim().toLowerCase();
+    const superadminPassword = process.env.SUPERADMIN_PASSWORD;
+
+    if (!superadminEmail || !superadminPassword) {
+      throw new Error(
+        'SUPERADMIN_EMAIL and SUPERADMIN_PASSWORD are required to seed the bootstrap account',
+      );
+    }
+
+    const usersCollection = mongoose.connection.collection('user');
+    const existingSuperadmin = await usersCollection.findOne({
+      email: superadminEmail,
+    });
 
     if (!existingSuperadmin) {
+      // Create without role — input: false blocks role on signUpEmail
       await auth.api.signUpEmail({
         body: {
           email: superadminEmail,
-          password: 'SuperAdmin@123',
+          password: superadminPassword,
           name: 'Super Admin',
-          role: 'superadmin',
         },
       });
 
-      console.log('  ✅ Created superadmin: superadmin@vastrahub.com / SuperAdmin@123');
+      // Privilege assignment must be server-side via direct DB write
+      const updated = await usersCollection.findOneAndUpdate(
+        { email: superadminEmail },
+        { $set: { role: 'superadmin', updatedAt: new Date() } },
+        { returnDocument: 'after' },
+      );
+
+      if (!updated || updated.role !== 'superadmin') {
+        throw new Error(`Failed to assign superadmin role to ${superadminEmail}`);
+      }
+
+      console.log(`  ✅ Created superadmin: ${superadminEmail}`);
     } else {
-      console.log('  ⏭️  Exists: superadmin@vastrahub.com');
+      console.log(`  ⏭️  Exists: ${superadminEmail}`);
     }
 
     console.log('\n✅ Seed completed successfully!');
