@@ -15,13 +15,13 @@ import {
 } from './admin-users.schema.js';
 
 export default fp(async function adminUsersRoutes(fastify: FastifyInstance) {
-  // List admin & superadmin users
+  // List operator accounts
   fastify.get('/api/v1/admin/users', {
     preHandler: [authenticate, requireRole('superadmin')],
     schema: {
       querystring: AdminUserListQuery,
       tags: ['Admin - Users'],
-      summary: 'List admin & superadmin users',
+      summary: 'List operator accounts',
     },
   }, handler.list);
 

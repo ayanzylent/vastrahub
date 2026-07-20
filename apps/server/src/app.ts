@@ -16,7 +16,7 @@ import errorHandlerPlugin from './plugins/error-handler.plugin.js';
 import mongoosePlugin from './plugins/mongoose.plugin.js';
 import authPlugin from './plugins/auth.plugin.js';
 import { registerRoutes } from './modules/_index.js';
-import envPlugin from './config/env.js';
+import envPlugin, { getConfig } from './config/env.js';
 
 export async function buildApp(): Promise<FastifyInstance> {
   // Create Fastify instance with logger and TypeBox validation
@@ -47,47 +47,50 @@ export async function buildApp(): Promise<FastifyInstance> {
   await app.register(cookie);
   await app.register(formbody);
 
-  // 3. OpenAPI docs (schemas auto-generate from TypeBox definitions on routes)
-  await app.register(fastifySwagger, {
-    openapi: {
-      info: {
-        title: 'VastraHub API',
-        description: 'VastraHub E-Commerce API documentation',
-        version: '1.0.0',
+  // 3. OpenAPI docs — development/test only (avoid publishing privilege map in production)
+  if (getConfig().NODE_ENV !== 'production') {
+    await app.register(fastifySwagger, {
+      openapi: {
+        info: {
+          title: 'VastraHub API',
+          description: 'VastraHub E-Commerce API documentation',
+          version: '1.0.0',
+        },
+        tags: [
+          { name: 'Health', description: 'Health check endpoints' },
+          { name: 'Auth', description: 'Authentication endpoints' },
+          { name: 'Storefront - Products', description: 'Public product browsing' },
+          { name: 'Storefront - Categories', description: 'Public category browsing' },
+          { name: 'Storefront - Reviews', description: 'Public product reviews' },
+          { name: 'Storefront - Coupons', description: 'Coupon validation' },
+          { name: 'Cart', description: 'Shopping cart management' },
+          { name: 'Wishlist', description: 'User wishlist' },
+          { name: 'Checkout', description: 'Checkout and order creation' },
+          { name: 'Payment', description: 'Payment processing' },
+          { name: 'Orders', description: 'Customer order management' },
+          { name: 'User', description: 'User profile and addresses' },
+          { name: 'Reviews', description: 'Customer review management' },
+          { name: 'Admin - Products', description: 'Product management (admin)' },
+          { name: 'Admin - Categories', description: 'Category management (admin)' },
+          { name: 'Admin - SKUs', description: 'SKU management (admin)' },
+          { name: 'Admin - Orders', description: 'Order management (admin)' },
+          { name: 'Admin - Coupons', description: 'Coupon management (admin)' },
+          { name: 'Admin - Reviews', description: 'Review moderation (admin)' },
+          { name: 'Admin - Users', description: 'Operator access management' },
+          { name: 'Admin - Settings', description: 'Site configuration' },
+          { name: 'Admin - Dashboard', description: 'Dashboard stats (admin)' },
+          { name: 'Admin - Media', description: 'Media upload management (admin)' },
+        ],
       },
-      tags: [
-        { name: 'Health', description: 'Health check endpoints' },
-        { name: 'Auth', description: 'Authentication endpoints' },
-        { name: 'Storefront - Products', description: 'Public product browsing' },
-        { name: 'Storefront - Categories', description: 'Public category browsing' },
-        { name: 'Storefront - Reviews', description: 'Public product reviews' },
-        { name: 'Storefront - Coupons', description: 'Coupon validation' },
-        { name: 'Cart', description: 'Shopping cart management' },
-        { name: 'Wishlist', description: 'User wishlist' },
-        { name: 'Checkout', description: 'Checkout and order creation' },
-        { name: 'Payment', description: 'Payment processing' },
-        { name: 'Orders', description: 'Customer order management' },
-        { name: 'User', description: 'User profile and addresses' },
-        { name: 'Reviews', description: 'Customer review management' },
-        { name: 'Admin - Products', description: 'Product management (admin)' },
-        { name: 'Admin - Categories', description: 'Category management (admin)' },
-        { name: 'Admin - SKUs', description: 'SKU management (admin)' },
-        { name: 'Admin - Orders', description: 'Order management (admin)' },
-        { name: 'Admin - Coupons', description: 'Coupon management (admin)' },
-        { name: 'Admin - Reviews', description: 'Review moderation (admin)' },
-        { name: 'Admin - Users', description: 'User management (superadmin)' },
-        { name: 'Admin - Dashboard', description: 'Dashboard stats (admin)' },
-        { name: 'Admin - Media', description: 'Media upload management (admin)' },
-      ],
-    },
-  });
-  await app.register(fastifySwaggerUi, {
-    routePrefix: '/docs',
-    uiConfig: {
-      docExpansion: 'list',
-      deepLinking: true,
-    },
-  });
+    });
+    await app.register(fastifySwaggerUi, {
+      routePrefix: '/docs',
+      uiConfig: {
+        docExpansion: 'list',
+        deepLinking: true,
+      },
+    });
+  }
 
   // 4. Database
   await app.register(mongoosePlugin);
