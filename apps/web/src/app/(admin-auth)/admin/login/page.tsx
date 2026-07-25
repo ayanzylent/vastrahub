@@ -68,7 +68,7 @@ function AdminLoginForm() {
         } else {
           toast.error("You don't have admin access");
           setError(
-            "This account does not have admin privileges. Please contact a super admin if you believe this is an error."
+            "This account does not have admin privileges. Contact your administrator if you believe this is an error."
           );
           setLoading(false);
         }

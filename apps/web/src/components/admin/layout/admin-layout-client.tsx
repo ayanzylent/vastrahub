@@ -53,7 +53,7 @@ export function AdminLayoutClient({
           <h1 className="font-heading text-2xl font-bold">Access Denied</h1>
           <p className="text-muted-foreground">
             You don&apos;t have permission to access the admin panel.
-            Admin or Super Admin privileges are required.
+            Admin privileges are required.
           </p>
           <Button variant="default" asChild>
             <Link href="/">Back to Store</Link>

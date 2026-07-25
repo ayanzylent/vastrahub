@@ -232,14 +232,8 @@ export function AdminSidebar() {
                 {user?.role && (
                   <>
                     <div className="px-2 py-1.5">
-                      <Badge
-                        className={
-                          isSuperadmin
-                            ? "border-transparent bg-primary/10 text-primary"
-                            : "border-transparent bg-muted text-muted-foreground"
-                        }
-                      >
-                        {isSuperadmin ? "Super Admin" : "Admin"}
+                      <Badge className="border-transparent bg-muted text-muted-foreground">
+                        Admin
                       </Badge>
                     </div>
                     <DropdownMenuSeparator />

@@ -23,7 +23,6 @@ import {
   Shield,
   ChevronLeft,
   ChevronRight,
-  Crown,
   UserPlus,
   UserMinus,
   Loader2,
@@ -55,12 +54,6 @@ interface CustomerResult {
 function getRoleBadge(role: string) {
   switch (role) {
     case 'superadmin':
-      return (
-        <Badge className="border-transparent bg-primary/10 text-primary">
-          <Crown className="mr-1 h-3 w-3" />
-          Super Admin
-        </Badge>
-      );
     case 'admin':
       return (
         <Badge className="border-transparent bg-blue-500/10 text-blue-400">

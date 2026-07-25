@@ -152,7 +152,7 @@ export async function promoteToAdmin(email: string): Promise<UserRecord> {
   }
 
   if (doc.role === 'superadmin') {
-    throw new ForbiddenError('Cannot modify a superadmin');
+    throw new ForbiddenError('Insufficient permissions');
   }
 
   const now = new Date();
@@ -182,7 +182,7 @@ export async function revokeAdmin(id: string): Promise<UserRecord> {
   }
 
   if (doc.role === 'superadmin') {
-    throw new ForbiddenError('Cannot change a superadmin\'s role');
+    throw new ForbiddenError('Insufficient permissions');
   }
 
   if (doc.role !== 'admin') {
