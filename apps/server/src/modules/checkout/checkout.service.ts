@@ -17,6 +17,7 @@ import {
   commitOrderInventoryDirect,
   resolveOrderInventoryOnFailure,
 } from '../inventory/inventory.service.js';
+import { sendOrderConfirmationEmail } from '../order/email.service.js';
 // import { validateAndPreviewCoupon } from '../coupon/coupon.service.js';
 
 /**
@@ -379,7 +380,12 @@ export async function createOrder(userId: string, input: CreateOrderInput) {
   // 15. Clear cart
   await clearCart({ userId });
 
-  // 16. Return result
+  // 16. Send confirmation email (fire-and-forget for COD — online payments trigger in payment.service)
+  if (input.paymentMethod === 'cod') {
+    sendOrderConfirmationEmail(order, 'cod').catch(() => {});
+  }
+
+  // 17. Return result
   return {
     orderId: order._id,
     orderNumber,
@@ -663,6 +669,11 @@ export async function createBuyNowOrder(userId: string, input: BuyNowInput) {
 
   // 12. Increment coupon usage — DISABLED (coupon module not complete)
   // BUG: Use atomic $inc, and reverse on payment failure.
+
+  // 13. Send confirmation email (fire-and-forget for COD — online payments trigger in payment.service)
+  if (input.paymentMethod === 'cod') {
+    sendOrderConfirmationEmail(order, 'cod').catch(() => {});
+  }
 
   return {
     orderId: order._id,

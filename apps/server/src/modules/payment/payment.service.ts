@@ -7,6 +7,7 @@ import { Order, Payment } from '../../db/models/index.js';
 import type { IOrderDocument, IPaymentDocument } from '../../db/models/index.js';
 import { NotFoundError, ValidationError } from '../../lib/errors.js';
 import { verifyPaymentSignature, verifyWebhookSignature } from '../../lib/razorpay.js';
+import { sendOrderConfirmationEmail } from '../order/email.service.js';
 import {
   verifyIciciHash,
   mapIciciOutcome,
@@ -78,6 +79,14 @@ async function capturePaymentWithOrderConfirm(opts: {
 
     await opts.payment.save({ session });
     await session.commitTransaction();
+
+    // Fire order confirmation email after successful commit.
+    if (opts.shouldConfirmOrder && opts.order) {
+      sendOrderConfirmationEmail(
+        opts.order,
+        opts.payment.gatewayName ?? 'online',
+      ).catch(() => {});
+    }
   } catch (err) {
     await session.abortTransaction();
     throw err;

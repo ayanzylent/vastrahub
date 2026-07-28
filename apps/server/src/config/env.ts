@@ -49,6 +49,10 @@ const EnvSchema = Type.Object({
   // Defaults to `${BETTER_AUTH_URL}/api/v1/payment/icici/callback` when blank.
   ICICI_RETURN_URL: Type.Optional(Type.String({ default: '' })),
 
+  // ZeptoMail (Transactional Email)
+  ZEPTOMAIL_TOKEN: Type.Optional(Type.String({ default: '' })),
+  ZEPTOMAIL_FROM_EMAIL: Type.Optional(Type.String({ default: 'noreply@vastrahub.com' })),
+
   // App
   PORT: Type.Integer({ default: 3001 }),
   NODE_ENV: Type.Union(
