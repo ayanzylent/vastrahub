@@ -11,6 +11,7 @@
     "type-check": "tsc --noEmit",
     "seed": "tsx --env-file=.env src/db/seed/seed.ts",
     "release-legacy-unpaid-stock": "tsx --env-file=.env src/scripts/release-legacy-unpaid-stock.ts",
+    "check-icici-status": "tsx --env-file=.env src/scripts/check-icici-status.ts",
     "clean": "rm -rf dist tsconfig.tsbuildinfo"
   },
   "dependencies": {
