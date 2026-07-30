@@ -51,7 +51,7 @@ const EnvSchema = Type.Object({
 
   // ZeptoMail (Transactional Email)
   ZEPTOMAIL_TOKEN: Type.Optional(Type.String({ default: '' })),
-  ZEPTOMAIL_FROM_EMAIL: Type.Optional(Type.String({ default: 'noreply@vastrahub.com' })),
+  ZEPTOMAIL_FROM_EMAIL: Type.Optional(Type.String({ default: '' })),
 
   // App
   PORT: Type.Integer({ default: 3001 }),

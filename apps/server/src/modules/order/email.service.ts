@@ -47,7 +47,7 @@ async function getCustomerInfo(userId: mongoose.Types.ObjectId | string): Promis
 export async function sendOrderConfirmationEmail(
   order: IOrderDocument,
   paymentMethod: string,
-  logger?: { error: (...args: unknown[]) => void },
+  logger?: { info: (...args: unknown[]) => void; error: (...args: unknown[]) => void },
 ): Promise<void> {
   try {
     const customer = await getCustomerInfo(order.userId);
