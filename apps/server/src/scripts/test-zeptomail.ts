@@ -1,5 +1,5 @@
 /**
- * Test ZeptoMail Email Dispatch Script
+ * Test ZeptoMail Direct HTTP REST API Dispatch Script
  *
  * Usage from `apps/server`:
  *   npx tsx --env-file=.env src/scripts/test-zeptomail.ts <RECIPIENT_EMAIL>
@@ -8,7 +8,6 @@
 import Fastify from 'fastify';
 import envPlugin, { getConfig } from '../config/env.js';
 import { sendMail } from '../lib/zeptomail.js';
-import { SendMailClient } from 'zeptomail';
 
 async function main() {
   const app = Fastify();
@@ -24,7 +23,8 @@ async function main() {
   const config = getConfig();
 
   console.log('--- ZEPTOMAIL CONFIG CHECK ---');
-  console.log('ZEPTOMAIL_TOKEN:', config.ZEPTOMAIL_TOKEN ? `${config.ZEPTOMAIL_TOKEN.slice(0, 10)}... (length: ${config.ZEPTOMAIL_TOKEN.length})` : 'MISSING');
+  console.log('ZEPTOMAIL_URL:', config.ZEPTOMAIL_URL);
+  console.log('ZEPTOMAIL_TOKEN:', config.ZEPTOMAIL_TOKEN ? `${config.ZEPTOMAIL_TOKEN.slice(0, 15)}... (length: ${config.ZEPTOMAIL_TOKEN.length})` : 'MISSING');
   console.log('ZEPTOMAIL_FROM_EMAIL:', config.ZEPTOMAIL_FROM_EMAIL || 'MISSING');
   console.log('Recipient Email:', recipientEmail);
   console.log('-------------------------------\n');
@@ -34,57 +34,18 @@ async function main() {
     process.exit(1);
   }
 
-  console.log('Attempting to send email via sendMail helper...');
+  console.log('Attempting to send email via sendMail helper (direct fetch)...');
   const success = await sendMail(
     {
       to: { address: recipientEmail, name: 'Test User' },
-      subject: 'ZeptoMail Test Email',
-      htmlBody: '<h1>ZeptoMail Test</h1><p>If you see this, ZeptoMail integration is working!</p>',
+      subject: 'ZeptoMail REST API Test Email',
+      htmlBody: '<h1>ZeptoMail Test</h1><p>If you see this, direct HTTP fetch integration is working!</p>',
     },
     console,
   );
 
   console.log('\nResult of sendMail():', success);
-
-  console.log('\n--- Direct SendMailClient Execution for Inspection ---');
-  try {
-    const client = new SendMailClient({
-      url: config.ZEPTOMAIL_URL || 'api.zeptomail.in/',
-      token: config.ZEPTOMAIL_TOKEN,
-    });
-
-    const response = await client.sendMail({
-      from: {
-        address: config.ZEPTOMAIL_FROM_EMAIL,
-        name: 'VastraHub Test',
-      },
-      to: [
-        {
-          email_address: {
-            address: recipientEmail,
-            name: 'Test User',
-          },
-        },
-      ],
-      subject: 'ZeptoMail Direct Test',
-      htmlbody: '<h1>Direct Test</h1>',
-    });
-
-    console.log('✅ Direct SendMailClient Success!');
-    console.dir(response, { depth: null, colors: true });
-  } catch (err: any) {
-    console.error('❌ Direct SendMailClient Error caught!');
-    console.dir(err, { depth: null, colors: true });
-    if (err && typeof err === 'object') {
-      console.log('Error Keys:', Object.keys(err));
-      console.log('Error Prototype:', Object.getPrototypeOf(err));
-      for (const key of Object.getOwnPropertyNames(err)) {
-        console.log(`err[${key}]:`, err[key]);
-      }
-    }
-  }
-
-  process.exit(0);
+  process.exit(success ? 0 : 1);
 }
 
 main().catch((err) => {

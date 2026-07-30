@@ -33,8 +33,7 @@
     "nanoid": "^5",
     "razorpay": "^2.9.6",
     "sanitize-html": "^2",
-    "slugify": "^1",
-    "zeptomail": "^8.0.1"
+    "slugify": "^1"
   },
   "devDependencies": {
     "@types/node": "^22",
