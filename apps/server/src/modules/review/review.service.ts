@@ -151,7 +151,6 @@ export async function getReviewStats(productId: string) {
       $match: {
         productId: pid,
         isApproved: true,
-        deletedAt: null,
       },
     },
     {
