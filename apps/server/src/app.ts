@@ -17,6 +17,7 @@ import mongoosePlugin from './plugins/mongoose.plugin.js';
 import authPlugin from './plugins/auth.plugin.js';
 import { registerRoutes } from './modules/_index.js';
 import envPlugin, { getConfig } from './config/env.js';
+import { BRAND_CONFIG } from './constants/index.js';
 
 export async function buildApp(): Promise<FastifyInstance> {
   // Create Fastify instance with logger and TypeBox validation
@@ -52,8 +53,8 @@ export async function buildApp(): Promise<FastifyInstance> {
     await app.register(fastifySwagger, {
       openapi: {
         info: {
-          title: 'VastraHub API',
-          description: 'VastraHub E-Commerce API documentation',
+          title: `${BRAND_CONFIG.NAME} API`,
+          description: `${BRAND_CONFIG.NAME} E-Commerce API documentation`,
           version: '1.0.0',
         },
         tags: [
