@@ -18,11 +18,14 @@ let _client: InstanceType<typeof SendMailClient> | null = null;
 function getClient(): InstanceType<typeof SendMailClient> | null {
   if (_client) return _client;
 
-  const token = getConfig().ZEPTOMAIL_TOKEN;
+  const config = getConfig();
+  const token = config.ZEPTOMAIL_TOKEN;
   if (!token) return null;
 
+  const url = config.ZEPTOMAIL_URL || 'https://api.zeptomail.in/v1.1/email';
+
   _client = new SendMailClient({
-    url: 'api.zeptomail.com/',
+    url,
     token,
   });
   return _client;
@@ -50,23 +53,23 @@ export interface ZeptoMailOptions {
  */
 export async function sendMail(
   opts: ZeptoMailOptions,
-  logger?: { info: (...args: unknown[]) => void; error: (...args: unknown[]) => void },
+  logger: { info: (...args: unknown[]) => void; error: (...args: unknown[]) => void } = console,
 ): Promise<boolean> {
   const config = getConfig();
 
   if (!config.ZEPTOMAIL_TOKEN) {
-    logger?.error('[ZeptoMail] ZEPTOMAIL_TOKEN is not configured — email not sent');
+    logger.error('[ZeptoMail] ZEPTOMAIL_TOKEN is not configured — email not sent');
     return false;
   }
 
   if (!config.ZEPTOMAIL_FROM_EMAIL) {
-    logger?.error('[ZeptoMail] ZEPTOMAIL_FROM_EMAIL is not configured — email not sent');
+    logger.error('[ZeptoMail] ZEPTOMAIL_FROM_EMAIL is not configured — email not sent');
     return false;
   }
 
   const client = getClient();
   if (!client) {
-    logger?.error('[ZeptoMail] Failed to initialise mail client — email not sent');
+    logger.error('[ZeptoMail] Failed to initialise mail client — email not sent');
     return false;
   }
 
@@ -87,10 +90,21 @@ export async function sendMail(
       subject: opts.subject,
       htmlbody: opts.htmlBody,
     });
-    logger?.info({ to: opts.to.address, subject: opts.subject }, '[ZeptoMail] Email sent successfully');
+    logger.info({ to: opts.to.address, subject: opts.subject }, '[ZeptoMail] Email sent successfully');
     return true;
-  } catch (err) {
-    logger?.error({ err, to: opts.to.address, subject: opts.subject }, '[ZeptoMail] Failed to send email');
+  } catch (err: any) {
+    // ZeptoMail SDK errors often have nested error objects — extract and format clearly.
+    const errObj = err?.error || err;
+    let formattedError: string;
+    try {
+      formattedError = JSON.stringify(errObj, null, 2);
+    } catch {
+      formattedError = String(errObj);
+    }
+
+    logger.error(
+      `[ZeptoMail] Failed to send email to ${opts.to.address} | Subject: "${opts.subject}" | Error: ${formattedError}`,
+    );
     return false;
   }
 }

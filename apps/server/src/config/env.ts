@@ -52,6 +52,7 @@ const EnvSchema = Type.Object({
   // ZeptoMail (Transactional Email)
   ZEPTOMAIL_TOKEN: Type.Optional(Type.String({ default: '' })),
   ZEPTOMAIL_FROM_EMAIL: Type.Optional(Type.String({ default: '' })),
+  ZEPTOMAIL_URL: Type.String({ default: 'https://api.zeptomail.in/v1.1/email' }),
 
   // App
   PORT: Type.Integer({ default: 3001 }),
