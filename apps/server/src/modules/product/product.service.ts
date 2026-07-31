@@ -62,6 +62,7 @@ export interface UpdateProductInput extends Partial<CreateProductInput> {
   __v?: number;
   averageRating?: number;
   reviewCount?: number;
+  viewCount?: number;
 }
 
 export interface ProductListOpts {
@@ -417,6 +418,7 @@ export async function updateProduct(id: string, data: UpdateProductInput, userId
   }
   if (data.averageRating !== undefined) product.averageRating = data.averageRating;
   if (data.reviewCount !== undefined) product.reviewCount = data.reviewCount;
+  if (data.viewCount !== undefined) product.viewCount = data.viewCount;
 
   await product.save();
 

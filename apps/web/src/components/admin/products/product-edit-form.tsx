@@ -19,6 +19,7 @@ import {
   RefreshCw,
   Upload,
   Star,
+  Eye,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -76,9 +77,10 @@ export function ProductEditForm() {
   const [isFeatured, setIsFeatured] = useState(false);
   const [isActive, setIsActive] = useState(true);
 
-  // ── Ratings fields ──────────────────────────────────────────────────────
+  // ── Ratings / views fields ──────────────────────────────────────────────
   const [averageRating, setAverageRating] = useState("0");
   const [reviewCount, setReviewCount] = useState("0");
+  const [viewCount, setViewCount] = useState("0");
 
   // ── SEO fields ────────────────────────────────────────────────────────────
   const [metaTitle, setMetaTitle] = useState("");
@@ -144,6 +146,7 @@ export function ProductEditForm() {
       setIsActive(p.isActive ?? true);
       setAverageRating(String(p.averageRating ?? 0));
       setReviewCount(String(p.reviewCount ?? 0));
+      setViewCount(String(p.viewCount ?? 0));
       setMetaTitle(p.metadata?.metaTitle ?? "");
       setMetaDescription(
         p.metadata?.metaDescription ?? ""
@@ -314,6 +317,7 @@ export function ProductEditForm() {
   async function handleSaveRatings() {
     const rating = parseFloat(averageRating);
     const count = parseInt(reviewCount);
+    const views = parseInt(viewCount);
     if (isNaN(rating) || rating < 0 || rating > 5) {
       toast.error("Average rating must be between 0 and 5");
       return;
@@ -322,15 +326,20 @@ export function ProductEditForm() {
       toast.error("Review count must be a non-negative number");
       return;
     }
+    if (isNaN(views) || views < 0) {
+      toast.error("View count must be a non-negative number");
+      return;
+    }
     setSaving(true);
     try {
       const body = {
         averageRating: Math.round(rating * 10) / 10,
         reviewCount: count,
+        viewCount: views,
       };
       const res = await api.put(`/api/v1/admin/products/${productId}`, body);
       if (res.success) {
-        toast.success("Ratings updated");
+        toast.success("Ratings & views updated");
         setProduct((p) => (p ? { ...p, ...body } : p));
       } else {
         toast.error(res.error ?? "Failed to save ratings");
@@ -729,7 +738,7 @@ export function ProductEditForm() {
             { value: "variants", label: "Variants & Media" },
             { value: "skus", label: `SKUs (${skus.length})` },
             { value: "settings", label: "SEO & Slug" },
-            { value: "ratings", label: "Ratings" },
+            { value: "ratings", label: "Ratings & Views" },
           ].map((tab) => (
             <TabsTrigger
               key={tab.value}
@@ -1417,14 +1426,13 @@ export function ProductEditForm() {
             <CardHeader>
               <CardTitle className="text-base flex items-center gap-2">
                 <Star className="h-4 w-4 text-amber-500" />
-                Ratings & Reviews
+                Ratings, Reviews & Views
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
               <p className="text-sm text-muted-foreground">
-                Manually control the displayed average rating and review count for this product.
-                These values are typically auto-calculated from customer reviews, but you can
-                override them here.
+                Manually control the displayed average rating, review count, and views for this
+                product. These are display values you set — they are not calculated automatically.
               </p>
 
               {/* Star preview */}
@@ -1451,10 +1459,14 @@ export function ProductEditForm() {
                 <div className="text-sm">
                   <span className="font-semibold text-lg">{(parseFloat(averageRating) || 0).toFixed(1)}</span>
                   <span className="text-muted-foreground ml-1.5">({reviewCount} reviews)</span>
+                  <span className="text-muted-foreground ml-2 inline-flex items-center gap-1">
+                    <Eye className="h-3.5 w-3.5" />
+                    {viewCount} views
+                  </span>
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div className="space-y-2">
                   <Label>Average Rating (0 – 5)</Label>
                   <Input
@@ -1480,12 +1492,24 @@ export function ProductEditForm() {
                   />
                   <p className="text-xs text-muted-foreground">Total number of ratings displayed</p>
                 </div>
+                <div className="space-y-2">
+                  <Label>View Count</Label>
+                  <Input
+                    type="number"
+                    min="0"
+                    step="1"
+                    value={viewCount}
+                    onChange={(e) => setViewCount(e.target.value)}
+                    placeholder="e.g. 1200"
+                  />
+                  <p className="text-xs text-muted-foreground">Displayed product views (manual)</p>
+                </div>
               </div>
 
               <div className="flex justify-end">
                 <Button variant="default" onClick={handleSaveRatings} disabled={saving}>
                   {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                  Save Ratings
+                  Save Ratings & Views
                 </Button>
               </div>
             </CardContent>

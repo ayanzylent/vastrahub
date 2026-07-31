@@ -87,6 +87,7 @@ export interface IProductDocument extends Document, SoftDeleteDocument {
   skuCount: number;
   reviewCount: number;
   averageRating: number;
+  viewCount: number;
   totalStock: number;
   deletedAt: Date | null;
   createdAt: Date;
@@ -295,6 +296,11 @@ const productSchema = new Schema<IProductDocument>(
       default: 0,
       min: 0,
       max: 5,
+    },
+    viewCount: {
+      type: Number,
+      default: 0,
+      min: 0,
     },
     totalStock: {
       type: Number,

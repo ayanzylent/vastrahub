@@ -75,6 +75,7 @@ export const UpdateProductBody = Type.Intersect([
     __v: Type.Optional(Type.Integer({ description: 'Version for optimistic concurrency control' })),
     averageRating: Type.Optional(Type.Number({ minimum: 0, maximum: 5, description: 'Admin override for average rating' })),
     reviewCount: Type.Optional(Type.Integer({ minimum: 0, description: 'Admin override for review count' })),
+    viewCount: Type.Optional(Type.Integer({ minimum: 0, description: 'Admin override for product views count' })),
   }),
 ]);
 export type UpdateProductBodyType = Static<typeof UpdateProductBody>;

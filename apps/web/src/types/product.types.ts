@@ -64,6 +64,8 @@ export interface IProduct extends TimestampFields {
   /** DB field: `averageRating` */
   averageRating: number;
   reviewCount: number;
+  /** Admin-owned display views count (not auto-tracked) */
+  viewCount: number;
   totalStock: number;
   metadata?: {
     metaTitle?: string;

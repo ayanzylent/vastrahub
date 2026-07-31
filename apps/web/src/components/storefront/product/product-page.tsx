@@ -10,6 +10,7 @@ import {
   Share2,
   Star,
   ChevronRight,
+  Eye,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -469,20 +470,31 @@ export function ProductPage({
                 </p>
               )}
 
-              {/* Rating (inline below title) — admin-owned product fields */}
-              {product.averageRating > 0 && (
-                <a
-                  href="#reviews"
-                  className="flex items-center gap-2 mt-2 w-fit hover:opacity-80 transition-opacity"
-                >
-                  <div className="flex items-center gap-1 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 rounded-md px-2 py-0.5 text-sm font-semibold">
-                    <Star className="h-3.5 w-3.5 fill-current" />
-                    {product.averageRating.toFixed(1)}
-                  </div>
-                  <span className="text-sm text-muted-foreground">
-                    {product.reviewCount} {product.reviewCount === 1 ? "Review" : "Reviews"}
-                  </span>
-                </a>
+              {/* Rating / views (inline below title) — admin-owned product fields */}
+              {(product.averageRating > 0 || (product.viewCount ?? 0) > 0) && (
+                <div className="flex items-center gap-3 mt-2 flex-wrap">
+                  {product.averageRating > 0 && (
+                    <a
+                      href="#reviews"
+                      className="flex items-center gap-2 w-fit hover:opacity-80 transition-opacity"
+                    >
+                      <div className="flex items-center gap-1 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 rounded-md px-2 py-0.5 text-sm font-semibold">
+                        <Star className="h-3.5 w-3.5 fill-current" />
+                        {product.averageRating.toFixed(1)}
+                      </div>
+                      <span className="text-sm text-muted-foreground">
+                        {product.reviewCount} {product.reviewCount === 1 ? "Review" : "Reviews"}
+                      </span>
+                    </a>
+                  )}
+                  {(product.viewCount ?? 0) > 0 && (
+                    <span className="flex items-center gap-1.5 text-sm text-muted-foreground">
+                      <Eye className="h-3.5 w-3.5" />
+                      {product.viewCount.toLocaleString()}{" "}
+                      {product.viewCount === 1 ? "view" : "views"}
+                    </span>
+                  )}
+                </div>
               )}
 
               {/* Mobile share icons row */}
