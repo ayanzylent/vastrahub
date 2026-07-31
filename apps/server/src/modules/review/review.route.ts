@@ -38,12 +38,21 @@ export default fp(async function reviewRoutes(fastify: FastifyInstance) {
   }, handler.statsForProduct);
 
   // ---------- Customer routes ----------
+  fastify.get('/api/v1/reviews/eligibility/:productId', {
+    preHandler: [authenticate],
+    schema: {
+      params: ProductReviewsParams,
+      tags: ['Reviews'],
+      summary: 'Check if I can review a product',
+    },
+  }, handler.eligibility);
+
   fastify.post('/api/v1/reviews', {
     preHandler: [authenticate],
     schema: {
       body: CreateReviewBody,
       tags: ['Reviews'],
-      summary: 'Create a review',
+      summary: 'Create a review (requires delivered purchase)',
     },
   }, handler.create);
 

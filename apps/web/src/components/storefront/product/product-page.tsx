@@ -27,6 +27,7 @@ import { ProductSettingsPanel } from "@/components/storefront/product/product-se
 import { ProductGallery } from "@/components/storefront/product/product-gallery";
 import { ProductVariantPicker } from "@/components/storefront/product/product-variant-picker";
 import { ProductInfoAccordion } from "@/components/storefront/product/product-info-accordion";
+import { ProductReviews } from "@/components/storefront/product/product-reviews";
 import type { ProductDetailData } from "@/lib/product-seo";
 
 /* ────────────────────────────────────────────────────────────────
@@ -468,9 +469,12 @@ export function ProductPage({
                 </p>
               )}
 
-              {/* Rating (inline below title) */}
+              {/* Rating (inline below title) — admin-owned product fields */}
               {product.averageRating > 0 && (
-                <div className="flex items-center gap-2 mt-2">
+                <a
+                  href="#reviews"
+                  className="flex items-center gap-2 mt-2 w-fit hover:opacity-80 transition-opacity"
+                >
                   <div className="flex items-center gap-1 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 rounded-md px-2 py-0.5 text-sm font-semibold">
                     <Star className="h-3.5 w-3.5 fill-current" />
                     {product.averageRating.toFixed(1)}
@@ -478,7 +482,7 @@ export function ProductPage({
                   <span className="text-sm text-muted-foreground">
                     {product.reviewCount} {product.reviewCount === 1 ? "Review" : "Reviews"}
                   </span>
-                </div>
+                </a>
               )}
 
               {/* Mobile share icons row */}
@@ -589,6 +593,7 @@ export function ProductPage({
             FULL-WIDTH SECTIONS (below the 2-col grid)
             ═══════════════════════════════════════════ */}
 
+        <ProductReviews productId={product._id} />
 
         {/* ── Similar Products (Sister Products) ── */}
         {product.sisterProducts && product.sisterProducts.length > 0 && (

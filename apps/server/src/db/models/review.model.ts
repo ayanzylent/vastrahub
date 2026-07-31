@@ -1,7 +1,7 @@
 /**
  * Review model.
  * CRITICAL: Uses unified media[] array (image + video), NOT images[].
- * Post-save hook recalculates parent Product's averageRating + reviewCount.
+ * Product averageRating / reviewCount are admin-owned for now (auto-update hook commented out below).
  */
 
 import mongoose, { Schema, type Document, type Model, type Types } from 'mongoose';
@@ -122,43 +122,46 @@ reviewSchema.index({ productId: 1, userId: 1 }, { unique: true });
 reviewSchema.index({ isApproved: 1, isVerifiedPurchase: 1 });
 
 // ---------- Post-save hook: Update Product's averageRating + reviewCount ----------
-
-reviewSchema.post('save', async function (doc: IReviewDocument) {
-  try {
-    const ReviewModel = mongoose.model<IReviewDocument>('Review');
-    const ProductModel = mongoose.model('Product');
-
-    const aggregation = await ReviewModel.aggregate([
-      {
-        $match: {
-          productId: doc.productId,
-          isApproved: true,
-        },
-      },
-      {
-        $group: {
-          _id: null,
-          avgRating: { $avg: '$rating' },
-          count: { $sum: 1 },
-        },
-      },
-    ]);
-
-    const stats = aggregation[0] || { avgRating: 0, count: 0 };
-
-    await ProductModel.updateOne(
-      { _id: doc.productId },
-      {
-        $set: {
-          averageRating: Math.round(stats.avgRating * 10) / 10,
-          reviewCount: stats.count,
-        },
-      },
-    );
-  } catch (err) {
-    console.error('Failed to update product review stats:', (err as Error).message);
-  }
-});
+// Disabled: admin-owned product rating fields must not be overwritten by reviews.
+// Re-enable later (and also restore recalculateProductReviewStats on delete in review.service.ts)
+// if product ratings should follow approved review aggregates again.
+//
+// reviewSchema.post('save', async function (doc: IReviewDocument) {
+//   try {
+//     const ReviewModel = mongoose.model<IReviewDocument>('Review');
+//     const ProductModel = mongoose.model('Product');
+//
+//     const aggregation = await ReviewModel.aggregate([
+//       {
+//         $match: {
+//           productId: doc.productId,
+//           isApproved: true,
+//         },
+//       },
+//       {
+//         $group: {
+//           _id: null,
+//           avgRating: { $avg: '$rating' },
+//           count: { $sum: 1 },
+//         },
+//       },
+//     ]);
+//
+//     const stats = aggregation[0] || { avgRating: 0, count: 0 };
+//
+//     await ProductModel.updateOne(
+//       { _id: doc.productId },
+//       {
+//         $set: {
+//           averageRating: Math.round(stats.avgRating * 10) / 10,
+//           reviewCount: stats.count,
+//         },
+//       },
+//     );
+//   } catch (err) {
+//     console.error('Failed to update product review stats:', (err as Error).message);
+//   }
+// });
 
 // ---------- Export ----------
 

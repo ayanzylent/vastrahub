@@ -185,10 +185,122 @@ export async function getReviewStats(productId: string) {
 
 // ---------- Customer functions ----------
 
+const REVIEWABLE_ORDER_STATUSES = [
+  'delivered',
+  'return_requested',
+  'return_approved',
+  'return_picked_up',
+  'returned',
+] as const;
+
 /**
- * Create a review. One review per user per product (enforced by unique index).
- * If orderId is provided, verifies the order belongs to the user, is delivered,
- * and contains the product — then sets isVerifiedPurchase = true.
+ * Find a delivered (or post-delivery) order for this user that contains the product.
+ */
+async function findEligibleOrderForProduct(
+  userId: mongoose.Types.ObjectId,
+  productId: mongoose.Types.ObjectId,
+  preferredOrderId?: string,
+): Promise<IOrderDocument> {
+  if (preferredOrderId) {
+    if (!mongoose.Types.ObjectId.isValid(preferredOrderId)) {
+      throw new ValidationError('Invalid order ID');
+    }
+
+    const order = await Order.findOne({
+      _id: new mongoose.Types.ObjectId(preferredOrderId),
+      userId,
+    }).lean() as IOrderDocument | null;
+
+    if (!order) {
+      throw new NotFoundError('Order not found or does not belong to you');
+    }
+
+    if (!(REVIEWABLE_ORDER_STATUSES as readonly string[]).includes(order.status)) {
+      throw new ValidationError(
+        'Order must be delivered before you can leave a review',
+      );
+    }
+
+    const hasProduct = order.items.some(
+      (item: { productId: mongoose.Types.ObjectId }) =>
+        item.productId.toString() === productId.toString(),
+    );
+    if (!hasProduct) {
+      throw new ValidationError('This order does not contain the specified product');
+    }
+
+    return order;
+  }
+
+  const order = await Order.findOne({
+    userId,
+    status: { $in: [...REVIEWABLE_ORDER_STATUSES] },
+    'items.productId': productId,
+  })
+    .sort({ createdAt: -1 })
+    .lean() as IOrderDocument | null;
+
+  if (!order) {
+    throw new ValidationError(
+      'You can only review products you have purchased and received',
+    );
+  }
+
+  return order;
+}
+
+/**
+ * Check whether the authenticated user may review a product.
+ */
+export async function getReviewEligibility(userId: string, productId: string) {
+  if (!mongoose.Types.ObjectId.isValid(productId)) {
+    throw new ValidationError('Invalid product ID');
+  }
+
+  const productOid = new mongoose.Types.ObjectId(productId);
+  const userOid = new mongoose.Types.ObjectId(userId);
+
+  const productExists = await Product.exists({ _id: productOid });
+  if (!productExists) {
+    throw new NotFoundError('Product not found');
+  }
+
+  const existing = await Review.findOne({ productId: productOid, userId: userOid })
+    .select({ _id: 1 })
+    .lean();
+  if (existing) {
+    return {
+      eligible: false,
+      alreadyReviewed: true,
+      orderId: null as string | null,
+      reason: 'You have already reviewed this product',
+    };
+  }
+
+  try {
+    const order = await findEligibleOrderForProduct(userOid, productOid);
+    return {
+      eligible: true,
+      alreadyReviewed: false,
+      orderId: order._id.toString(),
+      reason: null as string | null,
+    };
+  } catch (err) {
+    if (err instanceof ValidationError || err instanceof NotFoundError) {
+      return {
+        eligible: false,
+        alreadyReviewed: false,
+        orderId: null as string | null,
+        reason: err.message,
+      };
+    }
+    throw err;
+  }
+}
+
+/**
+ * Create a review. Requires a delivered purchase of the product.
+ * One review per user per product (enforced by unique index).
  */
 export async function createReview(userId: string, data: CreateReviewInput) {
   if (!mongoose.Types.ObjectId.isValid(data.productId)) {
@@ -210,50 +322,18 @@ export async function createReview(userId: string, data: CreateReviewInput) {
     throw new ConflictError('You have already reviewed this product');
   }
 
-  let isVerifiedPurchase = false;
-
-  // Verify order if orderId provided
-  if (data.orderId) {
-    if (!mongoose.Types.ObjectId.isValid(data.orderId)) {
-      throw new ValidationError('Invalid order ID');
-    }
-    const orderOid = new mongoose.Types.ObjectId(data.orderId);
-
-    const order = await Order.findOne({
-      _id: orderOid,
-      userId: userOid,
-    }).lean() as IOrderDocument | null;
-
-    if (!order) {
-      throw new NotFoundError('Order not found or does not belong to you');
-    }
-
-    if (order.status !== 'delivered') {
-      throw new ValidationError('Order must be delivered before you can leave a verified review');
-    }
-
-    // Check that order contains the product
-    const hasProduct = order.items.some(
-      (item: { productId: mongoose.Types.ObjectId }) =>
-        item.productId.toString() === data.productId,
-    );
-    if (!hasProduct) {
-      throw new ValidationError('This order does not contain the specified product');
-    }
-
-    isVerifiedPurchase = true;
-  }
+  const order = await findEligibleOrderForProduct(userOid, productOid, data.orderId);
 
   const review = await Review.create({
     productId: productOid,
     userId: userOid,
-    orderId: data.orderId ? new mongoose.Types.ObjectId(data.orderId) : undefined,
+    orderId: order._id,
     rating: data.rating,
     title: data.title,
     body: data.body,
     media: data.media ?? [],
-    isVerifiedPurchase,
-    isApproved: false,
+    isVerifiedPurchase: true,
+    isApproved: true,
     isFlagged: false,
   });
 
@@ -261,7 +341,7 @@ export async function createReview(userId: string, data: CreateReviewInput) {
 }
 
 /**
- * Update own review. Resets isApproved to false (re-approval needed).
+ * Update own review. Stays approved during quiet-time (no re-moderation).
  */
 export async function updateReview(
   userId: string,
@@ -286,8 +366,7 @@ export async function updateReview(
   if (data.rating !== undefined) review.rating = data.rating;
   if (data.media !== undefined) review.media = data.media;
 
-  // Reset approval on edit
-  review.isApproved = false;
+  review.isApproved = true;
 
   await review.save();
   return review.toObject();
@@ -295,37 +374,38 @@ export async function updateReview(
 
 /**
  * Recalculate a product's averageRating and reviewCount.
- * Must be called after hard-deleting a review (post-save hook only fires on save).
+ * Disabled with the review post-save hook — admin owns those product fields.
+ * Re-enable alongside the hook in review.model.ts when auto-aggregation is desired again.
  */
-async function recalculateProductReviewStats(productId: mongoose.Types.ObjectId) {
-  const aggregation = await Review.aggregate([
-    {
-      $match: {
-        productId,
-        isApproved: true,
-      },
-    },
-    {
-      $group: {
-        _id: null,
-        avgRating: { $avg: '$rating' },
-        count: { $sum: 1 },
-      },
-    },
-  ]);
-
-  const stats = aggregation[0] || { avgRating: 0, count: 0 };
-
-  await Product.updateOne(
-    { _id: productId },
-    {
-      $set: {
-        averageRating: Math.round(stats.avgRating * 10) / 10,
-        reviewCount: stats.count,
-      },
-    },
-  );
-}
+// async function recalculateProductReviewStats(productId: mongoose.Types.ObjectId) {
+//   const aggregation = await Review.aggregate([
+//     {
+//       $match: {
+//         productId,
+//         isApproved: true,
+//       },
+//     },
+//     {
+//       $group: {
+//         _id: null,
+//         avgRating: { $avg: '$rating' },
+//         count: { $sum: 1 },
+//       },
+//     },
+//   ]);
+//
+//   const stats = aggregation[0] || { avgRating: 0, count: 0 };
+//
+//   await Product.updateOne(
+//     { _id: productId },
+//     {
+//       $set: {
+//         averageRating: Math.round(stats.avgRating * 10) / 10,
+//         reviewCount: stats.count,
+//       },
+//     },
+//   );
+// }
 
 /**
  * Hard-delete own review.
@@ -344,11 +424,11 @@ export async function deleteReview(userId: string, reviewId: string) {
     throw new NotFoundError('Review not found');
   }
 
-  const productId = review.productId;
+  // const productId = review.productId;
   await Review.deleteOne({ _id: review._id });
 
   // Recalculate product stats since post-save hook doesn't fire on deleteOne
-  await recalculateProductReviewStats(productId);
+  // await recalculateProductReviewStats(productId);
 
   return { deleted: true };
 }
@@ -493,11 +573,11 @@ export async function adminDeleteReview(reviewId: string) {
     throw new NotFoundError('Review not found');
   }
 
-  const productId = review.productId;
+  // const productId = review.productId;
   await Review.deleteOne({ _id: review._id });
 
   // Recalculate product stats since post-save hook doesn't fire on deleteOne
-  await recalculateProductReviewStats(productId);
+  // await recalculateProductReviewStats(productId);
 
   return { deleted: true };
 }

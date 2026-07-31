@@ -36,6 +36,13 @@ export async function create(request: FastifyRequest, reply: FastifyReply) {
   return reply.status(201).send({ success: true, data: result, statusCode: 201 });
 }
 
+export async function eligibility(request: FastifyRequest, reply: FastifyReply) {
+  const userId = request.user!.id;
+  const { productId } = request.params as { productId: string };
+  const result = await service.getReviewEligibility(userId, productId);
+  return reply.status(200).send({ success: true, data: result, statusCode: 200 });
+}
+
 export async function update(request: FastifyRequest, reply: FastifyReply) {
   const userId = request.user!.id;
   const { id } = request.params as { id: string };
